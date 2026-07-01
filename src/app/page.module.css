@@ -1,0 +1,51 @@
+.loginBackground { 
+    width: 100%;
+    width: 1440px;
+    height: 100vh;
+    position: relative;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.backgroundImage {
+    object-fit: cover;
+    object-position: center;
+}
+
+.login {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 562px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1;
+    background: var(--grey50);
+    padding: 92px 0;
+}
+
+.login .loginLogo {
+    width: 252px;
+    height: 32px;
+}
+
+.login .formGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.login .formGroup input {
+    width: 282px;
+    height: 53px;
+    background-color: white;
+    border-radius: 4px;
+}
+
+.login .registerLink {
+    color: var(--dark-orange);
+    text-decoration: underline;
+    margin-left: 10px;
+}
