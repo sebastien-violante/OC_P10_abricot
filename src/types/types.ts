@@ -25,3 +25,25 @@ export type AuthenticateResult = {
     data?: AuthenticateData;
     details?: Details;
 }
+
+export type FormData = {
+    email: string;
+    password: string;
+}
+
+export type FormErrors = {
+    email?: string;
+    password?: string;
+    credential?: string;
+}
+
+export type FetchErrors = string
+
+export type FetchSuccessData = {
+    data: {
+        token: string;
+    }
+    user?: {
+        email: string;
+    };
+};
