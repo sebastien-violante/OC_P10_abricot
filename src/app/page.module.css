@@ -27,6 +27,21 @@
     padding: 92px 0;
 }
 
+.login .loginForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login .formTitle {
+    width: 100%;
+    text-align: center;
+    color: var(--dark-orange);
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
 .login .loginLogo {
     width: 252px;
     height: 32px;
@@ -35,6 +50,11 @@
 .login .formGroup {
     display: flex;
     flex-direction: column;
+    margin-bottom: 30px;
+}
+
+.login .formGroup label {
+    font-size: 14px;
 }
 
 .login .formGroup input {
@@ -42,10 +62,24 @@
     height: 53px;
     background-color: white;
     border-radius: 4px;
+    border: 1px solid var(--grey200);
 }
 
 .login .registerLink {
     color: var(--dark-orange);
     text-decoration: underline;
     margin-left: 10px;
+}
+
+.login .btnSubmit {
+    width: 250px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background: black;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 20px;
 }

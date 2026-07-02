@@ -37,7 +37,7 @@ export default function Login() {
                 <section className={styles.login}>
                     <img className={styles.loginLogo} src="/pictures/static/logo-orange.svg"/>
                     <form className={styles.loginForm} onSubmit={handleSubmit}>
-                        <h1>Connexion</h1>
+                        <h1 className={styles.formTitle}>Connexion</h1>
                         <section className={styles.formGroup}>
                             <label htmlFor="email">Email</label>
                             <input type="email" name="email" required />
@@ -46,7 +46,8 @@ export default function Login() {
                             <label htmlFor="password">Mot de passe</label>
                             <input type="password" name="password" required />
                         </section>
-                        <button type="submit">Se connecter</button>
+                        <button className={styles.btnSubmit} type="submit">Se connecter</button>
+                        <Link className={styles.registerLink} href="#">Mot de passe oublié ?</Link>
                     </form>
                     <p>Pas encore de compte ? <Link className={styles.registerLink} href="#">Créer un compte</Link></p>
                 </section>
