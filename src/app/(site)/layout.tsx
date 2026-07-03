@@ -8,11 +8,11 @@ export default function SiteLayout({
 }>) {
   return (
     <>
-     <Header />
+      <Header />
         <main>
             {children}
         </main>
-      <Footer />
+      <Footer />     
     </>
   );
 }

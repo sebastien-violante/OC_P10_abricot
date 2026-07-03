@@ -7,12 +7,12 @@ import validateForm from './utils/validateForm'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { SubmitEvent, ChangeEvent } from 'react'
+import Cookies from "js-cookie"
 import { AuthenticateResult, FormData, FormErrors, FetchErrors, FetchSuccessData } from '../types/types'
 
 export default function Login() {
 
     const router = useRouter()
-
     const [formData, setFormData] = useState<FormData>({
         email: "",
         password: "",
@@ -68,12 +68,19 @@ export default function Login() {
                 }
 
                 const data: FetchSuccessData = await response.json();
-                console.log(data)
                 if (!data.data.token) {
                     throw new Error("Token manquant dans la réponse");
+                } else {
+                    console.log(data.data.token)
+                    Cookies.set('token', data.data.token, {
+                        expires: 1 / 24,
+                        secure: true,
+                        sameSite: 'strict',
+                        });
+                    router.push('/dashboard')
                 }
                 
-                router.push('/dashboard')
+                
                 
 
             } catch(error) {
