@@ -4,7 +4,7 @@ import styles from './page.module.css'
 import Image from 'next/image'
 import Link from 'next/link'
 import validateForm from './utils/validateForm'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { SubmitEvent, ChangeEvent } from 'react'
 import Cookies from "js-cookie"
@@ -19,9 +19,21 @@ export default function Login() {
     });
 
     const [formErrors, setFormErrors] = useState<FormErrors>({})
-
     const [fetchErrors, setFetchErrors] = useState<FetchErrors>("")
+    const [flashMessage, setFlashMessage] = useState<string | null>(null)
 
+    useEffect(() => {
+        const flash = sessionStorage.getItem('flash')
+            
+            if(!flash) return 
+            setFlashMessage(flash)
+            sessionStorage.removeItem('flash')
+            const timer =window.setTimeout(() => {
+                setFlashMessage(null);
+            }, 3000);
+            return () => window.clearTimeout(timer);
+        
+    }, [])
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target 
         setFormData((prev) => ({...prev, [name]: value}))
@@ -102,6 +114,11 @@ export default function Login() {
                 <section className={styles.login}>
                     <img className={styles.loginLogo} src="/pictures/static/logo-orange.svg"/>
                     <form className={styles.loginForm} onSubmit={handleSubmit}>
+                        {flashMessage && (
+                            <div className="bg-green-100 text-green-700 p-2 rounded">
+                                {flashMessage}
+                            </div>
+                        )}
                         <h1 className={styles.formTitle}>Connexion</h1>
                         {fetchErrors && (<span id="firstname-error" role="alert">{fetchErrors}</span>)}
 

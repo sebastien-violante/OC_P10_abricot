@@ -29,12 +29,14 @@ export type AuthenticateResult = {
 export type FormData = {
     email: string;
     password: string;
+    name?: string;
+    type?: string;
 }
 
 export type FormErrors = {
     email?: string;
     password?: string;
-    credential?: string;
+    name?: string;
 }
 
 export type FetchErrors = string
