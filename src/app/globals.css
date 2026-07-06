@@ -6,6 +6,7 @@
   --dark-orange: #D3590B;
   --light-orange: #FFE8D9;
   --grey950: #0F0F0F;
+  --grey800: #1F1F1F;
   --grey600: #6B7280;
   --grey400: #9CA3AF;
   --grey200: #E5E7EB;
@@ -18,3 +19,4 @@ body {
   max-width: 1440px;
   margin: auto;
 }
+
