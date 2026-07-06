@@ -6,6 +6,8 @@ export type User = {
     updatedAt: string;
 }
 
+export type Token = string;
+
 export type AuthenticateData = {
     user: User;
     token: string;
@@ -49,3 +51,51 @@ export type FetchSuccessData = {
         email: string;
     };
 };
+
+export type Assignee = {
+    id: string;
+    userId: string;
+    taskId: string;
+    user: User;
+    assignedAt: string
+}
+
+export type Author = {
+    id: string;
+    email: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+}
+export type Comment = {
+    id : string;
+    content : string;
+    taskId : string;
+    authorId: string;
+    author: Author;
+    createdAt : string;
+    updatedAt: string;
+}
+
+export type Task = {
+    id: string;
+    title : string;
+    description : string;
+    status : "TODO" | "IN_PROGRESS" | "DONE";
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    dueDate: string;
+    projectId : string;
+    creatorId: string;
+    assignees : Assignee[];
+    comments: Comment[];
+    createdAt : string;
+    updatedAt : string;
+}
+
+export type TasksResponse = {
+     success: boolean;
+    message: string;
+    data: {
+        tasks: Task[];
+    };
+}
