@@ -52,6 +52,12 @@ export type FetchSuccessData = {
     };
 };
 
+export type Project = {
+    id: string;
+    name: string;
+    description: string;
+}
+
 export type Assignee = {
     id: string;
     userId: string;
@@ -90,6 +96,7 @@ export type Task = {
     comments: Comment[];
     createdAt : string;
     updatedAt : string;
+    project: Project;
 }
 
 export type TasksResponse = {

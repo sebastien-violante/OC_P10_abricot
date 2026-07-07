@@ -25,7 +25,7 @@ export default function Dashboard() {
             router.push('/')
             return
         }
-
+        console.log(token)
         const authToken = token;
         async function loadDashboard() {
             try {
