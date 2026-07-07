@@ -1,0 +1,4 @@
+.kanbanStripe {
+    display: flex;
+    flex-direction: column;
+}

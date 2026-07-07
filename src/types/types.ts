@@ -106,3 +106,9 @@ export type TasksResponse = {
         tasks: Task[];
     };
 }
+
+export type KanbanLists = {
+    todoTasks : Task[];
+    inProgressTasks : Task[];
+    doneTasks : Task[];
+}

@@ -1,0 +1,14 @@
+.statusType {
+    border-radius: 10px;
+    padding: 4px 16px;
+}
+
+.red {
+    color: red;
+    background: #FFE0E0;
+}
+
+.yellow {
+    color: orange;
+    background: #FFF0D7;
+}

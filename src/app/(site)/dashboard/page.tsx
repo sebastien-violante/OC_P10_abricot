@@ -7,18 +7,23 @@ import Button from "@/components/Button/Button";
 import TaskStrip from "@/components/TaskStrip/TaskStrip";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { User, Task } from "@/types/types";
+import { User, Task, KanbanLists } from "@/types/types";
 import fetchTasks from "@/app/utils/fetchTasks";
 import fetchProfile from "@/app/utils/fetchProfile";
+import filterTasksByDate from "@/app/utils/filterTasksByDate";
+import filterTasksByStatus from "@/app/utils/filterTasksByStatus";
+import KanbanStripe from "@/components/KanbanStripe/KanbanStripe";
 
 export default function Dashboard() {
     
     // Récupération du token dans les cookies
     const router = useRouter()
-    const token = Cookies.get('token');
-    const [user, setUser] = useState<User | null>(null);
-    const [tasks, setTasks] = useState<Task[] | null>(null)
-    const [loading, setLoading] = useState(true);
+    const token = Cookies.get('token')
+    const [user, setUser] = useState<User | null>(null)
+    const [tasksByDate, setTasksByDate] = useState<Task[] | null>(null)
+    const [tasksForKanban, setTasksForKanban] = useState<KanbanLists | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [kanban, setKanban] = useState(true)
     
     useEffect (() => {
         if(!token) {
@@ -35,8 +40,10 @@ export default function Dashboard() {
                 ]);
                 setUser(profile);
                 localStorage.setItem("user", JSON.stringify(profile.user));
-                setTasks(tasks);
-                console.log(tasks)
+                const filteredTasksByDate = filterTasksByDate(tasks)
+                setTasksByDate(filteredTasksByDate);
+                const filteredTasksByStatus = filterTasksByStatus(tasks)
+                setTasksForKanban(filteredTasksByStatus);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -62,16 +69,37 @@ export default function Dashboard() {
 }
     return (
         <>
-        <div className={styles.sectionWrapper}>
+        <section className={styles.sectionWrapper}>
             <Banner title={title} subtitle={subtitle}>
                 <Button type={"black"} width={"xlarge"} onClick={handleClick}>+ Créer un projet</Button>
             </Banner>
-        </div>
-        
-        {tasks?.map((task) => (
+        </section>
+        <section className={styles.chooseDisplay}>
+            <button className={styles.displayBtn}>
+                <img src="pictures/static/coche-orange.svg"/>
+                Liste
+            </button>
+            <button className={styles.displayBtn}>
+                <img src="pictures/static/calendar-orange.svg"/>
+                Kanban
+            </button>
+        </section>
+        {!kanban && (
+            tasksByDate?.map((task) => (
             <div key={task.id}><TaskStrip task={task}/></div>
-            ))   
-        } 
+            ))
+        )}
+        {kanban && (
+            <section className={styles.kanbanWrapper}>
+                <KanbanStripe tasks={tasksForKanban?.todoTasks ?? []}/>
+                <KanbanStripe tasks={tasksForKanban?.inProgressTasks ?? []}/>
+                <KanbanStripe tasks={tasksForKanban?.doneTasks ?? []}/>
+                   
+                
+                
+            </section>
+        )}
+        
 
         </>
         

@@ -1,0 +1,24 @@
+.taskTag {
+    display: flex;
+}
+
+.taskTag .project,
+.taskTag .calendar,
+.taskTag .message {
+    display: flex;
+    gap: 8px
+}
+
+.taskTag .calendar {
+    border-left: 1px solid var(--grey400);
+    border-right: 1px solid var(--grey400);
+    padding: 0 15px;
+}
+
+.taskTag .project {
+    padding-right: 15px;
+}
+
+.taskTag .message {
+    padding-left: 15px;
+}
