@@ -4,6 +4,7 @@ import Cookies from "js-cookie"
 import styles from './page.module.css'
 import Banner from "@/components/Banner/Banner";
 import Button from "@/components/Button/Button";
+import TaskStrip from "@/components/TaskStrip/TaskStrip";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { User, Task } from "@/types/types";
@@ -66,10 +67,12 @@ export default function Dashboard() {
                 <Button type={"black"} width={"xlarge"} onClick={handleClick}>+ Créer un projet</Button>
             </Banner>
         </div>
-        {tasks?.map((task) =>{
-            <div key={task.id}>{task.title}</div>
-            })    
-}
+        
+        {tasks?.map((task) => (
+            <div key={task.id}><TaskStrip task={task}/></div>
+            ))   
+        } 
+
         </>
         
     )
