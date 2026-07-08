@@ -12,7 +12,7 @@ import fetchTasks from "@/app/utils/fetchTasks";
 import fetchProfile from "@/app/utils/fetchProfile";
 import filterTasksByDate from "@/app/utils/filterTasksByDate";
 import filterTasksByStatus from "@/app/utils/filterTasksByStatus";
-import KanbanStripe from "@/components/KanbanStripe/KanbanStripe";
+import KanbanColumn from "@/components/KanbanColumn/KanbanColumn";
 
 export default function Dashboard() {
     
@@ -91,9 +91,9 @@ export default function Dashboard() {
         )}
         {kanban && (
             <section className={styles.kanbanWrapper}>
-                <KanbanStripe tasks={tasksForKanban?.todoTasks ?? []}/>
-                <KanbanStripe tasks={tasksForKanban?.inProgressTasks ?? []}/>
-                <KanbanStripe tasks={tasksForKanban?.doneTasks ?? []}/>
+                <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []}/>
+                <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []}/>
+                <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []}/>
                    
                 
                 
