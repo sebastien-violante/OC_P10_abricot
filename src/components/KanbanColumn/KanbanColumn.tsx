@@ -8,7 +8,7 @@ type KanbanColumnProps = {
 }
 export default function KanbanColumn({ tasks, title }: KanbanColumnProps) {
     return (
-        <section className={styles.kanbanStripe}>
+        <section className={styles.kanbanColumn}>
             <h2>{title}</h2>
             {tasks.map((task) => (
                 <div key={task.id}><TaskStrip task={task}/></div>

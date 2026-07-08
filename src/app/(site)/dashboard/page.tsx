@@ -30,7 +30,6 @@ export default function Dashboard() {
             router.push('/')
             return
         }
-        console.log(token)
         const authToken = token;
         async function loadDashboard() {
             try {
@@ -49,15 +48,15 @@ export default function Dashboard() {
             } finally {
                 setLoading(false);
             }
-    }
+       }
 
     loadDashboard();
-}, [token, router]);
+    }, [token, router]);
 
     const title="Tableau de bord"
     const subtitle=`Bonjour ${user?.name}, voici un aperçu de vors projets et tâches`
     const handleClick = () => {
-        console.log('cliqué')
+        
     }
 
     if (loading) {
@@ -75,11 +74,17 @@ export default function Dashboard() {
             </Banner>
         </section>
         <section className={styles.chooseDisplay}>
-            <button className={styles.displayBtn}>
+            <button 
+                className={`styles.displayBtn ${!kanban ? styles.selected : ""}`}
+                onClick={()=>setKanban(false)}
+            >
                 <img src="pictures/static/coche-orange.svg"/>
                 Liste
             </button>
-            <button className={styles.displayBtn}>
+            <button 
+                className={`styles.displayBtn ${kanban ? styles.selected : ""}`}
+                onClick={()=>setKanban(true)}
+            >
                 <img src="pictures/static/calendar-orange.svg"/>
                 Kanban
             </button>
@@ -94,9 +99,6 @@ export default function Dashboard() {
                 <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []}/>
                 <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []}/>
                 <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []}/>
-                   
-                
-                
             </section>
         )}
         

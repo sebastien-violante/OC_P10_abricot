@@ -1,11 +1,3 @@
-export type User = {
-    id: string;
-    email: string;
-    name: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
 export type Token = string;
 
 export type AuthenticateData = {
@@ -52,12 +44,6 @@ export type FetchSuccessData = {
     };
 };
 
-export type Project = {
-    id: string;
-    name: string;
-    description: string;
-}
-
 export type Assignee = {
     id: string;
     userId: string;
@@ -100,7 +86,7 @@ export type Task = {
 }
 
 export type TasksResponse = {
-     success: boolean;
+    success: boolean;
     message: string;
     data: {
         tasks: Task[];
@@ -111,4 +97,46 @@ export type KanbanLists = {
     todoTasks : Task[];
     inProgressTasks : Task[];
     doneTasks : Task[];
+}
+
+export type ProjectResponse = {
+    success: boolean;
+    message: string;
+    data: {
+        projects: Project[];
+    }
+}
+
+export type Project = {
+    id: string;
+    name: string;
+    description: string;
+    ownerId: string;
+    owner: Owner;
+    members: Member[];
+    createdAt: string;
+    updatedAt: string;
+}
+
+export type Owner = {
+    id: string;
+    email: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export type Member = {
+    id: string;
+    role: string;
+    user : User;
+    joinedAt: string;
+}
+
+export type User = {
+    id: string;
+    email: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
 }
