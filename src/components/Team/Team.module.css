@@ -1,0 +1,14 @@
+.teamLabel {
+    display: flex;
+    gap: 8px;
+}
+
+.teamComposition {
+    display: flex;
+    gap: 8px;
+}
+
+.teamLabel {
+    font-size: 10px;
+    color: var(--grey600);
+}

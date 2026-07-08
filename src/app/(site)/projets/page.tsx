@@ -1,10 +1,12 @@
 'use client'
 
+import styles from './page.module.css';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import fetchProjects   from "@/app/utils/fetchProjects";
 import { Project } from "@/types/types";
+import ProjectCard from "@/components/ProjectCard/ProjectCard";
 
 export default function Projects() {
     
@@ -23,6 +25,7 @@ export default function Projects() {
                 try {
                     const projects = await fetchProjects({ token: authToken })
                     setProjects(projects)
+                    console.log(projects)
                 } catch (error) {
                     console.error(error);
                 } finally {
@@ -35,6 +38,16 @@ export default function Projects() {
 
 
     return (
-        <p>Projets</p>
+        <>
+            <div class={styles.projectsWrapper}>
+                 { projects?.map((project) => (
+                    <ProjectCard key={project.id} project={project} />
+                ))}
+            </div>
+         
+        </>
     )
+
+       
+      
 }

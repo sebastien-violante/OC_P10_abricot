@@ -1,0 +1,23 @@
+.cardWrapper {
+    width: 380px;
+    height: 381px;
+    border: 1px solid var(--grey200);
+    border-radius: 10px;
+    padding: 30px 34px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cardWrapper .cardTitle {
+    font-size: 18px;
+    color: var(--grey800);
+    margin-bottom: 8px;
+}
+
+.cardWrapper .cardSubTitle {
+    font-size: 14px;
+    color: var(--grey600);
+    line-height: 1.2;
+    text-align: justify;
+}
