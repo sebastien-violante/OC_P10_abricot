@@ -23,5 +23,6 @@ export default async function fetchProjects({token}: fetchProjectsProps) {
     }
 
     const data: ProjectResponse = await response.json()
+    console.log(data.data.projects)
     return data.data.projects
 }

@@ -116,6 +116,7 @@ export type Project = {
     members: Member[];
     createdAt: string;
     updatedAt: string;
+    tasks: Task[];
 }
 
 export type Owner = {

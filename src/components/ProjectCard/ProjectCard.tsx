@@ -1,12 +1,14 @@
 import styles from './ProjectCard.module.css'
 import { Project } from '@/types/types'
 import Team from '../Team/Team'
+import ProgressBar from '../ProgressBar/ProgressBar'
 
 type ProjectCardProps = {
     project: Project;
 }
 
 export default function ProjectCard({project}: ProjectCardProps) {
+
     return (
         <>
             <article className={styles.cardWrapper}>
@@ -14,8 +16,8 @@ export default function ProjectCard({project}: ProjectCardProps) {
                     <h2 className={styles.cardTitle}>{project.name}</h2>
                     <h3 className={styles.cardSubTitle}>{project.description}</h3>
                 </div>
-                
-                <Team />
+                <ProgressBar project={project} />
+                <Team project={project}/>
             </article>
             
         </>

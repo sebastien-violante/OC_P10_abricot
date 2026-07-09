@@ -83,7 +83,7 @@ export default function Login() {
                 if (!data.data.token) {
                     throw new Error("Token manquant dans la réponse");
                 } else {
-                    console.log(data.data.token)
+                   
                     Cookies.set('token', data.data.token, {
                         expires: 1 / 24,
                         secure: true,
@@ -91,10 +91,6 @@ export default function Login() {
                         });
                     router.push('/dashboard')
                 }
-                
-                
-                
-
             } catch(error) {
 
                 if (error instanceof Error) {

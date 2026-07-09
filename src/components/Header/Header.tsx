@@ -1,8 +1,23 @@
+'use client'
+
 import styles from './Header.module.css'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import getInitials from '@/app/utils/getInitials'
 
 export default function Header() {
+
+    const [initials, setInitials] = useState<string | null>(null)
+    
+    useEffect(() => {
+        const user = localStorage.getItem('user')
+        if(user) {
+             setInitials(getInitials(user))
+        }
+  
+    }, [])
+
     return (
         <header className={styles.header}>
             <Image height={20} width={147} alt="logo du site" src="/pictures/static/logo-orange.svg"/>
@@ -22,7 +37,7 @@ export default function Header() {
                     </li>
                 </ul>
             </nav>
-            <div className={styles.idTag}>AC</div>  
+            <div className={styles.idTag}>{initials}</div>  
         </header>
     )
 }

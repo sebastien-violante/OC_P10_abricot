@@ -1,0 +1,17 @@
+.progressBar {
+    position: absolute;
+    top: 50%;
+    width: 312px;
+}
+
+.label {
+    font-size: 12px;
+    color: var(--grey600);
+    margin-bottom: 16px;
+}
+
+.counters {
+    font-size: 10px;
+    color: var(--grey600);
+    margin-top: 8px;
+}

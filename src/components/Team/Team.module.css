@@ -12,3 +12,48 @@
     font-size: 10px;
     color: var(--grey600);
 }
+
+.ownerBadge {
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--light-orange);
+    font-size: 10px;
+    color: var(--grey950)
+}
+
+.memberBadge {
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--grey200);
+    font-size: 10px;
+    color: var(--grey950)
+}
+
+.ownerLabel {
+    width: 110px;
+    background: var(--light-orange);
+    color: var(--dark-orange);
+    font-size: 14px;
+    height: 27px;
+    border-radius: 50px;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.memberBadges {
+    display: flex;
+}
+
+.memberBadge:not(:first-child) {
+  margin-left: -8px;
+  border: 1px solid white;
+}

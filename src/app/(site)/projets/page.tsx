@@ -12,6 +12,7 @@ export default function Projects() {
     
     const router = useRouter()
     const token = Cookies.get('token')
+    console.log(token)
     const [projects, setProjects] = useState<Project[] | null>(null)
     const [loading, setLoading] = useState(true)
     useEffect (() => {
@@ -39,7 +40,7 @@ export default function Projects() {
 
     return (
         <>
-            <div class={styles.projectsWrapper}>
+            <div className={styles.projectsWrapper}>
                  { projects?.map((project) => (
                     <ProjectCard key={project.id} project={project} />
                 ))}
