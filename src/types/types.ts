@@ -141,3 +141,14 @@ export type User = {
     createdAt: string;
     updatedAt: string;
 }
+
+export type ProfileContextType = {
+  profile: Profile | null
+  setProfile: React.Dispatch<React.SetStateAction<Profile | null>>
+}
+
+export type Profile = {
+    email: string;
+    id: string;
+    name: string;
+}

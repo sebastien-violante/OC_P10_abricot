@@ -13,18 +13,18 @@ import fetchProfile from "@/app/utils/fetchProfile";
 import filterTasksByDate from "@/app/utils/filterTasksByDate";
 import filterTasksByStatus from "@/app/utils/filterTasksByStatus";
 import KanbanColumn from "@/components/KanbanColumn/KanbanColumn";
+import { useProfile } from '@/app/context/profileContext'
 
 export default function Dashboard() {
     
-    // Récupération du token dans les cookies
     const router = useRouter()
     const token = Cookies.get('token')
-    const [user, setUser] = useState<User | null>(null)
     const [tasksByDate, setTasksByDate] = useState<Task[] | null>(null)
     const [tasksForKanban, setTasksForKanban] = useState<KanbanLists | null>(null)
     const [loading, setLoading] = useState(true)
     const [kanban, setKanban] = useState(true)
-    
+    const { profile, setProfile } = useProfile()
+
     useEffect (() => {
         if(!token) {
             router.push('/')
@@ -33,12 +33,7 @@ export default function Dashboard() {
         const authToken = token;
         async function loadDashboard() {
             try {
-                const [profile, tasks] = await Promise.all([
-                    fetchProfile({ token: authToken }),
-                    fetchTasks({ token: authToken }),
-                ]);
-                setUser(profile);
-                localStorage.setItem("user", JSON.stringify(profile.user));
+                const tasks = await fetchTasks({ token: authToken })            
                 const filteredTasksByDate = filterTasksByDate(tasks)
                 setTasksByDate(filteredTasksByDate);
                 const filteredTasksByStatus = filterTasksByStatus(tasks)
@@ -54,7 +49,7 @@ export default function Dashboard() {
     }, [token, router]);
 
     const title="Tableau de bord"
-    const subtitle=`Bonjour ${user?.name}, voici un aperçu de vors projets et tâches`
+    const subtitle=`Bonjour ${profile?.name}, voici un aperçu de vors projets et tâches`
     const handleClick = () => {
         
     }

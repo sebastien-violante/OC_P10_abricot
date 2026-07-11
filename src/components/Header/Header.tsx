@@ -3,20 +3,18 @@
 import styles from './Header.module.css'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import getInitials from '@/app/utils/getInitials'
+import { useProfile } from '@/app/context/profileContext'
+import { useMemo } from 'react'
 
 export default function Header() {
 
-    const [initials, setInitials] = useState<string | null>(null)
+    const { profile } = useProfile()
+    const initials = useMemo(
+        () => profile ? getInitials(profile.name) : '',
+        [profile]
+    )
     
-    useEffect(() => {
-        const user = localStorage.getItem('user')
-        if(user) {
-             setInitials(getInitials(user))
-        }
-  
-    }, [])
 
     return (
         <header className={styles.header}>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ProfileProvider } from '@/app/context/profileContext'
 
 const inter = Inter({
   variable: "--inter",
@@ -21,7 +22,9 @@ export default function RootLayout({
 
       <html lang="fr" className={`${inter.variable} h-full antialiased`}>
         <body>
-          {children}
+          <ProfileProvider>
+            {children}
+          </ProfileProvider>
         </body>
       </html>
   );
