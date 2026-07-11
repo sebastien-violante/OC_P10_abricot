@@ -6,6 +6,7 @@ import Link from 'next/link'
 import getInitials from '@/app/utils/getInitials'
 import { useProfile } from '@/app/context/profileContext'
 import { useMemo } from 'react'
+import { usePathname } from 'next/navigation'
 
 export default function Header() {
 
@@ -14,21 +15,23 @@ export default function Header() {
         () => profile ? getInitials(profile.name) : '',
         [profile]
     )
-    
+    const pathname = usePathname()
+    const isDashboard = pathname === "/dashboard"
+    const isProjects = pathname === '/projets'
 
     return (
         <header className={styles.header}>
             <Image height={20} width={147} alt="logo du site" src="/pictures/static/logo-orange.svg"/>
             <nav>
                 <ul className={styles.navUl}>
-                    <li className={styles.navLi}>
-                        <Link  className={styles.navLink} href="#">
+                    <li className={`${styles.navLi} ${isDashboard ? styles.selectedLink : ""}`}>
+                        <Link  className={styles.navLink} href="/dashboard">
                             <img className={styles.navLinkIcon} src="/pictures/static/dashboard-icon.svg"/>
                             <span className={styles.navLinkTitle}>Tableau de bord</span>
                         </Link>
                     </li>
-                    <li className={styles.navLi}>
-                        <Link className={styles.navLink} href="#">
+                    <li className={`{styles.navLi} ${styles.navLi} ${isProjects ? styles.selectedLink : ""}`}>
+                        <Link className={styles.navLink} href="/projets">
                             <img className={styles.navLinkIcon} src="/pictures/static/folder-icon.svg"/>
                             <span className={styles.navLinkTitle}>Projets</span>
                         </Link>

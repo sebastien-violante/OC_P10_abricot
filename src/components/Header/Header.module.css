@@ -37,3 +37,8 @@
     justify-content: center;
     background-color: var(--light-orange);
 }
+
+.selectedLink {
+    color: white;
+    background: black;
+}
