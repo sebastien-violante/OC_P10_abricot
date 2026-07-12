@@ -14,6 +14,7 @@ import filterTasksByDate from "@/app/utils/filterTasksByDate";
 import filterTasksByStatus from "@/app/utils/filterTasksByStatus";
 import KanbanColumn from "@/components/KanbanColumn/KanbanColumn";
 import { useProfile } from '@/app/context/profileContext'
+import Modal from "@/components/Modal/Modal"
 
 export default function Dashboard() {
     
@@ -50,8 +51,10 @@ export default function Dashboard() {
 
     const title="Tableau de bord"
     const subtitle=`Bonjour ${profile?.name}, voici un aperçu de vors projets et tâches`
-    const handleClick = () => {
-        
+    const [isOpen, setIsOpen] = useState(false)
+
+    function handleClick() {
+        setIsOpen(true)
     }
 
     if (loading) {
@@ -97,7 +100,15 @@ export default function Dashboard() {
             </section>
         )}
         
-
+        {isOpen && (
+            <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
+                <form>
+                    Mon formulaire
+                    <label htmlFor="name">Nom</label>
+                    <input type="text" name="name"></input>
+                </form>
+            </Modal>
+    )}
         </>
         
     )

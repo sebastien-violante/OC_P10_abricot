@@ -26,13 +26,13 @@ export default function Header() {
                 <ul className={styles.navUl}>
                     <li className={`${styles.navLi} ${isDashboard ? styles.selectedLink : ""}`}>
                         <Link  className={styles.navLink} href="/dashboard">
-                            <img className={styles.navLinkIcon} src="/pictures/static/dashboard-icon.svg"/>
+                            <img className={styles.navLinkIcon} src={`/pictures/static/${isDashboard ? "dashboard-white-icon.svg" : "dashboard-icon.svg"}`}/>
                             <span className={styles.navLinkTitle}>Tableau de bord</span>
                         </Link>
                     </li>
                     <li className={`{styles.navLi} ${styles.navLi} ${isProjects ? styles.selectedLink : ""}`}>
                         <Link className={styles.navLink} href="/projets">
-                            <img className={styles.navLinkIcon} src="/pictures/static/folder-icon.svg"/>
+                            <img className={styles.navLinkIcon} src={`/pictures/static/${isProjects ? "folder-white-icon.svg" : "folder-icon.svg"}`}/>
                             <span className={styles.navLinkTitle}>Projets</span>
                         </Link>
                     </li>
