@@ -2,7 +2,6 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,7 +9,10 @@
 
 .modal {
   background: white;
-  padding: 2rem;
-  border-radius: 8px;
+  padding: 80px 70px;
+  border-radius: 10px;
   min-width: 300px;
+  width: 590px;
+  margin: auto;
+  max-width: 600px;
 }

@@ -15,6 +15,7 @@ import filterTasksByStatus from "@/app/utils/filterTasksByStatus";
 import KanbanColumn from "@/components/KanbanColumn/KanbanColumn";
 import { useProfile } from '@/app/context/profileContext'
 import Modal from "@/components/Modal/Modal"
+import { projectSchema } from "@/types/schemas/projectSchema";
 
 export default function Dashboard() {
     
@@ -25,6 +26,16 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true)
     const [kanban, setKanban] = useState(true)
     const { profile, setProfile } = useProfile()
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const title="Tableau de bord"
+    const subtitle=`Bonjour ${profile?.name}, voici un aperçu de vos projets et tâches`
+    const [isOpen, setIsOpen] = useState(false)
+    const [formData, setFormData] = useState({
+        title: "",
+        description: "",
+        assignees: [] as string[]
+    })
+    const options = [ "Collab1", "Collab2", "Collab3", "Collab4", "Collab5"];
 
     useEffect (() => {
         if(!token) {
@@ -32,6 +43,7 @@ export default function Dashboard() {
             return
         }
         const authToken = token;
+        console.log(token)
         async function loadDashboard() {
             try {
                 const tasks = await fetchTasks({ token: authToken })            
@@ -49,14 +61,55 @@ export default function Dashboard() {
     loadDashboard();
     }, [token, router]);
 
-    const title="Tableau de bord"
-    const subtitle=`Bonjour ${profile?.name}, voici un aperçu de vors projets et tâches`
-    const [isOpen, setIsOpen] = useState(false)
+    
 
     function handleClick() {
         setIsOpen(true)
     }
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        }));
+    }
+
+    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedValues = Array.from(
+            e.target.selectedOptions,
+            (option) => option.value
+        );
+
+        setFormData((prev) => ({
+        ...prev,
+        assignees: selectedValues,
+        }));
+    }
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+        e.preventDefault();
+        const result = projectSchema.safeParse(formData);
+console.log(result)
+        if (!result.success) {
+            const formattedErrors: Record<string, string> = {};
+            result.error.issues.forEach((error) => {
+                const field = error.path[0];
+                formattedErrors[field as string] = error.message;
+            });
+            setErrors(formattedErrors);
+            return;
+        }
+        setErrors({});
+
+        const dataToSend = {
+            ...result.data,
+            assignees: result.data.assignees.join(", "),
+        };
+        console.log(dataToSend);
+    };
+    
     if (loading) {
     return (
         <div className={styles.loaderContainer}>
@@ -102,10 +155,59 @@ export default function Dashboard() {
         
         {isOpen && (
             <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
-                <form>
-                    Mon formulaire
-                    <label htmlFor="name">Nom</label>
-                    <input type="text" name="name"></input>
+                <form className={styles.form} onSubmit={handleSubmit}>
+                    <h1 className={styles.title}>Créer un projet</h1>
+                    <section className={styles.formContainer}>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="title">Titre*</label>
+                            <input 
+                                type="text" 
+                                name="title" 
+                                id="title" 
+                                className={styles.input}
+                                onChange={handleInputChange}
+                                ></input>
+                                {errors.title && (
+                                    <p className={styles.error}>
+                                        {errors.title}
+                                    </p>
+                                )}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="description">Description*</label>
+                            <input 
+                                type="text" 
+                                name="description" 
+                                id="description" 
+                                className={styles.input}
+                                onChange={handleInputChange}
+                            ></input>
+                            {errors.description && (
+                                <p className={styles.error}>
+                                    {errors.description}
+                                </p>
+                            )}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Contributeurs</label>
+                            <select 
+                                multiple 
+                                value={formData.assignees}
+                                onChange={handleSelectChange}>
+                                {options.map((option) => (
+                                <option key={option} value={option}>
+                                    {option}
+                                </option>
+                                ))}
+                            </select>
+                            {errors.assignees && (
+                                <p className={styles.error}>
+                                    {errors.assignees}
+                                </p>
+                            )}
+                        </div>
+                    </section>
+                    <button type="submit">Ajouter un projet</button>
                 </form>
             </Modal>
     )}
