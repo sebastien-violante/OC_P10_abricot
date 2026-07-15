@@ -16,6 +16,8 @@ import KanbanColumn from "@/components/KanbanColumn/KanbanColumn";
 import { useProfile } from '@/app/context/profileContext'
 import Modal from "@/components/Modal/Modal"
 import { projectSchema } from "@/types/schemas/projectSchema";
+import Form from "@/components/Form/Form";
+import fetchUsers from "@/app/utils/fetchUsers";
 
 export default function Dashboard() {
     
@@ -30,12 +32,26 @@ export default function Dashboard() {
     const title="Tableau de bord"
     const subtitle=`Bonjour ${profile?.name}, voici un aperçu de vos projets et tâches`
     const [isOpen, setIsOpen] = useState(false)
+    
+    // Gestion du formulaire
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        assignees: [] as string[]
+        collaborators: [] as string[]
     })
-    const options = [ "Collab1", "Collab2", "Collab3", "Collab4", "Collab5"];
+
+     const data = {
+        title: "Créer un projet",
+        inputs : [
+            {label : "Titre", type : "text", name : "title", required: true, select: false},
+            {label : "Description", type: "text", name : "description", required: true, select: false},
+            {label : "Contributeurs", type: "select", name: "collaborators", required: false, select: true }
+        ],
+    }
+    // states pour le formulaire
+    const [search, setSearch] = useState("");
+    const [suggestions, setSuggestions] = useState([]);
+    const [formLoading, setFormLoading] = useState(false);
 
     useEffect (() => {
         if(!token) {
@@ -62,7 +78,6 @@ export default function Dashboard() {
     }, [token, router]);
 
     
-
     function handleClick() {
         setIsOpen(true)
     }
@@ -87,11 +102,52 @@ export default function Dashboard() {
         }));
     }
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSearch = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const authToken = token;
+        const value = e.target.value;
+        setSearch(value);
+ 
+        if (value.length < 2) {
+            setSuggestions([]);
+            return;
+        }
 
+        setLoading(true);
+
+        const response = await fetchUsers({token: authToken})
+        const data = await response.json();
+
+        setSuggestions(data);
+        setLoading(false);
+    }
+    
+    const addCollaborator = (user) => {
+        setFormData(prev => {
+
+            if (prev.collaborators.some(c => c.id === user.id)) {
+            return prev;
+            }
+
+            return {
+            ...prev,
+            collaborators: [...prev.collaborators, user]
+            };
+        });
+
+        setSearch("");
+        setSuggestions([]);
+    };
+
+    const removeCollaborator = (id) => {
+        setFormData(prev => ({
+            ...prev,
+            collaborators: prev.collaborators.filter(c => c.id !== id)
+        }));
+    };
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const result = projectSchema.safeParse(formData);
-console.log(result)
         if (!result.success) {
             const formattedErrors: Record<string, string> = {};
             result.error.issues.forEach((error) => {
@@ -109,6 +165,8 @@ console.log(result)
         };
         console.log(dataToSend);
     };
+
+  
     
     if (loading) {
     return (
@@ -155,60 +213,7 @@ console.log(result)
         
         {isOpen && (
             <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
-                <form className={styles.form} onSubmit={handleSubmit}>
-                    <h1 className={styles.title}>Créer un projet</h1>
-                    <section className={styles.formContainer}>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="title">Titre*</label>
-                            <input 
-                                type="text" 
-                                name="title" 
-                                id="title" 
-                                className={styles.input}
-                                onChange={handleInputChange}
-                                ></input>
-                                {errors.title && (
-                                    <p className={styles.error}>
-                                        {errors.title}
-                                    </p>
-                                )}
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="description">Description*</label>
-                            <input 
-                                type="text" 
-                                name="description" 
-                                id="description" 
-                                className={styles.input}
-                                onChange={handleInputChange}
-                            ></input>
-                            {errors.description && (
-                                <p className={styles.error}>
-                                    {errors.description}
-                                </p>
-                            )}
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label>Contributeurs</label>
-                            <select 
-                                multiple 
-                                value={formData.assignees}
-                                onChange={handleSelectChange}>
-                                {options.map((option) => (
-                                <option key={option} value={option}>
-                                    {option}
-                                </option>
-                                ))}
-                            </select>
-                            {errors.assignees && (
-                                <p className={styles.error}>
-                                    {errors.assignees}
-                                </p>
-                            )}
-                        </div>
-                    </section>
-                    <button type="submit">Ajouter un projet</button>
-                </form>
+                <Form data = {data} formData={formData} setFormData={setFormData}></Form>
             </Modal>
     )}
         </>

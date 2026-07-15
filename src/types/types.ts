@@ -93,6 +93,14 @@ export type TasksResponse = {
     };
 }
 
+export type UserResponse = {
+    success: boolean;
+    message: string;
+    data: {
+        users: User[]
+    }
+}
+
 export type KanbanLists = {
     todoTasks : Task[];
     inProgressTasks : Task[];
@@ -151,4 +159,11 @@ export type Profile = {
     email: string;
     id: string;
     name: string;
+}
+
+export type Input = {
+    label: string;
+    type: string;
+    value?: string;
+    required: boolean;
 }
