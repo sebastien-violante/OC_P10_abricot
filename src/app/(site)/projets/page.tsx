@@ -7,25 +7,27 @@ import Cookies from "js-cookie";
 import fetchProjects   from "@/app/utils/fetchProjects";
 import { Project } from "@/types/types";
 import ProjectCard from "@/components/ProjectCard/ProjectCard";
+import { useProfile } from '@/app/context/profileContext'
 
 export default function Projects() {
     
     const router = useRouter()
     const token = Cookies.get('token')
-    console.log(token)
     const [projects, setProjects] = useState<Project[] | null>(null)
     const [loading, setLoading] = useState(true)
+    const { profile, setProfile } = useProfile()
+    
     useEffect (() => {
             if(!token) {
                 router.push('/')
                 return
             }
-
             const authToken = token;
+            
             async function loadProjects() {
                 try {
                     const projects = await fetchProjects({ token: authToken })
-                    setProjects(projects)
+                    setProjects(projects.filter((project) => project.owner.id === profile?.id))
                     console.log(projects)
                 } catch (error) {
                     console.error(error);

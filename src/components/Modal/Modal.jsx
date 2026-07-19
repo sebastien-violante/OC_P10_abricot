@@ -10,7 +10,9 @@ export default function Modal({ isOpen, onClose, children }) {
         onClick={(e) => e.stopPropagation()}
       >
         {children}
-      <button onClick={onClose}>X</button>
+      <button onClick={onClose}>
+        <img className={styles.cross} src="pictures/static/cross.png"/>
+      </button>
       </div>
     </div>
   );

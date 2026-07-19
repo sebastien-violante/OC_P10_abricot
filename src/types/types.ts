@@ -20,7 +20,13 @@ export type AuthenticateResult = {
     details?: Details;
 }
 
-export type FormData = {
+export type ProjectFormData = {
+    title: string;
+    description: string;
+    collaborators: User[];
+}
+
+export type RegistrationFormData = {
     email: string;
     password: string;
     name?: string;
@@ -161,9 +167,34 @@ export type Profile = {
     name: string;
 }
 
-export type Input = {
+// TYPES REMIS AU PROPRE
+
+export type TextInput = {
+    type: "text";
+    name: string;
     label: string;
-    type: string;
-    value?: string;
     required: boolean;
 }
+
+export type DateInput = {
+    type: "date";
+    name: string;
+    label: string;
+    required: boolean;
+}
+
+export type CollaboratorInput = {
+    type: "collaborators";
+    name: string;
+    label: string;
+    required: boolean;
+}
+
+export type UserInput = {
+    type: "user";
+    name: string;
+    label: string;
+    required: boolean;
+};
+
+export type CustomInput = | TextInput | DateInput | CollaboratorInput | UserInput;

@@ -15,4 +15,12 @@
   width: 590px;
   margin: auto;
   max-width: 600px;
+  position: relative;
+}
+
+.cross {
+  position: absolute;
+  top: 38px;
+  right: 38px;
+  cursor: pointer;
 }

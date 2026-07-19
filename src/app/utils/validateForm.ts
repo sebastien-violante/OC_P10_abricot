@@ -1,4 +1,4 @@
-import type { FormData, FormErrors } from "@/types/types"
+import type { RegistrationFormData, FormErrors } from "@/types/types"
 
 /**
  * Renvoie les erreurs sur les champs de formulaire
@@ -6,7 +6,7 @@ import type { FormData, FormErrors } from "@/types/types"
  * @returns {Object} errors - les erreurs
  */
 
-export default function validateForm(formData: FormData): FormErrors {
+export default function validateForm(formData: RegistrationFormData): FormErrors {
     
     const errors: FormErrors = {}
 

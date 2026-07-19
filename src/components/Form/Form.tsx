@@ -1,41 +1,73 @@
 import styles from './Form.module.css'
 import CollaboratorSelect from '../CollaboratorSelect/CollaboratorSelect'
-export default function Form({data, formData, setFormData}) {
+import type { CustomInput } from '@/types/types'
+import type { ProjectFormData, User } from '@/types/types'
 
+type FormProps<T extends Record<string, any>> = {
+    data: {
+        title: string;
+        inputs: CustomInput[];
+    };
+    formData: T;
+    setFormData: React.Dispatch<React.SetStateAction<T>>;
+    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    errors: Record<string, string>;
+};
+
+export default function Form<T extends Record<string, any>>({data, formData, setFormData, handleSubmit, errors}: FormProps<T>) {
     return (
         <form 
             className={styles.form} 
+            onSubmit={handleSubmit}
         >
             <h2 className={styles.title}>{data.title}</h2> 
+           {Object.values(errors).map((error, index) => (
+            <p key={index} className="text-red-500">
+                {error}
+            </p>
+            ))}
             <section className={styles.formContainer}>
                 {data.inputs.map((input) => {
-                    if(input.type === "select") {
-                        return (
-                            <CollaboratorSelect
+                    switch (input.type) {
+                        case "text": return (
+                            <div key={input.label} className={styles.formGroup}>
+                                <label>{input.label}{input.required && '*'}</label>
+                                <input
+                                    type={input.type}
+                                    className={styles.input}
+                                    onChange={(e) =>
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            [input.name]: e.target.value
+                                        }))
+                                    }
+                                />
+                            </div>)
+                        
+                        case "date": return (
+                            <div key={input.label} className={styles.formGroup}>
+                                <label>{input.label}</label>
+                                <input type="date"></input>
+                            </div>
+                            )
+                       
+                        case "collaborators": return (
+                             <CollaboratorSelect
                                 key={input.name}
-                                input={input}
-                                collaborators={formData.collaborators}
-                                setFormData={setFormData}
-                            />
-                        )
-                    }
-                    return (
-                        <div key={input.label}>
-                            <label>{input.label}</label>
-                            <input
-                                type={input.type}
-                                value={formData[input.name]}
-                                onChange={(e) =>
+                                label={input.label}
+                                value={formData[input.name] as User[]}
+                                onChange={(value) =>
                                     setFormData(prev => ({
                                         ...prev,
-                                        [input.name]: e.target.value
+                                        [input.name]: value
                                     }))
                                 }
                             />
-                        </div>
-                    )
+                        )
+                    }
                 })}
             </section>
+            <button type="submit">Ajouter un projet</button>
         </form>
             
     )

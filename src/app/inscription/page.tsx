@@ -8,16 +8,16 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { SubmitEvent, ChangeEvent } from 'react'
 import Cookies from "js-cookie"
-import { AuthenticateResult, FormData, FormErrors, FetchErrors, FetchSuccessData } from '../../types/types'
+import { AuthenticateResult, RegistrationFormData, FormErrors, FetchErrors, FetchSuccessData } from '../../types/types'
 
 export default function Registration() {
 
     const router = useRouter()
-    const [formData, setFormData] = useState<FormData>({
+    const [formData, setFormData] = useState<RegistrationFormData>({
         email: "",
         password: "",
         name: "",
-        type: "registrration"
+        type: "registration"
     });
 
     const [formErrors, setFormErrors] = useState<FormErrors>({})

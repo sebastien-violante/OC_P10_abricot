@@ -17,7 +17,8 @@ import { useProfile } from '@/app/context/profileContext'
 import Modal from "@/components/Modal/Modal"
 import { projectSchema } from "@/types/schemas/projectSchema";
 import Form from "@/components/Form/Form";
-import fetchUsers from "@/app/utils/fetchUsers";
+import recordProject from "@/app/utils/recordProject";
+import type { ProjectFormData, CustomInput } from "@/types/types";
 
 export default function Dashboard() {
     
@@ -33,36 +34,52 @@ export default function Dashboard() {
     const subtitle=`Bonjour ${profile?.name}, voici un aperçu de vos projets et tâches`
     const [isOpen, setIsOpen] = useState(false)
     
-    // Gestion du formulaire
-    const [formData, setFormData] = useState({
+    // Objet de récupération des données de formulaire
+    const [formData, setFormData] = useState<ProjectFormData>({
         title: "",
         description: "",
-        collaborators: [] as string[]
+        collaborators: [] 
     })
 
-     const data = {
+    // Objet de composition du formulaire
+    const data = {
         title: "Créer un projet",
         inputs : [
-            {label : "Titre", type : "text", name : "title", required: true, select: false},
-            {label : "Description", type: "text", name : "description", required: true, select: false},
-            {label : "Contributeurs", type: "select", name: "collaborators", required: false, select: true }
+            {
+                label : "Titre", 
+                type : "text", 
+                name : "title", 
+                required: true, 
+            },
+            {
+                label : "Description", 
+                type: "text", 
+                name : "description", 
+                required: true
+            },
+            {
+                label : "Contributeurs", 
+                type: "collaborators", 
+                name: "collaborators", 
+                required: false
+            }
         ],
-    }
-    // states pour le formulaire
-    const [search, setSearch] = useState("");
-    const [suggestions, setSuggestions] = useState([]);
-    const [formLoading, setFormLoading] = useState(false);
+    } satisfies {
+        title: string;
+        inputs: CustomInput[];
+    };
+
 
     useEffect (() => {
         if(!token) {
             router.push('/')
             return
         }
-        const authToken = token;
-        console.log(token)
-        async function loadDashboard() {
+        async function loadDashboard(token: string) {
             try {
-                const tasks = await fetchTasks({ token: authToken })            
+                const tasks = await fetchTasks({ token })  
+                const user = await fetchProfile({ token })
+                localStorage.setItem('user', JSON.stringify(user) )   
                 const filteredTasksByDate = filterTasksByDate(tasks)
                 setTasksByDate(filteredTasksByDate);
                 const filteredTasksByStatus = filterTasksByStatus(tasks)
@@ -72,9 +89,8 @@ export default function Dashboard() {
             } finally {
                 setLoading(false);
             }
-       }
-
-    loadDashboard();
+        }
+        loadDashboard(token);
     }, [token, router]);
 
     
@@ -82,71 +98,16 @@ export default function Dashboard() {
         setIsOpen(true)
     }
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-        }));
-    }
-
-    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedValues = Array.from(
-            e.target.selectedOptions,
-            (option) => option.value
-        );
-
-        setFormData((prev) => ({
-        ...prev,
-        assignees: selectedValues,
-        }));
-    }
-
-    const handleSearch = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const authToken = token;
-        const value = e.target.value;
-        setSearch(value);
- 
-        if (value.length < 2) {
-            setSuggestions([]);
-            return;
-        }
-
-        setLoading(true);
-
-        const response = await fetchUsers({token: authToken})
-        const data = await response.json();
-
-        setSuggestions(data);
-        setLoading(false);
-    }
-    
-    const addCollaborator = (user) => {
-        setFormData(prev => {
-
-            if (prev.collaborators.some(c => c.id === user.id)) {
-            return prev;
-            }
-
-            return {
-            ...prev,
-            collaborators: [...prev.collaborators, user]
-            };
-        });
-
-        setSearch("");
-        setSuggestions([]);
-    };
-
-    const removeCollaborator = (id) => {
-        setFormData(prev => ({
-            ...prev,
-            collaborators: prev.collaborators.filter(c => c.id !== id)
-        }));
-    };
-
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+     
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        console.log(formData)
         e.preventDefault();
+         if (!token) {
+            router.push('/');
+            return;
+        }   
+        // validation des données de formulaire
+        console.log(formData)
         const result = projectSchema.safeParse(formData);
         if (!result.success) {
             const formattedErrors: Record<string, string> = {};
@@ -159,22 +120,25 @@ export default function Dashboard() {
         }
         setErrors({});
 
-        const dataToSend = {
-            ...result.data,
-            assignees: result.data.assignees.join(", "),
-        };
-        console.log(dataToSend);
+        // création de la payload
+        const payload = {
+            name: formData.title,
+            description: formData.description,
+            collaborators: formData.collaborators.map(({ email }) => email)
+            };
+        console.log(payload)
+        const response = await recordProject({payload, token})
+        console.log(response)
     };
 
-  
-    
     if (loading) {
-    return (
-        <div className={styles.loaderContainer}>
-            <div className={styles.spinner}></div>
-        </div>
-    );
-}
+        return (
+            <div className={styles.loaderContainer}>
+                <div className={styles.spinner}></div>
+            </div>
+        );
+    }
+
     return (
         <>
         <section className={styles.sectionWrapper}>
@@ -213,7 +177,7 @@ export default function Dashboard() {
         
         {isOpen && (
             <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
-                <Form data = {data} formData={formData} setFormData={setFormData}></Form>
+                <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors}></Form>
             </Modal>
     )}
         </>
