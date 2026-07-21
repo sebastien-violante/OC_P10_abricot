@@ -1,5 +1,5 @@
 type ButtonType = "black" | "orange"
-type ButtonWidth = "small" | "medium" | "large" | "xlarge"
+type ButtonWidth = "small" | "medium" | "mediumplus" | "large" | "xlarge"
 
 type ButtonProps = {
     type: ButtonType;
@@ -16,6 +16,7 @@ orange: { background: "var(--dark-orange)", color: "white" },
 const sizes: Record<ButtonWidth, React.CSSProperties> = {
 small: { width: "94px" },
 medium: { width: "121px" },
+mediumplus: {width: "141px"},
 large: { width: "151px" },
 xlarge: { width: "181px" }
 };
@@ -28,7 +29,7 @@ const baseStyle: React.CSSProperties = {
   borderRadius: "10px",
   border: "none",
   cursor: "pointer",
-  height: "50px" 
+  height: "50px",
 };
 
 export default function Button({type, width, onClick, children}: ButtonProps) {

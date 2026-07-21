@@ -1,3 +1,15 @@
-.sectionWrapper {
+.singleProjectWrapper {
     margin: 90px 125px 0 100px;
+}
+
+.banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
 }

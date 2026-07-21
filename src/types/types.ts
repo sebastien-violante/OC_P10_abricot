@@ -113,25 +113,7 @@ export type KanbanLists = {
     doneTasks : Task[];
 }
 
-export type ProjectResponse = {
-    success: boolean;
-    message: string;
-    data: {
-        projects: Project[];
-    }
-}
 
-export type Project = {
-    id: string;
-    name: string;
-    description: string;
-    ownerId: string;
-    owner: Owner;
-    members: Member[];
-    createdAt: string;
-    updatedAt: string;
-    tasks: Task[];
-}
 
 export type Owner = {
     id: string;
@@ -198,3 +180,31 @@ export type UserInput = {
 };
 
 export type CustomInput = | TextInput | DateInput | CollaboratorInput | UserInput;
+
+export type ProjectResponse = {
+    success: boolean;
+    message: string;
+    data: {
+        projects: Project[];
+    }
+}
+
+export type SingleProjectResponse = {
+    success : boolean;
+    message : string;
+    data : {
+        tasks : Task[];
+    }
+}
+
+export type Project = {
+    id: string;
+    name: string;
+    description: string;
+    ownerId: string;
+    owner: Owner;
+    members: Member[];
+    createdAt: string;
+    updatedAt: string;
+    tasks: Task[];
+}

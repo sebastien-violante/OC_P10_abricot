@@ -27,5 +27,5 @@ const { className, label } = statusMap[status];
         <span className={`${styles.statusType} ${className}`}>
             {label}
         </span>
-)   ;
+    )   
 }

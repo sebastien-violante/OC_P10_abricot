@@ -27,7 +27,7 @@ export default function Dashboard() {
     const [tasksByDate, setTasksByDate] = useState<Task[] | null>(null)
     const [tasksForKanban, setTasksForKanban] = useState<KanbanLists | null>(null)
     const [loading, setLoading] = useState(true)
-    const [kanban, setKanban] = useState(true)
+    const [kanban, setKanban] = useState(false)
     const { profile, setProfile } = useProfile()
     const [errors, setErrors] = useState<Record<string, string>>({});
     const title="Tableau de bord"
@@ -108,7 +108,13 @@ export default function Dashboard() {
         }   
         // validation des données de formulaire
         console.log(formData)
-        const result = projectSchema.safeParse(formData);
+        const payload = {
+            name: formData.title,
+            description: formData.description,
+            contributors: formData.collaborators.map(({ email }) => email)
+            };
+        console.log(payload)
+        const result = projectSchema.safeParse(payload);
         if (!result.success) {
             const formattedErrors: Record<string, string> = {};
             result.error.issues.forEach((error) => {
@@ -120,13 +126,7 @@ export default function Dashboard() {
         }
         setErrors({});
 
-        // création de la payload
-        const payload = {
-            name: formData.title,
-            description: formData.description,
-            collaborators: formData.collaborators.map(({ email }) => email)
-            };
-        console.log(payload)
+        
         const response = await recordProject({payload, token})
         console.log(response)
     };
@@ -148,14 +148,14 @@ export default function Dashboard() {
         </section>
         <section className={styles.chooseDisplay}>
             <button 
-                className={`styles.displayBtn ${!kanban ? styles.selected : ""}`}
+                className={`${styles.displayBtn} ${!kanban ? styles.selected : ""}`}
                 onClick={()=>setKanban(false)}
             >
                 <img src="pictures/static/coche-orange.svg"/>
                 Liste
             </button>
             <button 
-                className={`styles.displayBtn ${kanban ? styles.selected : ""}`}
+                className={`${styles.displayBtn} ${kanban ? styles.selected : ""}`}
                 onClick={()=>setKanban(true)}
             >
                 <img src="pictures/static/calendar-orange.svg"/>

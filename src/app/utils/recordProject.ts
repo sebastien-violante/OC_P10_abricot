@@ -4,7 +4,7 @@ type recordProjectProps = {
     payload: {
         name: string;
         description: string;
-        collaborators: string[];
+        contributors: string[];
     };
     token: string;
 }
