@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation'
 export default function Header() {
 
     const { profile } = useProfile()
+    console.log(profile)
     const initials = useMemo(
         () => profile ? getInitials(profile.name) : '',
         [profile]

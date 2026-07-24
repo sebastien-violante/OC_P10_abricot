@@ -33,7 +33,8 @@ export default function Dashboard() {
     const title="Tableau de bord"
     const subtitle=`Bonjour ${profile?.name}, voici un aperçu de vos projets et tâches`
     const [isOpen, setIsOpen] = useState(false)
-    
+    const [apiResponse, setApiResponse] = useState("")
+
     // Objet de récupération des données de formulaire
     const [formData, setFormData] = useState<ProjectFormData>({
         title: "",
@@ -77,7 +78,8 @@ export default function Dashboard() {
         }
         async function loadDashboard(token: string) {
             try {
-                const tasks = await fetchTasks({ token })  
+                const tasks = await fetchTasks({ token }) 
+                console.log(tasks) 
                 const user = await fetchProfile({ token })
                 localStorage.setItem('user', JSON.stringify(user) )   
                 const filteredTasksByDate = filterTasksByDate(tasks)
@@ -107,13 +109,12 @@ export default function Dashboard() {
             return;
         }   
         // validation des données de formulaire
-        console.log(formData)
         const payload = {
             name: formData.title,
             description: formData.description,
             contributors: formData.collaborators.map(({ email }) => email)
             };
-        console.log(payload)
+        
         const result = projectSchema.safeParse(payload);
         if (!result.success) {
             const formattedErrors: Record<string, string> = {};
@@ -128,7 +129,8 @@ export default function Dashboard() {
 
         
         const response = await recordProject({payload, token})
-        console.log(response)
+        const fetchResult = await response.json()
+        setApiResponse(fetchResult.message)
     };
 
     if (loading) {
@@ -177,9 +179,9 @@ export default function Dashboard() {
         
         {isOpen && (
             <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
-                <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors}></Form>
+                <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
             </Modal>
-    )}
+         )}
         </>
         
     )

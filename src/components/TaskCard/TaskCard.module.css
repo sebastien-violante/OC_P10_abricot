@@ -1,3 +1,53 @@
 .taskCardWrapper {
     width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 25px 40px;
+    border-radius: 10px;
+    border: 1px solid var(--grey200);
+    margin-bottom: 17px;
+}
+
+.taskCardTitle {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.assignees {
+    display: flex;
+    border-bottom: 1px solid var(--grey200);
+}
+.taskAssignees {
+    display: flex;
+}
+
+.commentsHeader {
+    display: flex;
+    justify-content: space-between;
+}
+
+.commentStripe {
+    border: 1px solid var(--grey200);
+    margin-bottom: 5px;
+}
+.showCommentsCta {
+    cursor: pointer;
+    transition: transform .5s ease-in-out;
+}
+
+.rotate {
+    transform: rotate(180deg);
+}
+
+.commentsArea {
+    transition : max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    max-height: 0px;
+    overflow: hidden;
+}
+
+.commentsArea.extended {
+    max-height: 500px;
+    opacity: 1;
 }

@@ -1,10 +1,10 @@
 import type { Token, ProjectResponse } from "@/types/types";
 
-type fetchProjectsProps = {
+type fetchProjectsWithoutTasksProps = {
     token: Token;
 }
 
-export default async function fetchProjectsWithoutTasks({token}: fetchProjectsProps) {
+export default async function fetchProjectsWithoutTasks({token}: fetchProjectsWithoutTasksProps) {
     
     const response = await fetch('/api/projects', {
         method: 'GET',

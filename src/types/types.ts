@@ -20,11 +20,6 @@ export type AuthenticateResult = {
     details?: Details;
 }
 
-export type ProjectFormData = {
-    title: string;
-    description: string;
-    collaborators: User[];
-}
 
 export type RegistrationFormData = {
     email: string;
@@ -172,6 +167,7 @@ export type CollaboratorInput = {
     required: boolean;
 }
 
+
 export type UserInput = {
     type: "user";
     name: string;
@@ -179,7 +175,18 @@ export type UserInput = {
     required: boolean;
 };
 
-export type CustomInput = | TextInput | DateInput | CollaboratorInput | UserInput;
+export type StatusInput = {
+    type: "status";
+    name: string;
+    label: string;
+    required: boolean;
+    options: {
+        label: string;
+        value: string;
+    }[];
+};
+
+export type CustomInput = | TextInput | DateInput | CollaboratorInput | UserInput | StatusInput;
 
 export type ProjectResponse = {
     success: boolean;
@@ -207,4 +214,18 @@ export type Project = {
     createdAt: string;
     updatedAt: string;
     tasks: Task[];
+}
+
+export type ProjectFormData = {
+    title: string;
+    description: string;
+    collaborators: User[];
+}
+
+export type TaskFormData = {
+    title: string;
+    description: string;
+    collaborators: User[];
+    dueDate: string;
+    status: string;
 }

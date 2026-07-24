@@ -1,5 +1,6 @@
 import styles from './Form.module.css'
 import CollaboratorSelect from '../CollaboratorSelect/CollaboratorSelect'
+import StatusSelect from '../StatusSelect/StatusSelect'
 import type { CustomInput } from '@/types/types'
 import type { ProjectFormData, User } from '@/types/types'
 
@@ -12,9 +13,10 @@ type FormProps<T extends Record<string, any>> = {
     setFormData: React.Dispatch<React.SetStateAction<T>>;
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     errors: Record<string, string>;
+    apiResponse: string;
 };
 
-export default function Form<T extends Record<string, any>>({data, formData, setFormData, handleSubmit, errors}: FormProps<T>) {
+export default function Form<T extends Record<string, any>>({data, formData, setFormData, handleSubmit, errors, apiResponse}: FormProps<T>) {
     return (
         <form 
             className={styles.form} 
@@ -26,6 +28,7 @@ export default function Form<T extends Record<string, any>>({data, formData, set
                 {error}
             </p>
             ))}
+            {apiResponse}
             <section className={styles.formContainer}>
                 {data.inputs.map((input) => {
                     switch (input.type) {
@@ -47,7 +50,16 @@ export default function Form<T extends Record<string, any>>({data, formData, set
                         case "date": return (
                             <div key={input.label} className={styles.formGroup}>
                                 <label>{input.label}</label>
-                                <input type="date"></input>
+                                <input
+                                    type="date"
+                                    value={formData[input.name] as string}
+                                    onChange={(e) =>
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            [input.name]: e.target.value
+                                        }))
+                                    }
+                                />
                             </div>
                             )
                        
@@ -64,6 +76,21 @@ export default function Form<T extends Record<string, any>>({data, formData, set
                                 }
                             />
                         )
+                        case "status":
+                            return (
+                                <StatusSelect
+                                    key={input.name}
+                                    label={input.label}
+                                    value={formData[input.name] as string}
+                                    options={["À faire", "En cours", "Terminée"]}
+                                    onChange={(value) =>
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            [input.name]: value
+                                        }))
+                                    }
+                                />
+                            );
                     }
                 })}
             </section>

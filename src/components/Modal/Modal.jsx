@@ -11,7 +11,7 @@ export default function Modal({ isOpen, onClose, children }) {
       >
         {children}
       <button onClick={onClose}>
-        <img className={styles.cross} src="pictures/static/cross.png"/>
+        <img className={styles.cross} src="/pictures/static/cross.png"/>
       </button>
       </div>
     </div>
