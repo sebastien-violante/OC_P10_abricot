@@ -9,7 +9,9 @@ import TaskCard from '@/components/TaskCard/TaskCard'
 import Modal from '@/components/Modal/Modal'
 import Form from '@/components/Form/Form'
 import Button from '@/components/Button/Button'
-import { useProjectStore } from '@/store/projectStore'
+import { useProjectStore } from '@/store/ProjectStore'
+import { useTaskStore } from '@/store/TaskStore'
+
 import { useParams } from 'next/navigation'
 import { taskSchema } from '@/types/schemas/taskSchema'
 import recordTask from '@/app/utils/recordTask'
@@ -23,11 +25,14 @@ export default function SingleProject() {
     )
     const token = Cookies.get('token')
   
-    const [tasks, setTasks] = useState<Task[] | null>(null)
+    //const [tasks, setTasks] = useState<Task[] | null>(null)
     const [loading, setLoading] = useState(true)
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiResponse, setApiResponse] = useState<string>("");
-
+    //const [tasksInStore, setTasksInStore] = useState<Task[] | null>(null)
+    const tasksInStore = useTaskStore((state) => state.tasks)
+    const setTasksInStore = useTaskStore((state) => state.setTasks)
+    const addTaskInStore = useTaskStore((state) => state.addTask);
     const [isOpen, setIsOpen] = useState(false)
 
     function handleClick() {
@@ -66,9 +71,9 @@ export default function SingleProject() {
                 
             const response = await recordTask({payload, token, projectId})
             const fetchResult = await response.json()
+            const newTask = fetchResult.data.task
             setApiResponse(fetchResult.message)
-
-            
+            addTaskInStore(newTask)
     }
 
     // Objet de récupération des données de formulaire
@@ -138,7 +143,8 @@ export default function SingleProject() {
             async function loadTasks(token: string) {
                 try {
                     const tasks = await fetchProject({id, token})
-                    setTasks(tasks)
+                    setTasksInStore(tasks)
+                    
                     console.log(tasks)
                 } catch (error) {
                     console.error(error);
@@ -184,8 +190,8 @@ export default function SingleProject() {
                     ))}
                 </div>
             </section>
-            {tasks?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
-            {tasks?.map((task)=>(
+            {tasksInStore?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
+            {tasksInStore?.map((task)=>(
                 <TaskCard key={task.id} task = {task}/>
             ))}
             {isOpen && (

@@ -9,7 +9,6 @@ import fetchProjectTasks from '@/app/utils/fetchProjectTasks';
 import { Project } from "@/types/types";
 import ProjectCard from "@/components/ProjectCard/ProjectCard";
 import { useProfile } from '@/app/context/profileContext'
-import { useProjectStore } from '@/store/projectStore';
 
 export default function Projects() {
     
@@ -18,7 +17,7 @@ export default function Projects() {
     const [projects, setProjects] = useState<Project[] | null>(null)
     const [loading, setLoading] = useState(true)
     const { profile, setProfile } = useProfile()
-    const setProjectsInStore = useProjectStore((state) => state.setProjects)
+    const [projectsInStore, setProjectsInStore] = useState<Project[] | null>(null)
     
     useEffect (() => {
             if(!token) {
