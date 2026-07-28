@@ -192,7 +192,7 @@ export default function SingleProject() {
             </section>
             {tasksInStore?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
             {tasksInStore?.map((task)=>(
-                <TaskCard key={task.id} task = {task}/>
+                <TaskCard key={task.id} task = {task} projectId={projectId} token={token}/>
             ))}
             {isOpen && (
                         <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
