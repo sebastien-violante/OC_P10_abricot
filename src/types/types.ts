@@ -151,6 +151,7 @@ export type TextInput = {
     name: string;
     label: string;
     required: boolean;
+    defaultValue?: string;
 }
 
 export type DateInput = {
@@ -158,6 +159,7 @@ export type DateInput = {
     name: string;
     label: string;
     required: boolean;
+     defaultValue?: string;
 }
 
 export type CollaboratorInput = {
@@ -223,9 +225,11 @@ export type ProjectFormData = {
 }
 
 export type TaskFormData = {
+    formTitle: string;
     title: string;
     description: string;
     collaborators: User[];
     dueDate: string;
     status: string;
+    edit: boolean;
 }

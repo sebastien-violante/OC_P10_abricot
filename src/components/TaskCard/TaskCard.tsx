@@ -6,19 +6,26 @@ import TaskStatus from '../TaskStatus/TaskStatus'
 import { useState } from 'react'
 import { useTaskStore } from '@/store/TaskStore'
 import deleteTask from '@/app/utils/deleteTask'
+import editTask from '@/app/utils/editTask'
+import type { TaskFormData, CustomInput } from '@/types/types'
+import Modal from '../Modal/Modal'
+import Form from '../Form/Form'
 
 type TaskCardProps = {
     task: Task;
     projectId: string;
     token?: string;
+    editCurrentTask: (task: Task) => void;
 }
 
-export default function TaskCard({task, projectId, token}:TaskCardProps) {
+export default function TaskCard({task, projectId, token, editCurrentTask}:TaskCardProps) {
 
+    console.log(task)
     const [comments, setComments] = useState(false)
     const [rotate, setRotate] = useState(false)
     const [cta, setCta] = useState(false)
-
+    const [modalOpen, setModalOpen] = useState(false)
+    
     function showComments() {
        setComments((prev) => !prev)
        setRotate((prev) => !prev)
@@ -28,8 +35,8 @@ export default function TaskCard({task, projectId, token}:TaskCardProps) {
         setCta((prev) => !prev)
     }
 
-    function editTask() {
-        console.log('editer tache')
+    async function editTask() {
+       editCurrentTask(task)
     }
 
     async function removeTask() {

@@ -21,7 +21,7 @@ export default function TaskStatus({status}: TaskStatusProps) {
     },
 };
 
-const { className, label } = statusMap[status];
+const { className, label } = statusMap[status] ?? statusMap['TODO'];
    
     return (
         <span className={`${styles.statusType} ${className}`}>

@@ -35,10 +35,42 @@ export default function SingleProject() {
     const addTaskInStore = useTaskStore((state) => state.addTask);
     const [isOpen, setIsOpen] = useState(false)
 
+    // Objet de récupération des données de formulaire
+
+    const initFormData = {
+        formTitle: "Créer une tâche",
+        title: "",
+        description: "",
+        collaborators: [],
+        dueDate: "",
+        status: "",
+        edit: false
+    }
+    const [formData, setFormData] = useState<TaskFormData>(initFormData)
+
     function handleClick() {
         setIsOpen(true)
     }
 
+    function editCurrentTask(task: Task) {
+        console.log(task)
+        setFormData({
+            formTitle: "Modifier une tâche",
+            title: task.title,
+            description: task.description,
+            collaborators: [],
+            dueDate: new Date(task.dueDate).toISOString().split("T")[0],
+            status: task.status,
+            edit: true
+        })
+        setIsOpen(true)
+
+    }
+
+    function closeModal() {
+        setIsOpen(false)
+        setFormData(initFormData)
+    }
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         console.log(formData)
         e.preventDefault();
@@ -68,22 +100,20 @@ export default function SingleProject() {
                 return;
             }
             setErrors({});
-                
-            const response = await recordTask({payload, token, projectId})
-            const fetchResult = await response.json()
-            const newTask = fetchResult.data.task
-            setApiResponse(fetchResult.message)
-            addTaskInStore(newTask)
+            if(formData.edit) {
+
+            }
+            else {
+                const response = await recordTask({payload, token, projectId})
+                const fetchResult = await response.json()
+                const newTask = fetchResult.data.task
+                setApiResponse(fetchResult.message)
+                addTaskInStore(newTask)
+            }
+            
     }
 
-    // Objet de récupération des données de formulaire
-    const [formData, setFormData] = useState<TaskFormData>({
-        title: "",
-        description: "",
-        collaborators: [],
-        dueDate: "",
-        status: ""
-    })
+    
     
     const data = {
             title: "Créer une tâche",
@@ -192,10 +222,10 @@ export default function SingleProject() {
             </section>
             {tasksInStore?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
             {tasksInStore?.map((task)=>(
-                <TaskCard key={task.id} task = {task} projectId={projectId} token={token}/>
+                <TaskCard key={task.id} task = {task} projectId={projectId} token={token} editCurrentTask={editCurrentTask}/>
             ))}
             {isOpen && (
-                        <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
+                        <Modal isOpen={isOpen} onClose={closeModal}>
                             <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse} ></Form>
                         </Modal>
                      )}

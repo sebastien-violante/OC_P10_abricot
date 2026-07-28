@@ -22,7 +22,7 @@ export default function Form<T extends Record<string, any>>({data, formData, set
             className={styles.form} 
             onSubmit={handleSubmit}
         >
-            <h2 className={styles.title}>{data.title}</h2> 
+            <h2 className={styles.title}>{formData.formTitle}</h2> 
            {Object.values(errors).map((error, index) => (
             <p key={index} className="text-red-500">
                 {error}
@@ -38,6 +38,7 @@ export default function Form<T extends Record<string, any>>({data, formData, set
                                 <input
                                     type={input.type}
                                     className={styles.input}
+                                    value={formData[input.name] as string ?? ""}
                                     onChange={(e) =>
                                         setFormData(prev => ({
                                             ...prev,
