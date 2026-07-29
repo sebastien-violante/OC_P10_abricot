@@ -15,6 +15,7 @@ import { useTaskStore } from '@/store/TaskStore'
 import { useParams } from 'next/navigation'
 import { taskSchema } from '@/types/schemas/taskSchema'
 import recordTask from '@/app/utils/recordTask'
+import editTask from '@/app/utils/editTask'
 
 export default function SingleProject() {
     const params = useParams<{ id: string }>()
@@ -32,7 +33,8 @@ export default function SingleProject() {
     //const [tasksInStore, setTasksInStore] = useState<Task[] | null>(null)
     const tasksInStore = useTaskStore((state) => state.tasks)
     const setTasksInStore = useTaskStore((state) => state.setTasks)
-    const addTaskInStore = useTaskStore((state) => state.addTask);
+    const addTaskInStore = useTaskStore((state) => state.addTask)
+    const updateTaskInStore = useTaskStore((state) => state.updateTask)
     const [isOpen, setIsOpen] = useState(false)
 
     // Objet de récupération des données de formulaire
@@ -44,7 +46,8 @@ export default function SingleProject() {
         collaborators: [],
         dueDate: "",
         status: "",
-        edit: false
+        edit: false,
+        taskId: ""
     }
     const [formData, setFormData] = useState<TaskFormData>(initFormData)
 
@@ -61,7 +64,8 @@ export default function SingleProject() {
             collaborators: [],
             dueDate: new Date(task.dueDate).toISOString().split("T")[0],
             status: task.status,
-            edit: true
+            edit: true,
+            taskId: task.id
         })
         setIsOpen(true)
 
@@ -71,7 +75,7 @@ export default function SingleProject() {
         setIsOpen(false)
         setFormData(initFormData)
     }
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => {
         console.log(formData)
         e.preventDefault();
         if (!token) {
@@ -100,8 +104,12 @@ export default function SingleProject() {
                 return;
             }
             setErrors({});
-            if(formData.edit) {
-
+            if(formData.edit && formData.taskId) {
+                const taskId = formData.taskId
+                const response = await editTask({payload, token, projectId, taskId})
+                const fetchResult = await response.json()
+                
+                updateTaskInStore(fetchResult.data.task)
             }
             else {
                 const response = await recordTask({payload, token, projectId})

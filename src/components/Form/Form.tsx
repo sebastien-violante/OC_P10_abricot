@@ -11,7 +11,7 @@ type FormProps<T extends Record<string, any>> = {
     };
     formData: T;
     setFormData: React.Dispatch<React.SetStateAction<T>>;
-    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    handleSubmit: (e: React.FormEvent<HTMLFormElement>, taskId: string) => void;
     errors: Record<string, string>;
     apiResponse: string;
 };
@@ -20,7 +20,7 @@ export default function Form<T extends Record<string, any>>({data, formData, set
     return (
         <form 
             className={styles.form} 
-            onSubmit={handleSubmit}
+            onSubmit={(e) => handleSubmit(e, formData.taskId)}
         >
             <h2 className={styles.title}>{formData.formTitle}</h2> 
            {Object.values(errors).map((error, index) => (

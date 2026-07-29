@@ -232,4 +232,5 @@ export type TaskFormData = {
     dueDate: string;
     status: string;
     edit: boolean;
+    taskId?: string;
 }
