@@ -34,7 +34,7 @@ export default function TaskStrip({task}: TaskStripProps) {
             </div>
             <div className={styles.taskActions}>
                 <TaskStatus status={task.status} />
-                <Button type={"black"} width={"medium"} onClick={handleClick}>Voir</Button>
+                <Button color={"black"} width={"medium"} onClick={handleClick}>Voir</Button>
             </div>
         </article>
     )

@@ -145,7 +145,7 @@ export default function Dashboard() {
         <>
         <section className={styles.sectionWrapper}>
             <Banner title={title} subtitle={subtitle}>
-                <Button type={"black"} width={"xlarge"} onClick={handleClick}>+ Créer un projet</Button>
+                <Button color={"black"} width={"xlarge"} onClick={handleClick}>+ Créer un projet</Button>
             </Banner>
         </section>
         <section className={styles.chooseDisplay}>

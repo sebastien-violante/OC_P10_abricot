@@ -226,6 +226,7 @@ export type ProjectFormData = {
 
 export type TaskFormData = {
     formTitle: string;
+    ctaLabel: string;
     title: string;
     description: string;
     collaborators: User[];

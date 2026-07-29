@@ -30,7 +30,6 @@ export default function SingleProject() {
     const [loading, setLoading] = useState(true)
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiResponse, setApiResponse] = useState<string>("");
-    //const [tasksInStore, setTasksInStore] = useState<Task[] | null>(null)
     const tasksInStore = useTaskStore((state) => state.tasks)
     const setTasksInStore = useTaskStore((state) => state.setTasks)
     const addTaskInStore = useTaskStore((state) => state.addTask)
@@ -41,6 +40,7 @@ export default function SingleProject() {
 
     const initFormData = {
         formTitle: "Créer une tâche",
+        ctaLabel: "+ Ajouter une tâche",
         title: "",
         description: "",
         collaborators: [],
@@ -56,12 +56,13 @@ export default function SingleProject() {
     }
 
     function editCurrentTask(task: Task) {
-        console.log(task)
+        const collaborators = task.assignees.map(assignee => (assignee.user))
         setFormData({
-            formTitle: "Modifier une tâche",
+            formTitle: "Modifier",
+            ctaLabel: "Enregistrer",
             title: task.title,
             description: task.description,
-            collaborators: [],
+            collaborators,
             dueDate: new Date(task.dueDate).toISOString().split("T")[0],
             status: task.status,
             edit: true,
@@ -214,8 +215,8 @@ export default function SingleProject() {
                     {project?.name}
                 </div>
                 <div className={styles.buttons}>
-                    <Button type={"black"} width={"mediumplus"} onClick={handleClick}>Créer une tâche</Button>
-                    <Button type={"orange"} width={"small"} onClick={handleClick}>IA</Button>
+                    <Button color={"black"} width={"mediumplus"} onClick={handleClick}>Créer une tâche</Button>
+                    <Button color={"orange"} width={"small"} onClick={handleClick}>IA</Button>
                 </div>
             </section>
             <section className={styles.contributors}>

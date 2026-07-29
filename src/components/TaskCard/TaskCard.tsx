@@ -3,13 +3,14 @@
 import styles from './TaskCard.module.css'
 import type { Task } from '@/types/types'
 import TaskStatus from '../TaskStatus/TaskStatus'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTaskStore } from '@/store/TaskStore'
+import { useCommentStore } from '@/store/CommentStore'
 import deleteTask from '@/app/utils/deleteTask'
-import editTask from '@/app/utils/editTask'
-import type { TaskFormData, CustomInput } from '@/types/types'
-import Modal from '../Modal/Modal'
-import Form from '../Form/Form'
+import { useProfile } from '@/app/context/profileContext'
+import getInitials from '@/app/utils/getInitials'
+import addComment from '@/app/utils/addComment'
+import { useRouter } from "next/navigation"
 
 type TaskCardProps = {
     task: Task;
@@ -20,14 +21,26 @@ type TaskCardProps = {
 
 export default function TaskCard({task, projectId, token, editCurrentTask}:TaskCardProps) {
 
-    console.log(task)
-    const [comments, setComments] = useState(false)
+    const router = useRouter()
+    // mise en store des commentaires
+    const commentsInStore = useCommentStore((state) => state.comments)
+    const setComments = useCommentStore((state) => state.setComments)
+    const addTaskInStore = useCommentStore((state) => state.addComment)
+
+    useEffect(() => {
+        setComments(task.comments)
+    }, [task.comments, setComments])
+    const [displayComments, setDisplayComments] = useState(false)
     const [rotate, setRotate] = useState(false)
     const [cta, setCta] = useState(false)
     const [modalOpen, setModalOpen] = useState(false)
-    
+    const { profile, setProfile } = useProfile()
+    let currentUserInitials = ""
+    if(profile) {
+        currentUserInitials = getInitials(profile.name)
+    }
     function showComments() {
-       setComments((prev) => !prev)
+       setDisplayComments((prev) => !prev)
        setRotate((prev) => !prev)
     }
 
@@ -41,7 +54,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask}:TaskC
 
     async function removeTask() {
         if (!token) {
-            alert("Vous devez être connecté pour supprimer une tâche.")
+            router.replace("/")
             return
         }
         const taskId = task.id
@@ -55,6 +68,26 @@ export default function TaskCard({task, projectId, token, editCurrentTask}:TaskC
             if(fetchResult.success) useTaskStore.getState().removeTask(task.id)
         }
         
+    }
+
+    async function handleSubmit (e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+        const form = e.currentTarget
+        const formData = new FormData(form)
+        const comment = formData.get("comment") as string
+        console.log(comment)
+        if (!token) {
+            router.replace("/")
+            return
+        }
+        const taskId = task.id
+        const payload = {content:comment}
+        const response = await addComment({token, projectId, taskId, payload})
+        const fetchResult = await response.json()
+        if(fetchResult.success) {
+            addTaskInStore(fetchResult.data.comment)
+            form.reset()
+        }
     }
 
     return (
@@ -89,21 +122,32 @@ export default function TaskCard({task, projectId, token, editCurrentTask}:TaskC
                     <div className={styles.label}>
                         Commentaires ({task.comments.length})
                     </div>
-                    <button onClick={showComments} className={`${styles.showCommentsCta} ${!comments ? '' : styles.rotate }`}><img src="/pictures/static/chevron.svg"/></button>
+                    <button onClick={showComments} className={`${styles.showCommentsCta} ${!displayComments ? '' : styles.rotate }`}><img src="/pictures/static/chevron.svg"/></button>
                 </div>
-                <section className={`${styles.commentsArea} ${comments ? styles.extended : ''}`}>
-                    {task.comments.map((comment)=>(
+                <section className={`${styles.commentsArea} ${displayComments ? styles.extended : ''}`}>
+                    {commentsInStore.map((comment)=>(
                         <div key={comment.id} className={styles.commentStripe}>
-                            <div className={styles.idTag}>BD</div>
-                            <div className={styles.description}>description</div>
+                            <div className={styles.idTag}>{getInitials(comment.author.name)}</div>
+                            <div className={styles.description}>
+                                <div className={styles.commentAuthor}>
+                                    {comment.author.name}
+                                </div>
+                                <div className={styles.commentContent}>
+                                    {comment.content}
+                                </div>
+                            </div>
                         </div>
                     ))}
                     
                     <div className={styles.commentStripe}>
-                        <div className={styles.idTag}>BD</div>
-                        <form>
+                        <div className={styles.idTag}>{currentUserInitials}</div>
+                        <form onSubmit={handleSubmit} className={styles.formComment}>
                             <div className={styles.description}>
-                                <input type="text" name="comment"></input>
+                                <input 
+                                    type="text" 
+                                    name="comment"
+                                    placeholder='Ajouter un commentaire...'
+                                ></input>
                             </div>
                             <button type="submit">Envoyer</button>
                         </form>

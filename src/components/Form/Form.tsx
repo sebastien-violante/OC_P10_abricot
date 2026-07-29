@@ -3,6 +3,7 @@ import CollaboratorSelect from '../CollaboratorSelect/CollaboratorSelect'
 import StatusSelect from '../StatusSelect/StatusSelect'
 import type { CustomInput } from '@/types/types'
 import type { ProjectFormData, User } from '@/types/types'
+import Button from '../Button/Button'
 
 type FormProps<T extends Record<string, any>> = {
     data: {
@@ -95,7 +96,8 @@ export default function Form<T extends Record<string, any>>({data, formData, set
                     }
                 })}
             </section>
-            <button type="submit">Ajouter un projet</button>
+            
+            <Button type="submit" color={"grey"} width={"xxlarge"}>{formData.ctaLabel}</Button>
         </form>
             
     )

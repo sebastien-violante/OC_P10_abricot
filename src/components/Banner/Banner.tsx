@@ -1,5 +1,4 @@
 import styles from './Banner.module.css'
-import Button from '../Button/Button'
 
 type BannerProps = {
     title: string;
