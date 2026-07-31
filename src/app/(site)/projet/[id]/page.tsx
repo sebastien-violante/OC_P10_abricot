@@ -109,12 +109,13 @@ export default function SingleProject() {
                 const taskId = formData.taskId
                 const response = await editTask({payload, token, projectId, taskId})
                 const fetchResult = await response.json()
-                
+                console.log(fetchResult)
                 updateTaskInStore(fetchResult.data.task)
             }
             else {
                 const response = await recordTask({payload, token, projectId})
                 const fetchResult = await response.json()
+                console.log(fetchResult)
                 const newTask = fetchResult.data.task
                 setApiResponse(fetchResult.message)
                 addTaskInStore(newTask)
@@ -122,8 +123,6 @@ export default function SingleProject() {
             
     }
 
-    
-    
     const data = {
             title: "Créer une tâche",
             inputs : [

@@ -7,11 +7,14 @@ import getInitials from '@/app/utils/getInitials'
 import { useProfile } from '@/app/context/profileContext'
 import { useMemo } from 'react'
 import { usePathname } from 'next/navigation'
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
 
-    const { profile } = useProfile()
-    console.log(profile)
+    const { profile, setProfile } = useProfile()
+    const router = useRouter();
+    console.log("HEADER", profile);
     const initials = useMemo(
         () => profile ? getInitials(profile.name) : '',
         [profile]
@@ -20,9 +23,17 @@ export default function Header() {
     const isDashboard = pathname === "/dashboard"
     const isProjects = pathname === '/projets'
 
+    function logout() {
+        Cookies.remove("token");
+        setProfile(null);
+        router.push("/");
+    }
+
     return (
         <header className={styles.header}>
-            <Image height={20} width={147} alt="logo du site" src="/pictures/static/logo-orange.svg"/>
+            <button onClick={logout}>
+                <Image height={20} width={147} alt="logo du site" src="/pictures/static/logo-orange.svg"/>
+            </button>
             <nav>
                 <ul className={styles.navUl}>
                     <li className={`${styles.navLi} ${isDashboard ? styles.selectedLink : ""}`}>

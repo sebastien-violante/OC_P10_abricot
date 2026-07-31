@@ -9,8 +9,12 @@ import { useRouter } from 'next/navigation'
 import { SubmitEvent, ChangeEvent } from 'react'
 import Cookies from "js-cookie"
 import { AuthenticateResult, RegistrationFormData, FormErrors, FetchErrors, FetchSuccessData } from '../types/types'
+import fetchProfile from './utils/fetchProfile'
+import { useProfile } from './context/profileContext'
 
 export default function Login() {
+    
+    const { loadProfile } = useProfile()
 
     const router = useRouter()
     const [formData, setFormData] = useState<RegistrationFormData>({
@@ -83,12 +87,12 @@ export default function Login() {
                 if (!data.data.token) {
                     throw new Error("Token manquant dans la réponse");
                 } else {
-                   
                     Cookies.set('token', data.data.token, {
                         expires: 1 / 24,
                         secure: true,
                         sameSite: 'strict',
-                        });
+                    });
+                    await loadProfile()
                     router.push('/dashboard')
                 }
             } catch(error) {

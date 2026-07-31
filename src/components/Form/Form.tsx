@@ -31,7 +31,9 @@ export default function Form<T extends Record<string, any>>({data, formData, set
             ))}
             {apiResponse}
             <section className={styles.formContainer}>
-                {data.inputs.map((input) => {
+                {data.inputs
+                .filter(input => input.type !== "status" || formData.edit)
+                .map((input) => {
                     switch (input.type) {
                         case "text": return (
                             <div key={input.label} className={styles.formGroup}>

@@ -8,14 +8,15 @@ type ProgressBarProps = {
 
 export default function ProgressBar({project}: ProgressBarProps) {
     
-    const isTasks = (project.tasks.length > 0)
-    const doneTasks = project.tasks.filter(task => task.status === "DONE").length
-    const totalTasks = project.tasks.length
+    const tasks = project.tasks ?? []
+    const doneTasks = tasks.filter(task => task.status === "DONE").length
+    const totalTasks = tasks.length
     const percent = totalTasks > 0 ? Math.floor(doneTasks/totalTasks*100) : 0
+    const hasTasks = tasks.length > 0
 
     return (
         <>
-            {isTasks &&
+            {hasTasks &&
                 <section className={styles.progressBar}>
                     <div className="flex justify-between">
                         <span className={styles.label}>Progression</span>

@@ -34,10 +34,11 @@ export default function Dashboard() {
     const subtitle=`Bonjour ${profile?.name}, voici un aperçu de vos projets et tâches`
     const [isOpen, setIsOpen] = useState(false)
     const [apiResponse, setApiResponse] = useState("")
-
+    const [isTaskDisplayed, setIsTaskDisplayed] = useState(true)
     // Objet de récupération des données de formulaire
     const [formData, setFormData] = useState<ProjectFormData>({
         title: "",
+        ctaLabel: "Créer un projet",
         description: "",
         collaborators: [] 
     })
@@ -182,6 +183,12 @@ export default function Dashboard() {
                 <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
             </Modal>
          )}
+        {isTaskDisplayed && (
+            <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
+                <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
+            </Modal>
+        )}
+        
         </>
         
     )

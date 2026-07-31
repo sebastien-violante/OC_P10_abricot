@@ -12,25 +12,27 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   
 
-  useEffect(() => {
-
+  const loadProfile = async () => {
     const token = Cookies.get('token')
-    if(!token) return
-    const authToken = token;
-    async function loadProfile() {
-      try {
-          const profile = await fetchProfile({ token: authToken })
+    if(!token) {
+      setProfile(null)
+      return
+    }
+    try {
+          const profile = await fetchProfile({ token })
           setProfile(profile)
       } catch (error) {
           console.error(error);
+          setProfile(null)
       } 
-    }
-    
+  }
+
+  useEffect(() => {
     loadProfile()
   }, [])
-  
+
   return (
-    <ProfileContext.Provider value={{ profile, setProfile }}>
+    <ProfileContext.Provider value={{ profile, setProfile, loadProfile }}>
       {children}
     </ProfileContext.Provider>
   )

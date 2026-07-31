@@ -136,6 +136,7 @@ export type User = {
 export type ProfileContextType = {
   profile: Profile | null
   setProfile: React.Dispatch<React.SetStateAction<Profile | null>>
+  loadProfile: () => Promise<void>
 }
 
 export type Profile = {
@@ -220,6 +221,7 @@ export type Project = {
 
 export type ProjectFormData = {
     title: string;
+    ctaLabel: string;
     description: string;
     collaborators: User[];
 }

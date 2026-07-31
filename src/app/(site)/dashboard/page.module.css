@@ -41,6 +41,7 @@
 .kanbanWrapper {
     display: flex;
     justify-content: space-between;
+    gap: 22px;
 }
 
 .selected {
