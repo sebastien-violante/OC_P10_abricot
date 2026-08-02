@@ -10,8 +10,6 @@ export default function Team({project}: TeamProps) {
 
     const memberInitials: string[] = []
     project.members.forEach((member) => { memberInitials.push(getInitials(member.user.name))})
-    console.log(project)
-    console.log(memberInitials)
     const ownerInitials = getInitials(project.owner.name)
     return (
         <article className={styles.teamWrapper}>

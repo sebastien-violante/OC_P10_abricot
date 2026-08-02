@@ -220,6 +220,7 @@ export type Project = {
 }
 
 export type ProjectFormData = {
+    formTitle?: string;
     title: string;
     ctaLabel: string;
     description: string;

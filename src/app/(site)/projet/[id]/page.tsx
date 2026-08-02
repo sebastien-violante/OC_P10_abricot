@@ -4,18 +4,19 @@ import styles from './page.module.css'
 import fetchProject from '@/app/utils/fetchProject'
 import Cookies from "js-cookie"
 import { useEffect, useState } from 'react'
-import type { Task, CustomInput, TaskFormData } from '@/types/types'
+import { type Task, type CustomInput, type TaskFormData, ProjectFormData } from '@/types/types'
 import TaskCard from '@/components/TaskCard/TaskCard'
 import Modal from '@/components/Modal/Modal'
 import Form from '@/components/Form/Form'
 import Button from '@/components/Button/Button'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useTaskStore } from '@/store/TaskStore'
-
+import type { Project } from '@/types/types'
 import { useParams } from 'next/navigation'
 import { taskSchema } from '@/types/schemas/taskSchema'
 import recordTask from '@/app/utils/recordTask'
 import editTask from '@/app/utils/editTask'
+import { projectWriteAnalyzeData } from 'next/dist/build/swc/generated-native'
 
 export default function SingleProject() {
     const params = useParams<{ id: string }>()
@@ -25,7 +26,7 @@ export default function SingleProject() {
         state.projects.find((p) => p.id === projectId)
     )
     const token = Cookies.get('token')
-  
+    console.log(project)
     //const [tasks, setTasks] = useState<Task[] | null>(null)
     const [loading, setLoading] = useState(true)
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -35,10 +36,19 @@ export default function SingleProject() {
     const addTaskInStore = useTaskStore((state) => state.addTask)
     const updateTaskInStore = useTaskStore((state) => state.updateTask)
     const [isOpen, setIsOpen] = useState(false)
-
+    const ctaAvaliable = true
+    const [modifyProject, setModifyProject] = useState(false)
+    
+    const initProjectData = {
+        formTitle: "",
+        title: "",
+        description: "",
+        ctaLabel: "",
+        collaborators: []
+    }
     // Objet de récupération des données de formulaire
 
-    const initFormData = {
+    const initTaskData = {
         formTitle: "Créer une tâche",
         ctaLabel: "+ Ajouter une tâche",
         title: "",
@@ -49,7 +59,8 @@ export default function SingleProject() {
         edit: false,
         taskId: ""
     }
-    const [formData, setFormData] = useState<TaskFormData>(initFormData)
+    const [taskData, setTaskData] = useState<TaskFormData>(initTaskData)
+    const [projectData, setProjectData] = useState<ProjectFormData>(initProjectData)
 
     function handleClick() {
         setIsOpen(true)
@@ -57,7 +68,7 @@ export default function SingleProject() {
 
     function editCurrentTask(task: Task) {
         const collaborators = task.assignees.map(assignee => (assignee.user))
-        setFormData({
+        setTaskData({
             formTitle: "Modifier",
             ctaLabel: "Enregistrer",
             title: task.title,
@@ -69,27 +80,27 @@ export default function SingleProject() {
             taskId: task.id
         })
         setIsOpen(true)
-
     }
+
 
     function closeModal() {
         setIsOpen(false)
-        setFormData(initFormData)
+        setTaskData(initTaskData)
     }
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => {
-        console.log(formData)
+        
         e.preventDefault();
         if (!token) {
         setApiResponse("Vous devez être connecté.");
         return;
     }
         // Création de la payload en fonction du formData
-         const payload = {
-            title: formData.title,
-            description: formData.description,
-            dueDate: formData.dueDate,
-            assigneeIds: formData.collaborators.map(({ id }) => id),
-            status: formData.status
+        const payload = {
+            title: taskData.title,
+            description: taskData.description,
+            dueDate: taskData.dueDate,
+            assigneeIds: taskData.collaborators.map(({ id }) => id),
+            status: taskData.status
         };
         console.log(payload)
 
@@ -105,8 +116,8 @@ export default function SingleProject() {
                 return;
             }
             setErrors({});
-            if(formData.edit && formData.taskId) {
-                const taskId = formData.taskId
+            if(taskData.edit && taskData.taskId) {
+                const taskId = taskData.taskId
                 const response = await editTask({payload, token, projectId, taskId})
                 const fetchResult = await response.json()
                 console.log(fetchResult)
@@ -123,7 +134,55 @@ export default function SingleProject() {
             
     }
 
-    const data = {
+    const searchTask = () => {
+        console.log('search')
+    }
+
+    const handleModifyProject = () => {
+        console.log(project)
+        if(!project) return
+        const collaborators = project.members.map(member => (member.user))
+        
+        setProjectData({
+            formTitle: "Modifier un projet",
+            title: project?.name,
+            ctaLabel: "Enregistrer",
+            description: project?.description,
+            collaborators
+        })
+        setModifyProject(true)
+    }
+
+
+    const projectFormStructure = {
+
+        title: "Modifier un projet",
+        inputs : [
+            {
+                label : "Titre", 
+                type : "text", 
+                name : "title", 
+                required: true, 
+            },
+            {
+                label : "Description", 
+                type: "text", 
+                name : "description", 
+                required: true
+            },
+            {
+                label : "Contributeurs", 
+                type: "collaborators", 
+                name: "collaborators", 
+                required: false
+            }
+        ],
+    } satisfies {
+        title: string;
+        inputs: CustomInput[];
+    };
+
+    const taskFomStructure = {
             title: "Créer une tâche",
             inputs : [
                 {
@@ -209,7 +268,7 @@ export default function SingleProject() {
                 <div className={styles.projectHeader}>
                     <div className={styles.label}>
                         Nom du projet
-                        <span className={styles.modifyProject}>Modifier</span>
+                        <button className={styles.modifyProject} onClick={handleModifyProject}>Modifier</button>
                     </div>
                     {project?.name}
                 </div>
@@ -228,15 +287,49 @@ export default function SingleProject() {
                     ))}
                 </div>
             </section>
-            {tasksInStore?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
-            {tasksInStore?.map((task)=>(
-                <TaskCard key={task.id} task = {task} projectId={projectId} token={token} editCurrentTask={editCurrentTask}/>
-            ))}
-            {isOpen && (
-                        <Modal isOpen={isOpen} onClose={closeModal}>
-                            <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse} ></Form>
-                        </Modal>
-                     )}
+            <section className={styles.taskList}>
+                <section className={styles.header}>
+                    <div className={styles.label}>
+                        <span>Tâches</span>
+                        <span>Par ordre de priorité</span>
+                    </div>
+                    <div className={styles.cta}>
+                        <button className={`${styles.displayTask}`}>
+                            <img src="/pictures/static/coche-orange.svg"/>
+                            Liste</button>
+                        <button className={`${styles.displayTask}`}>
+                            <img src="/pictures/static/calendar-orange.svg"/>
+                            Calendrier</button>
+                        <select id="status" name="status" required>
+                            <option value="" selected disabled>
+                                Statut
+                            </option>
+                            <option value="low">Faible</option>
+                            <option value="medium">Moyenne</option>
+                            <option value="high">Haute</option>
+                        </select>
+                        <form className={styles.searchForm}>
+                            <input type="text" name="search" placeholder="Rechercher une tâche"></input>
+                            <button type="submit" onClick={searchTask}><img src="/pictures/static/search.svg"/></button>
+                        </form>
+
+                    </div>
+                </section>
+                {tasksInStore?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
+                {tasksInStore?.map((task)=>(
+                    <TaskCard key={task.id} task={task} projectId={projectId} token={token} editCurrentTask={editCurrentTask} ctaAvaliable={ctaAvaliable}/>
+                ))}
+                {isOpen && (
+                    <Modal onClose={closeModal}>
+                        <Form data={taskFomStructure} formData={taskData} setFormData={setTaskData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse} ></Form>
+                    </Modal>
+                )}
+                </section>
+                {modifyProject && (
+                    <Modal onClose={()=>setModifyProject(false)}>
+                        <Form data={projectFormStructure} formData={projectData} setFormData={setProjectData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
+                    </Modal>
+                )}
         </div>
     )
 }

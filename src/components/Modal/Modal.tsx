@@ -1,7 +1,12 @@
-import styles from './Modale.module.css'
+import styles from './Modal.module.css'
+import { ReactNode } from 'react';
 
-export default function Modal({ isOpen, onClose, children }) {
-  if (!isOpen) return null;
+type ModalProps = {
+  onClose: () => void;
+  children: ReactNode;
+}
+
+export default function Modal({ onClose, children }: ModalProps) {
 
   return (
     <div className={styles.overlay} onClick={onClose}>

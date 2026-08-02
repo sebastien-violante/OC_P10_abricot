@@ -3,6 +3,7 @@ import { Task } from '@/types/types'
 import TaskTags from '../TaskTag/TaskTag'
 import TaskStatus from '../TaskStatus/TaskStatus'
 import Button from '../Button/Button'
+import { useSelectedTask } from '@/store/SelectedTaskStore'
 
 type TaskStripProps = {
     task: Task
@@ -10,8 +11,9 @@ type TaskStripProps = {
 
 export default function TaskStrip({task}: TaskStripProps) {
 
+    const setSelectedTask = useSelectedTask((state) => state.setTask)
     function handleClick () {
-        console.log('Voir')
+        setSelectedTask(task)
     }
 
     return (

@@ -19,6 +19,8 @@ import { projectSchema } from "@/types/schemas/projectSchema";
 import Form from "@/components/Form/Form";
 import recordProject from "@/app/utils/recordProject";
 import type { ProjectFormData, CustomInput } from "@/types/types";
+import TaskCard from "@/components/TaskCard/TaskCard";
+import { useSelectedTask } from "@/store/SelectedTaskStore";
 
 export default function Dashboard() {
     
@@ -32,16 +34,22 @@ export default function Dashboard() {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const title="Tableau de bord"
     const subtitle=`Bonjour ${profile?.name}, voici un aperçu de vos projets et tâches`
-    const [isOpen, setIsOpen] = useState(false)
+    // Etat fermé/ouvert des modales
+    const [createProjectForm, setCreateProjectForm] = useState(false)
+    //const [displayTask, setDisplayTask] = useState(false)
     const [apiResponse, setApiResponse] = useState("")
-    const [isTaskDisplayed, setIsTaskDisplayed] = useState(true)
     // Objet de récupération des données de formulaire
     const [formData, setFormData] = useState<ProjectFormData>({
+        formTitle: "Créer un projet",
         title: "",
-        ctaLabel: "Créer un projet",
+        ctaLabel: "Ajouter un projet",
         description: "",
         collaborators: [] 
     })
+    const selectedTask = useSelectedTask((state) => state.task)
+    console.log(selectedTask)
+    const removeTask = useSelectedTask((state) => state.removeTask)
+    const ctaAvaliable = false
 
     // Objet de composition du formulaire
     const data = {
@@ -98,7 +106,7 @@ export default function Dashboard() {
 
     
     function handleClick() {
-        setIsOpen(true)
+        setCreateProjectForm(true)
     }
 
      
@@ -178,14 +186,14 @@ export default function Dashboard() {
             </section>
         )}
         
-        {isOpen && (
-            <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
+        {createProjectForm && (
+            <Modal onClose={()=>setCreateProjectForm(false)}>
                 <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
             </Modal>
          )}
-        {isTaskDisplayed && (
-            <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
-                <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
+        {selectedTask && (
+            <Modal onClose={()=>removeTask()}>
+                <TaskCard task = {selectedTask} projectId={selectedTask.projectId} token={token} ctaAvaliable={ctaAvaliable}/>
             </Modal>
         )}
         

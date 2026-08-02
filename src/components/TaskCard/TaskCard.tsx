@@ -11,15 +11,17 @@ import { useProfile } from '@/app/context/profileContext'
 import getInitials from '@/app/utils/getInitials'
 import addComment from '@/app/utils/addComment'
 import { useRouter } from "next/navigation"
+import { formatDateWithHour } from '@/app/utils/formatDate'
 
 type TaskCardProps = {
     task: Task;
     projectId: string;
     token?: string;
-    editCurrentTask: (task: Task) => void;
+    editCurrentTask?: (task: Task) => void;
+    ctaAvaliable: boolean;
 }
 
-export default function TaskCard({task, projectId, token, editCurrentTask}:TaskCardProps) {
+export default function TaskCard({task, projectId, token, editCurrentTask, ctaAvaliable}:TaskCardProps) {
 
     const router = useRouter()
     // mise en store des commentaires
@@ -49,7 +51,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask}:TaskC
     }
 
     async function editTask() {
-       editCurrentTask(task)
+       editCurrentTask?.(task)
     }
 
     async function removeTask() {
@@ -92,55 +94,78 @@ export default function TaskCard({task, projectId, token, editCurrentTask}:TaskC
 
     return (
         <article className={styles.taskCardWrapper}>
-            <section className={styles.taskCardTitle}>
-                {task.title} <TaskStatus status={task.status}/>
-                {task.description}
-                <button onClick={ctaActions}><img src="/pictures/static/taskCta.svg"/></button>
-                {cta && <div className={styles.taskCtaProposals}>
-                    <ul>
-                        <li onClick={editTask}>Modifier</li>
-                        <li onClick={removeTask}>Supprimer</li>
-                    </ul>
-                </div>}
+            <section className={styles.taskCardTop}>
+                <div className={styles.leftData}>
+                    <div className={styles.taskCardHeader}>
+                        <div className={styles.taskCardTitle}>{task.title}</div> 
+                        <TaskStatus status={task.status}/>
+                    </div>
+                    <div className={styles.description}>
+                        {task.description}
+                    </div>
+                </div>
+                <div className={styles.cta}>
+                    {ctaAvaliable && <button onClick={ctaActions}><img src="/pictures/static/taskCta.svg"/></button>}
+                    {cta && <div className={styles.taskCtaProposals}>
+                                <ul className={styles.ul}>
+                                    <li onClick={editTask} className={styles.li}>
+                                        <img src="/pictures/static/pen.svg"/>Modifier</li>
+                                    <li onClick={removeTask} className={styles.li}>
+                                        <img src="/pictures/static/bin.svg"/>Supprimer</li>
+                                </ul>
+                            </div>
+                    }
+                </div>
             </section>
-            <section>
-                Echéance: {new Date(task.dueDate).toLocaleDateString("fr-FR", {
-                    day: "numeric",
-                    month: "long",
-                })}
+            <section className={styles.dueDate}>
+                Echéance: 
+                <img className={styles.calendarPicture} src="/pictures/static/calendar.svg"/>
+                <span className={styles.taskDueDate}>
+                    {new Date(task.dueDate).toLocaleDateString("fr-FR", {day: "numeric",month: "long"})}
+                </span>
+                
             </section>
             <section className={styles.assignees}>
                 Assigné à  : 
                 <div className={styles.taskAssignees}>
                     {task.assignees.map((assignee)=>(
-                        <p key={assignee.id}>{assignee.user.name}</p>
+                        <div className={styles.assignee} key={assignee.id}>
+                            <span className={styles.initialBadge} >{getInitials(assignee.user.name)}</span>
+                            <span className={styles.fullNameBadge} >{assignee.user.name}</span>
+                        </div>
                     ))}
                 </div>
             </section>
             <section className={styles.comments}>
                 <div className={styles.commentsHeader}>
                     <div className={styles.label}>
-                        Commentaires ({task.comments.length})
+                        Commentaires ({commentsInStore.length})
                     </div>
                     <button onClick={showComments} className={`${styles.showCommentsCta} ${!displayComments ? '' : styles.rotate }`}><img src="/pictures/static/chevron.svg"/></button>
                 </div>
                 <section className={`${styles.commentsArea} ${displayComments ? styles.extended : ''}`}>
                     {commentsInStore.map((comment)=>(
                         <div key={comment.id} className={styles.commentStripe}>
-                            <div className={styles.idTag}>{getInitials(comment.author.name)}</div>
+                            <div className={styles.initialBadge}>{getInitials(comment.author.name)}</div>
                             <div className={styles.description}>
-                                <div className={styles.commentAuthor}>
-                                    {comment.author.name}
+                                <div className={styles.leftSide}>
+                                    <div className={styles.commentAuthor}>
+                                        {comment.author.name}
+                                    </div>
+                                    <div className={styles.commentContent}>
+                                        {comment.content}
+                                    </div>
                                 </div>
-                                <div className={styles.commentContent}>
-                                    {comment.content}
+                                <div className={styles.createdAt}>
+                                    {formatDateWithHour(comment.createdAt)}
                                 </div>
+                                
                             </div>
                         </div>
                     ))}
                     
                     <div className={styles.commentStripe}>
-                        <div className={styles.idTag}>{currentUserInitials}</div>
+                        <div className={styles.initialCurrentUserBadge}>{currentUserInitials}</div>
                         <form onSubmit={handleSubmit} className={styles.formComment}>
                             <div className={styles.description}>
                                 <input 
@@ -149,7 +174,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask}:TaskC
                                     placeholder='Ajouter un commentaire...'
                                 ></input>
                             </div>
-                            <button type="submit">Envoyer</button>
+                            <button className={styles.sendComment} type="submit">Envoyer</button>
                         </form>
                     </div>
                     

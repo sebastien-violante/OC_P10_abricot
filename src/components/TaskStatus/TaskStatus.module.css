@@ -1,9 +1,8 @@
 .statusType {
-    border-radius: 10px;
+    border-radius: 50px;
     padding: 4px 16px;
-    position: absolute;
-    top: 32px;
-    right: 40px;
+    font-size: 14px;
+    font-weight:300;
 }
 
 .red {

@@ -39,6 +39,7 @@ export default function Projects() {
     
     // Objet de récupération des données de formulaire
         const [formData, setFormData] = useState<ProjectFormData>({
+            formTitle: "Créer un projet",
             title: "",
             ctaLabel: "Créer un projet",
             description: "",
@@ -174,7 +175,7 @@ export default function Projects() {
                 ))}
             </div>
            {isOpen && (
-                <Modal isOpen={isOpen} onClose={()=>setIsOpen(false)}>
+                <Modal onClose={()=>setIsOpen(false)}>
                     <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
                 </Modal>
             )}

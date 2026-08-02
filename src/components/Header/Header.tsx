@@ -14,7 +14,6 @@ export default function Header() {
 
     const { profile, setProfile } = useProfile()
     const router = useRouter();
-    console.log("HEADER", profile);
     const initials = useMemo(
         () => profile ? getInitials(profile.name) : '',
         [profile]
