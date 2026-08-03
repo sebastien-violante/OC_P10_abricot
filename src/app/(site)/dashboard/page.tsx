@@ -173,19 +173,33 @@ export default function Dashboard() {
                 Kanban
             </button>
         </section>
-        {!kanban && (
-            tasksByDate?.map((task) => (
-            <div key={task.id}><TaskStrip task={task}/></div>
-            ))
-        )}
-        {kanban && (
-            <section className={styles.kanbanWrapper}>
-                <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []}/>
-                <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []}/>
-                <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []}/>
+        <section className={styles.listDisplay}>
+            <section className={styles.header}>
+                <div className={styles.label}>
+                    Mes tâches assignées
+                    <span>Par ordre de priorité</span>
+                </div>
+                <form className={styles.search}>
+                    <input type="text" name="search" placeholder="Rechercher une tâche"></input>
+                    <button type="submit"><img src="/pictures/static/search.svg"/></button>
+                </form>
             </section>
-        )}
-        
+            {!kanban && (
+                tasksByDate?.map((task) => (
+                <div key={task.id}><TaskStrip task={task}/></div>
+                ))
+            )}
+        </section>
+        <section className={styles.kanbanDisplay}>
+            {kanban && (
+                <section className={styles.kanbanWrapper}>
+                    <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []}/>
+                    <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []}/>
+                    <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []}/>
+                </section>
+            )}
+        </section>
+                
         {createProjectForm && (
             <Modal onClose={()=>setCreateProjectForm(false)}>
                 <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>

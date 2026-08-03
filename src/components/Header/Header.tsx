@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import getInitials from '@/app/utils/getInitials'
 import { useProfile } from '@/app/context/profileContext'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -21,11 +21,24 @@ export default function Header() {
     const pathname = usePathname()
     const isDashboard = pathname === "/dashboard"
     const isProjects = pathname === '/projets'
+    const [userMenuOpen, setUserMenuOpen] = useState(false)
 
     function logout() {
         Cookies.remove("token");
         setProfile(null);
         router.push("/");
+    }
+
+    function account() {
+        router.push("/compte");
+    }
+
+    const handleClick = () => {
+        setUserMenuOpen(prev => !prev)
+        // Fermuture du menu au bout de 10 secondes
+        setTimeout(() => {
+            setUserMenuOpen(false)
+        }, 10000);
     }
 
     return (
@@ -49,7 +62,14 @@ export default function Header() {
                     </li>
                 </ul>
             </nav>
-            <div className={styles.idTag}>{initials}</div>  
+            <div className={styles.userMenu}>
+                <button className={`${styles.idTag} ${userMenuOpen ? styles.selected : ""}`} onClick={handleClick}>{initials}</button>  
+                { userMenuOpen && <ul>
+                    <li onClick={account}>Mon compte</li>
+                    <li onClick={logout}>Déconnexion</li>
+                </ul>
+                }
+            </div>
         </header>
     )
 }

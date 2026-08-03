@@ -1,0 +1,65 @@
+.accountWrapper {
+    width: 95%;
+    margin: 57px auto;
+    max-width: 1215px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--grey200);
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.accountWrapper .header {
+    font-size: 18px;
+    color: var(--grey800);
+}
+
+.accountWrapper .header span {
+    color: var(--grey600);
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.accountWrapper .data {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.accountWrapper .formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.accountWrapper .formGroup label {
+    font-size: 14px;
+    color: black;
+}
+
+.accountWrapper .formGroup input {
+    width: 100%;
+    height: 53px;
+    border: 1px solid var(--grey200);
+    border-radius: 4px;
+    padding: 16px;
+    color: var(--grey600);
+    font-size: 12px;
+}
+
+.accountWrapper .cta {
+    display: flex;
+    gap: 10px;
+}
+
+.accountWrapper button {
+    background: var(--grey800);
+    border-radius: 10px;
+    height: 50px;
+    width: 242px;
+    color: white;
+}

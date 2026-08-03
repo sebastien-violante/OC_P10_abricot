@@ -37,9 +37,33 @@
     align-items: center;
     justify-content: center;
     background-color: var(--light-orange);
+    transition: border-radius 1s ease;
+}
+
+.header .idTag.selected {
+    border-radius: 0;
 }
 
 .selectedLink {
     color: white;
     background: black;
+}
+
+.userMenu {
+    position: relative;
+    cursor: pointer;
+}
+
+.userMenu ul {
+    position: absolute;
+    top: 10px;
+    right: 70px;
+}
+
+.userMenu ul li {
+    opacity: .7;
+}
+
+.userMenu ul li:hover {
+    opacity: 1
 }

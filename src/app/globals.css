@@ -20,5 +20,6 @@ body {
   max-width: 1440px;
   margin: auto;
   font-family: var(--inter), sans-serif;
+  background: var(--grey100);
 }
 
