@@ -26,20 +26,36 @@
 }
 
 .contributors {
-    background: var(--grey200);
+    background: var(--grey100);
     padding: 20px 50px;
     display: flex;
     justify-content: space-between;
+    margin-top: 50px;
+}
+
+.contributors .totalContributors {
+    font-size: 18px;
+    color: var(--grey800);
+}
+
+.contributors .totalContributors span {
+    color: var(--grey600);
+    font-size: 16px;
 }
 
 .contributors .detailsContributors {
     display: flex;
-    
+    gap: 8px;
+    border-radius: 10px;
 }
 
 .taskList {
     max-width: 1215px;
     padding: 40px 60px;
+    background: white;
+    border-radius: 10px;
+    margin-top: 51px;
+    border: 1px solid var(--grey200);
 }
 
 .taskList .header {
@@ -94,4 +110,50 @@
 .taskList .searchForm button img {
     width: 14px;
     height: 14px;
+}
+
+.idTag {
+    display: flex;
+    gap: 8px;
+}
+
+.idTag .ownerId, 
+.idTag .memberId {
+    height: 27px;
+    width: 27px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.idTag .ownerName {
+    color: var(--dark-orange);
+    font-size: 14px;
+    padding: 0 16px;
+    background: var(--light-orange);
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.idTag .memberName {
+    color: var(--grey600);
+    font-size: 14px;
+    padding: 0 16px;
+    background: var(--grey200);
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.idTag .ownerId {
+    background: var(--light-orange)
+}
+
+.idTag .memberId {
+    background: var(--grey200);
 }
