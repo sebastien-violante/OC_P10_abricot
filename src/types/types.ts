@@ -234,6 +234,12 @@ export type UserFormData = {
     email: string;
 }
 
+export type UserPasswordFormData = {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}
+
 export type TaskFormData = {
     formTitle: string;
     ctaLabel: string;

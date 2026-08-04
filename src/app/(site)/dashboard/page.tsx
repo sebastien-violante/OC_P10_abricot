@@ -6,7 +6,7 @@ import Banner from "@/components/Banner/Banner";
 import Button from "@/components/Button/Button";
 import TaskStrip from "@/components/TaskStrip/TaskStrip";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { User, Task, KanbanLists } from "@/types/types";
 import fetchTasks from "@/app/utils/fetchTasks";
 import fetchProfile from "@/app/utils/fetchProfile";
@@ -50,6 +50,7 @@ export default function Dashboard() {
     console.log(selectedTask)
     const removeTask = useSelectedTask((state) => state.removeTask)
     const ctaAvaliable = false
+    const [search, setSearch] = useState("");
 
     // Objet de composition du formulaire
     const data = {
@@ -94,6 +95,7 @@ export default function Dashboard() {
                 const filteredTasksByDate = filterTasksByDate(tasks)
                 setTasksByDate(filteredTasksByDate);
                 const filteredTasksByStatus = filterTasksByStatus(tasks)
+                console.log(filteredTasksByStatus)
                 setTasksForKanban(filteredTasksByStatus);
             } catch (error) {
                 console.error(error);
@@ -108,7 +110,6 @@ export default function Dashboard() {
     function handleClick() {
         setCreateProjectForm(true)
     }
-
      
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         console.log(formData)
@@ -135,13 +136,17 @@ export default function Dashboard() {
             return;
         }
         setErrors({});
-
-        
+       
         const response = await recordProject({payload, token})
         const fetchResult = await response.json()
         setApiResponse(fetchResult.message)
     };
 
+    const filteredTasks = useMemo(() => {
+        return tasksByDate?.filter((task) => (task.title.toLowerCase().includes(search.toLowerCase()) || task.description.toLowerCase().includes(search.toLowerCase()))
+    
+    )}, [tasksByDate, search])
+    console.log(filteredTasks)
     if (loading) {
         return (
             <div className={styles.loaderContainer}>
@@ -173,29 +178,39 @@ export default function Dashboard() {
                 Kanban
             </button>
         </section>
-        <section className={styles.listDisplay}>
-            <section className={styles.header}>
-                <div className={styles.label}>
-                    Mes tâches assignées
-                    <span>Par ordre de priorité</span>
-                </div>
-                <form className={styles.search}>
-                    <input type="text" name="search" placeholder="Rechercher une tâche"></input>
-                    <button type="submit"><img src="/pictures/static/search.svg"/></button>
-                </form>
+
+        {!kanban && (
+            <>
+            <section className={styles.listDisplay}>
+                <section className={styles.header}>
+                    <div className={styles.label}>
+                        Mes tâches assignées
+                        <span>Par ordre de priorité</span>
+                    </div>
+                    <div className={styles.search}>
+                        <input 
+                            type="text" 
+                            name="search" 
+                            placeholder="Rechercher une tâche"
+                            onChange={(e) => setSearch(e.target.value)}
+                        ></input>
+                        <img src="/pictures/static/search.svg"/>
+                    </div>
+                </section>
+                
+                {filteredTasks?.map((task) => (
+                <div key={task.id}><TaskStrip task={task} kanban={kanban}/></div>
+                ))}
             </section>
-            {!kanban && (
-                tasksByDate?.map((task) => (
-                <div key={task.id}><TaskStrip task={task}/></div>
-                ))
-            )}
-        </section>
+            </>
+        )}
+
         <section className={styles.kanbanDisplay}>
             {kanban && (
                 <section className={styles.kanbanWrapper}>
-                    <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []}/>
-                    <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []}/>
-                    <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []}/>
+                    <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []} kanban={kanban}/>
+                    <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []} kanban={kanban}/>
+                    <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []} kanban={kanban}/>
                 </section>
             )}
         </section>

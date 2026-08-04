@@ -4,10 +4,13 @@ import { useProfile } from '@/app/context/profileContext'
 import { useEffect, useState } from 'react'
 import styles from './page.module.css'
 import type { UserFormData } from '@/types/types'
+import type { UserPasswordFormData } from '@/types/types'
 import { SubmitEvent } from 'react'
 import { userSchema } from '@/types/schemas/userSchema'
+import { userPasswordSchema } from '@/types/schemas/userPasswordSchema'
 import Cookies from 'js-cookie'
 import putRequest from '@/app/utils/putRequest'
+import PasswordInput from '@/components/PasswordInput/PasswordInput'
 
 export default function Account() {
     const [successMessage, setSuccessMessage] = useState("");
@@ -24,6 +27,14 @@ export default function Account() {
         }
     )
 
+    const [userPasswordFormData, setUserPasswordFormData] = useState<UserPasswordFormData>(
+        {
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: ""
+        }
+    )
+    console.log(userPasswordFormData)
     useEffect(() => {
         if(profile) {
         setUserFormData({
@@ -70,7 +81,47 @@ export default function Account() {
         setPasswordOpen(prev => !prev)
     }
                 
-
+    async function changePassword(event: SubmitEvent<HTMLFormElement>){
+        
+        event.preventDefault()
+        console.log(userPasswordFormData)
+        if(userPasswordFormData.newPassword === userPasswordFormData.confirmPassword) {
+            // validation des données par Zod
+            const zodValidation = userPasswordSchema.safeParse(userPasswordFormData)
+            console.log(zodValidation)
+            if(zodValidation.success) {
+                const payload = {
+                    currentPassword: userPasswordFormData.currentPassword,
+                    newPassword: userPasswordFormData.newPassword
+                }
+                const token = Cookies.get('token')
+                if(token) {
+                    const url = "api/auth/password"
+                    const result = await putRequest({ url,token,payload })
+                    const response = await result.json()
+                    if(response.success) {
+                        setSuccessMessage(response.message); 
+                } else {
+                    setErrorMessage(response.message);
+                }
+                setTimeout(() => {
+                    setSuccessMessage("")
+                    setErrorMessage("")
+                }, 3000);
+                }
+            } else {
+                setErrorMessage("Les mots de passe saisis ne respectent pas les règles prescrites")
+                setTimeout(() => {
+                setErrorMessage("")
+            }, 3000);
+            }
+        } else {
+            setErrorMessage("Le nouveau mot de passe et sa confirmation doivent être identiques")
+            setTimeout(() => {
+                setErrorMessage("")
+            }, 3000);
+        }
+    }
 
 
     return (
@@ -118,31 +169,25 @@ export default function Account() {
             <button onClick={showPasswordZone}>Modifier le mot de passe</button>
 
             { passwordZoneOpen && 
-                <form className={styles.password}>
-                    <div className={styles.formGroup}>
-                        <label htmlFor='lastPassword'>Mot de passe actuel</label>
-                        <input 
-                            type="password" 
-                            name="lastPassword" 
-                            id="lastPassword" 
-                            required /> 
-                    </div>
-                    <div className={styles.formGroup}>
-                        <label htmlFor='newPassword'>Nouveau mot de passe</label>
-                        <input 
-                            type="password" 
-                            name="newPassword" 
-                            id="newPassword" 
-                            required /> 
-                    </div>
-                    <div className={styles.formGroup}>
-                        <label htmlFor='confirmPassword'>Confirmation du nouveau mot de passe</label>
-                        <input 
-                            type="password" 
-                            name="confirmPassword" 
-                            id="confirmPassword" 
-                            required /> 
-                    </div>
+                <form className={styles.password} onSubmit={changePassword}>
+                    <PasswordInput
+                        name="currentPassword"
+                        label="Mot de passe actuel"
+                        userPasswordFormData={userPasswordFormData}
+                        setUserPasswordFormData={setUserPasswordFormData}
+                    />
+                    <PasswordInput
+                        name="newPassword"
+                        label="Nouveau mot de passe"
+                        userPasswordFormData={userPasswordFormData}
+                        setUserPasswordFormData={setUserPasswordFormData}
+                    />
+                    <PasswordInput
+                        name="confirmPassword"
+                        label="Confirmation du nouveau mot de passe"
+                        userPasswordFormData={userPasswordFormData}
+                        setUserPasswordFormData={setUserPasswordFormData}
+                    />
                     <div className={styles.cta}>
                         <button type="submit">Modifier le mot de passe</button>
                     </div>

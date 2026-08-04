@@ -2,9 +2,10 @@ import styles from './TaskStatus.module.css'
 import { Task } from '@/types/types'
 
 type TaskStatusProps = {
-    status: Task['status']
+    status: Task['status'];
+    kanban?: boolean;
 }
-export default function TaskStatus({status}: TaskStatusProps) {
+export default function TaskStatus({status, kanban}: TaskStatusProps) {
     
     const statusMap = {
     TODO: {
@@ -24,7 +25,7 @@ export default function TaskStatus({status}: TaskStatusProps) {
 const { className, label } = statusMap[status] ?? statusMap['TODO'];
    
     return (
-        <span className={`${styles.statusType} ${className}`}>
+        <span className={`${styles.statusType} ${className} ${kanban ? styles.topRight : ""}`}>
             {label}
         </span>
     )   

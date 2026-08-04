@@ -96,3 +96,18 @@
     font-size: 16px;
     color: var(--grey600);
 }
+
+.header .search {
+    width: 353px;
+    height: 63px;
+    border: 1px solid var(--grey200);
+    border-radius: 8px;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header .search input {
+    height: 50px;
+}

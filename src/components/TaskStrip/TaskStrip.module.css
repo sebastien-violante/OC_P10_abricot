@@ -1,6 +1,6 @@
 .taskStrip {
     width: 100%;
-    padding: 32px 40px;
+    padding: 30px 40px;
     border: 1px solid var(--grey200);
     border-radius: 10px;
     margin-bottom: 15px;
@@ -8,11 +8,46 @@
     flex-wrap: wrap;
     justify-content: space-between;
     position: relative;
+    background: white;
+}
+
+.taskStrip:hover {
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .taskActions {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: flex-end;
+
+}
+
+.taskStrip .taskData {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.taskStrip .taskData .label h2 {
+    font-size: 18px;
+}
+
+.taskStrip .taskData .label p {
+    font-size: 14px;
+    color: var(--grey600);
+}
+
+.seeBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: black;
+    width: 120px;
+    height: 50px;
+    color: white;
+    border-radius: 10px;
+}
+
+.lower {
+    margin-top : 32px
 }

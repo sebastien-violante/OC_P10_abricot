@@ -1,5 +1,7 @@
 .taskTag {
     display: flex;
+    font-size: 12px;
+    color: var(--grey600);
 }
 
 .taskTag .project,

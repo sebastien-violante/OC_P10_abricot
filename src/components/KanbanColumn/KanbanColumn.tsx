@@ -5,13 +5,17 @@ import TaskStrip from '../TaskStrip/TaskStrip'
 type KanbanColumnProps = {
     tasks: Task[];
     title: string;
+    kanban: boolean;
 }
-export default function KanbanColumn({ tasks, title }: KanbanColumnProps) {
+export default function KanbanColumn({ tasks, title, kanban}: KanbanColumnProps) {
     return (
         <section className={styles.kanbanColumn}>
-            <h2>{title}</h2>
+            <div className={styles.header}>
+                <h2>{title}</h2>
+                <span>{tasks.length}</span>
+            </div>
             {tasks.map((task) => (
-                <div key={task.id}><TaskStrip task={task}/></div>
+                <div key={task.id}><TaskStrip task={task} kanban={kanban}/></div>
             ))}
         </section>
     )

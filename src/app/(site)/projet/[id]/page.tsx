@@ -17,6 +17,7 @@ import { taskSchema } from '@/types/schemas/taskSchema'
 import recordTask from '@/app/utils/recordTask'
 import editTask from '@/app/utils/editTask'
 import { projectWriteAnalyzeData } from 'next/dist/build/swc/generated-native'
+import getInitials from '@/app/utils/getInitials'
 
 export default function SingleProject() {
     const params = useParams<{ id: string }>()
@@ -279,11 +280,19 @@ export default function SingleProject() {
             </section>
             <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
-                    Contributeurs {project?.members.length}
+                    Contributeurs {(project?.members.length ?? 0) + 1}
                 </div>
                 <div className={styles.detailsContributors}>
+                    <div className={styles.idTag}>
+                        <p className={styles.ownerId}>{getInitials(project?.owner.name)}</p>
+                        <p className={styles.ownerName}>{project?.owner.name}</p>
+                    </div>
+                    
                     {project?.members.map((member)=>(
-                        <p key={member.id}>{member.user.name}</p>
+                        <div key={member.id} className={styles.idTag}>
+                            <p className={styles.memberId}>{getInitials(member.user.name)}</p>
+                            <p className={styles.memberName}>{member.user.name}</p>
+                        </div>
                     ))}
                 </div>
             </section>
