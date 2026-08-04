@@ -18,11 +18,13 @@ import recordTask from '@/app/utils/recordTask'
 import editTask from '@/app/utils/editTask'
 import { projectWriteAnalyzeData } from 'next/dist/build/swc/generated-native'
 import getInitials from '@/app/utils/getInitials'
+import { useProfile } from '@/app/context/profileContext'
 
 export default function SingleProject() {
     const params = useParams<{ id: string }>()
     const projectId = params.id
-
+    const { profile, setProfile } = useProfile()
+    console.log(profile)
     const project = useProjectStore((state) =>
         state.projects.find((p) => p.id === projectId)
     )
@@ -39,7 +41,9 @@ export default function SingleProject() {
     const [isOpen, setIsOpen] = useState(false)
     const ctaAvaliable = true
     const [modifyProject, setModifyProject] = useState(false)
-    
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
     const initProjectData = {
         formTitle: "",
         title: "",
@@ -142,6 +146,13 @@ export default function SingleProject() {
     const handleModifyProject = () => {
         console.log(project)
         if(!project) return
+        if(project.owner.id !== profile?.id) {
+            setErrorMessage("Vous n'êtes pas propiétaire du projet. Vous ne pouvez pas le modifier")
+                setTimeout(() => {
+                setErrorMessage("")
+            }, 3000);
+            return
+        }
         const collaborators = project.members.map(member => (member.user))
         
         setProjectData({
@@ -339,6 +350,11 @@ export default function SingleProject() {
                         <Form data={projectFormStructure} formData={projectData} setFormData={setProjectData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
                     </Modal>
                 )}
+                {errorMessage && (
+                <div className="fixed top-5 right-5 rounded-lg bg-red-500 px-4 py-3 text-white shadow-lg">
+                    {errorMessage}
+                </div>
+            )}
         </div>
     )
 }
