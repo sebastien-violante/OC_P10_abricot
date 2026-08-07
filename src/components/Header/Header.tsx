@@ -5,10 +5,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import getInitials from '@/app/utils/getInitials'
 import { useProfile } from '@/app/context/profileContext'
-import { useMemo, useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { useMemo, useState, useEffect, useRef } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
 
 export default function Header() {
 
@@ -22,51 +21,132 @@ export default function Header() {
     const isDashboard = pathname === "/dashboard"
     const isProjects = pathname === '/projets'
     const [userMenuOpen, setUserMenuOpen] = useState(false)
-
-    function logout() {
-        Cookies.remove("token");
+    const userMenuRef = useRef<HTMLDivElement>(null) 
+    const userMenuButtonRef = useRef<HTMLButtonElement>(null)
+    const logout = () => {
+        Cookies.remove("token")
         setProfile(null);
-        router.push("/");
+        setUserMenuOpen(false)
+        router.push("/")
     }
 
-    function account() {
-        router.push("/compte");
+    const account = () => {
+        setUserMenuOpen(false)
+        router.push("/compte")
     }
 
     const handleClick = () => {
         setUserMenuOpen(prev => !prev)
-        // Fermuture du menu au bout de 10 secondes
-        setTimeout(() => {
-            setUserMenuOpen(false)
-        }, 10000);
     }
+
+    // Fermeture du menu avec Escape 
+    useEffect(() => { 
+        if (!userMenuOpen) return 
+        const handleKeyDown = (event: KeyboardEvent) => { 
+            if (event.key === 'Escape') { 
+                setUserMenuOpen(false) 
+                userMenuButtonRef.current?.focus() } 
+            } 
+            document.addEventListener('keydown', handleKeyDown) 
+            return () => { 
+                document.removeEventListener('keydown', handleKeyDown) 
+            } 
+        }, [userMenuOpen]) 
+    
+    // Fermeture du menu si clic en dehors 
+    useEffect(() => { 
+        if (!userMenuOpen) return 
+        const handleClickOutside = (event: MouseEvent) => { 
+            if ( userMenuRef.current && !userMenuRef.current.contains(event.target as Node) ) { 
+                setUserMenuOpen(false) 
+            } 
+        } 
+        document.addEventListener('mousedown', handleClickOutside) 
+        return () => { 
+            document.removeEventListener('mousedown', handleClickOutside) 
+        } 
+    }, [userMenuOpen])
 
     return (
         <header className={styles.header}>
-            <button onClick={logout}>
-                <Image height={20} width={147} alt="logo du site" src="/pictures/static/logo-orange.svg"/>
-            </button>
-            <nav>
+            <Link 
+                className={styles.logoLink} 
+                href="/dashboard" 
+                aria-label="Accueil - Tableau de bord"
+            >
+                <Image 
+                    height={20} 
+                    width={147} 
+                    alt="Abricot" 
+                    src="/pictures/static/logo-orange.svg"/>
+            </Link>
+            <nav 
+                className={styles.nav}
+                aria-label="Navigation principale">
                 <ul className={styles.navUl}>
                     <li className={`${styles.navLi} ${isDashboard ? styles.selectedLink : ""}`}>
-                        <Link  className={styles.navLink} href="/dashboard">
-                            <img className={styles.navLinkIcon} src={`/pictures/static/${isDashboard ? "dashboard-white-icon.svg" : "dashboard-icon.svg"}`}/>
+                        <Link  
+                            className={styles.navLink} 
+                            href="/dashboard"
+                            aria-current={isDashboard ? 'page' : undefined}>
+                            <img 
+                                className={styles.navLinkIcon} 
+                                src={`/pictures/static/${isDashboard ? "dashboard-white-icon.svg" : "dashboard-icon.svg"}`}
+                                alt="" 
+                                aria-hidden="true"
+                                />
                             <span className={styles.navLinkTitle}>Tableau de bord</span>
                         </Link>
                     </li>
                     <li className={`{styles.navLi} ${styles.navLi} ${isProjects ? styles.selectedLink : ""}`}>
-                        <Link className={styles.navLink} href="/projets">
-                            <img className={styles.navLinkIcon} src={`/pictures/static/${isProjects ? "folder-white-icon.svg" : "folder-icon.svg"}`}/>
+                        <Link 
+                            className={styles.navLink} 
+                            href="/projets"
+                            aria-current={isProjects ? 'page' : undefined}>
+                            <img 
+                                className={styles.navLinkIcon} 
+                                src={`/pictures/static/${isProjects ? "folder-white-icon.svg" : "folder-icon.svg"}`}
+                                alt="" 
+                                aria-hidden="true"/>
                             <span className={styles.navLinkTitle}>Projets</span>
                         </Link>
                     </li>
                 </ul>
             </nav>
-            <div className={styles.userMenu}>
-                <button className={`${styles.idTag} ${userMenuOpen ? styles.selected : ""}`} onClick={handleClick}>{initials}</button>  
-                { userMenuOpen && <ul>
-                    <li onClick={account}>Mon compte</li>
-                    <li onClick={logout}>Déconnexion</li>
+            <div 
+                className={styles.userMenu}
+                ref={userMenuRef}>
+                <button 
+                    type="button"
+                    className={`${styles.idTag} ${userMenuOpen ? styles.selected : ""}`} 
+                    onClick={handleClick}
+                    aria-expanded={userMenuOpen} 
+                    aria-haspopup="menu" 
+                    aria-controls="user-menu" 
+                    aria-label="Ouvrir le menu du compte">
+                        {initials}
+                </button>  
+                { userMenuOpen && <ul
+                    id="user-menu" 
+                    className={styles.userMenuList} 
+                    role="menu" 
+                    aria-label="Menu du compte">
+                    <li role="none">
+                        <button 
+                            type="button" 
+                            role="menuitem" 
+                            onClick={account}
+                        > Mon compte 
+                        </button> 
+                    </li> 
+                    <li role="none"> 
+                        <button 
+                            type="button" 
+                            role="menuitem" 
+                            onClick={logout}
+                        > Déconnexion 
+                        </button> 
+                    </li>
                 </ul>
                 }
             </div>

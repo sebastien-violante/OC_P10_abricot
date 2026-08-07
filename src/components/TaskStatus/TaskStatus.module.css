@@ -10,13 +10,13 @@
 }
 
 .red {
-    color: red;
-    background: #FFE0E0;
+    color: var(--error-red);
+    background: var(--error-red-light);
 }
 
 .yellow {
-    color: orange;
-    background: #FFF0D7;
+    color: var(--warning-orange);
+    background: var(--warning-orange-light);
 }
 
 .green {

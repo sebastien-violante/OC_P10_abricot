@@ -292,7 +292,13 @@ export default function SingleProject() {
         <div className={styles.singleProjectWrapper}>
             <section className={styles.banner}>
                 <article className={styles.label}>
-                    <button onClick={returnToProjects}><img src="/pictures/static/back-arrow.svg"/></button>
+                    <button onClick={returnToProjects}>
+                        <img 
+                            src="/pictures/static/back-arrow.svg"
+                            alt=""
+                            aria-hiddent="true"
+                            aria-label="Revenir à la liste des projets"/>
+                        </button>
                     <div className={styles.left}>
                         <div className={styles.data}>
                             Nom du projet
@@ -312,6 +318,7 @@ export default function SingleProject() {
                     <Button color={"orange"} width={"small"} onClick={handleClick}>IA</Button>
                 </div>
             </section>
+
             <section className={styles.main}>
                <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
@@ -331,6 +338,7 @@ export default function SingleProject() {
                     ))}
                 </div>
             </section>
+
             <section className={styles.taskList}>
                 <section className={styles.header}>
                     <div className={styles.label}>
@@ -339,11 +347,21 @@ export default function SingleProject() {
                     </div>
                     <div className={styles.cta}>
                         <button className={`${styles.displayTask} ${isList ? styles.selected : ""}`} onClick={toggleIsList}>
-                            <img src="/pictures/static/coche-orange.svg"/>
-                            Liste</button>
+                            <img 
+                                src="/pictures/static/coche-orange.svg"
+                                alt=""
+                                aria-hiddent="true"
+                            />
+                            <span>Liste</span>
+                        </button>
                         <button className={`${styles.displayTask} ${isList ? "" : styles.selected}`} onClick={toggleIsList}>
-                            <img src="/pictures/static/calendar-orange.svg"/>
-                            Calendrier</button>
+                            <img 
+                                src="/pictures/static/calendar-orange.svg"
+                                alt=""
+                                aria-hiddent="true"
+                            />
+                            <span>Calendrier</span>
+                        </button>
                         <select id="status" name="status" required>
                             <option value="" selected disabled>
                                 Statut
@@ -353,8 +371,22 @@ export default function SingleProject() {
                             <option value="high">Haute</option>
                         </select>
                         <form className={styles.searchForm}>
-                            <input type="text" name="search" placeholder="Rechercher une tâche"></input>
-                            <button type="submit" onClick={searchTask}><img src="/pictures/static/search.svg"/></button>
+                            <label htmlFor="task-search" className={styles.visuallyHidden}>
+                                Rechercher une tâche
+                            </label>
+                            <input 
+                                 id="task-search"
+                                 type="text" 
+                                 name="search" 
+                                 placeholder="Rechercher une tâche"></input>
+                            <button type="submit" onClick={searchTask}>
+                                <img 
+                                    src="/pictures/static/search.svg"
+                                    alt=""
+                                    aria-hiddent="true"
+                                    aria-label="Rechercher des tâches"
+                                    />
+                                </button>
                         </form>
 
                     </div>

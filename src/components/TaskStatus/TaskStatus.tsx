@@ -20,12 +20,13 @@ export default function TaskStatus({status, kanban}: TaskStatusProps) {
         className: styles.green,
         label: "Terminée"
     },
-};
+    } as const
 
-const { className, label } = statusMap[status] ?? statusMap['TODO'];
+    const { className, label } = statusMap[status] ?? statusMap['TODO'];
    
     return (
-        <span className={`${styles.statusType} ${className} ${kanban ? styles.topRight : ""}`}>
+        <span 
+            className={`${styles.statusType} ${className} ${kanban ? styles.topRight : ""}`}>
             {label}
         </span>
     )   

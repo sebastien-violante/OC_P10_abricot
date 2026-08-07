@@ -7,7 +7,7 @@ import Button from "@/components/Button/Button";
 import TaskStrip from "@/components/TaskStrip/TaskStrip";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
-import { User, Task, KanbanLists } from "@/types/types";
+import { Task, KanbanLists, ProjectFormData, CustomInput } from "@/types/types";
 import fetchTasks from "@/app/utils/fetchTasks";
 import fetchProfile from "@/app/utils/fetchProfile";
 import filterTasksByDate from "@/app/utils/filterTasksByDate";
@@ -18,7 +18,6 @@ import Modal from "@/components/Modal/Modal"
 import { projectSchema } from "@/types/schemas/projectSchema";
 import Form from "@/components/Form/Form";
 import recordProject from "@/app/utils/recordProject";
-import type { ProjectFormData, CustomInput } from "@/types/types";
 import TaskCard from "@/components/TaskCard/TaskCard";
 import { useSelectedTask } from "@/store/SelectedTaskStore";
 
@@ -157,57 +156,87 @@ export default function Dashboard() {
 
     return (
         <>
-        <section className={styles.sectionWrapper}>
+        <section 
+            className={styles.sectionWrapper}>
+            
             <Banner title={title} subtitle={subtitle}>
-                <Button color={"black"} width={"xlarge"} onClick={handleClick}>+ Créer un projet</Button>
+                <Button 
+                    color={"black"} 
+                    width={"xlarge"} 
+                    onClick={handleClick}
+                    aria-haspopup="dialog">
+                        + Créer un projet
+                </Button>
             </Banner>
         </section>
-        <section className={styles.chooseDisplay}>
+        <section 
+            className={styles.chooseDisplay}
+            aria-label="Choisir le mode d'affichage">
             <button 
+                type="button"
                 className={`${styles.displayBtn} ${!kanban ? styles.selected : ""}`}
                 onClick={()=>setKanban(false)}
+                aria-pressed={!kanban}
             >
-                <img src="pictures/static/coche-orange.svg"/>
-                Liste
+                <img 
+                    src="pictures/static/coche-orange.svg"
+                    alt=""
+                    aria-hidden="true"/>
+                <span>Liste</span>
             </button>
-            <button 
+            <button
+                type="button" 
                 className={`${styles.displayBtn} ${kanban ? styles.selected : ""}`}
                 onClick={()=>setKanban(true)}
+                aria-pressed={kanban}
             >
-                <img src="pictures/static/calendar-orange.svg"/>
-                Kanban
+                <img 
+                    src="pictures/static/calendar-orange.svg"
+                    alt=""
+                    aria-hidden="true"/>
+                <span>Kanban</span>
             </button>
         </section>
 
         {!kanban && (
             <>
-            <section className={styles.listDisplay}>
-                <section className={styles.header}>
+            <section 
+                className={styles.listDisplay}
+                aria-labelledby="tasks-title">
+                <header className={styles.header}>
                     <div className={styles.label}>
-                        Mes tâches assignées
+                        <h2 id="tasks-title">Mes tâches assignées</h2>
                         <span>Par ordre de priorité</span>
                     </div>
                     <div className={styles.search}>
+                        <label className={styles.hiddenLabel} htmlFor="search">rechercher une tâche</label>
                         <input 
+                            id="search"
                             type="text" 
                             name="search" 
                             placeholder="Rechercher une tâche"
                             onChange={(e) => setSearch(e.target.value)}
                         ></input>
-                        <img src="/pictures/static/search.svg"/>
+                        <img 
+                            src="/pictures/static/search.svg"
+                            alt=""
+                            aria-hidden="true"/>
                     </div>
-                </section>
+                </header>
                 
                 {filteredTasks?.map((task) => (
-                <div key={task.id}><TaskStrip task={task} kanban={kanban}/></div>
+                    <TaskStrip key={task.id} task={task} kanban={kanban}/>      
                 ))}
             </section>
             </>
         )}
 
-        <section className={styles.kanbanDisplay}>
+        <section 
+            className={styles.kanbanDisplay}>
             {kanban && (
-                <section className={styles.kanbanWrapper}>
+                <section 
+                    className={styles.kanbanWrapper}
+                     aria-label="Tableau Kanban des tâches">
                     <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []} kanban={kanban}/>
                     <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []} kanban={kanban}/>
                     <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []} kanban={kanban}/>
@@ -216,13 +245,27 @@ export default function Dashboard() {
         </section>
                 
         {createProjectForm && (
-            <Modal onClose={()=>setCreateProjectForm(false)}>
-                <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
+            <Modal 
+                onClose={()=>setCreateProjectForm(false)}
+                titleId="create-project-title">
+                <Form 
+                    data={data} 
+                    formData={formData} 
+                    setFormData={setFormData} 
+                    handleSubmit={handleSubmit} 
+                    errors={errors} 
+                    apiResponse={apiResponse}></Form>
             </Modal>
          )}
         {selectedTask && (
-            <Modal onClose={()=>removeTask()}>
-                <TaskCard task = {selectedTask} projectId={selectedTask.projectId} token={token} ctaAvaliable={ctaAvaliable}/>
+            <Modal 
+                onClose={()=>removeTask()}
+                titleId={`Détails de la tâche : ${selectedTask.title}`}>
+                <TaskCard 
+                    task = {selectedTask} 
+                    projectId={selectedTask.projectId} 
+                    token={token} 
+                    ctaAvaliable={ctaAvaliable}/>
             </Modal>
         )}
         

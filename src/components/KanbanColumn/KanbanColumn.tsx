@@ -8,15 +8,25 @@ type KanbanColumnProps = {
     kanban: boolean;
 }
 export default function KanbanColumn({ tasks, title, kanban}: KanbanColumnProps) {
+    
+    const headingId = `kanban-column-${title .toLowerCase() .replace(/\s+/g, '-')}`
+
     return (
-        <section className={styles.kanbanColumn}>
+        <section 
+            className={styles.kanbanColumn}
+            aria-labelledby={headingId}>
             <div className={styles.header}>
-                <h2>{title}</h2>
-                <span>{tasks.length}</span>
+                <h2 id={headingId}>{title}</h2>
+                <span aria-label={`${tasks.length} tâche${tasks.length > 1 ? 's' : ''}`}>{tasks.length}</span>
             </div>
-            {tasks.map((task) => (
-                <div key={task.id}><TaskStrip task={task} kanban={kanban}/></div>
-            ))}
+            <div>
+                {tasks.map((task) => (
+                    <TaskStrip 
+                        key={task.id}
+                        task={task} 
+                        kanban={kanban}/>
+                ))}
+            </div>
         </section>
     )
 }

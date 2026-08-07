@@ -4,7 +4,11 @@
   --background: #ffffff;
   --foreground: #171717;
   --dark-orange: #B84D0A;
-  --light-orange: #FFE8D9;
+  --light-orange: #FFF3EB;
+  --warning-orange:#8F5A00; 
+  --warning-orange-light: #FFF0D7;
+  --error-red: #CC1414;
+  --error-red-light: #FFE0E0;
   --grey950: #0F0F0F;
   --grey800: #1F1F1F;
   --grey600: #6B7280;

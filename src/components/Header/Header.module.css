@@ -67,3 +67,33 @@
 .userMenu ul li:hover {
     opacity: 1
 }
+
+.userMenuList {
+    background: white;
+    padding-left: 10px;
+}
+
+@media (max-width: 1023px) {
+    .header {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 20px;
+
+    }
+    .nav {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        padding-top: 10px;
+    }
+    .nav .navUl {
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 767px) {
+    .nav .navUl .navLi {
+        font-size: 9px;
+    }
+}

@@ -28,6 +28,7 @@
     gap: 10px;
     margin: 60px 100px 20px 100px;
 }
+
 .chooseDisplay .displayBtn {
     height: 45px;
     border-radius: 8px;
@@ -41,16 +42,22 @@
 .displayBtn.selected {
     background: var(--light-orange);
 }
+
 .kanbanWrapper {
     display: flex;
     justify-content: space-between;
     gap: 22px;
 }
 
+.hiddenLabel {
+    height: 0;
+    overflow: hidden;
+}
+
 .listDisplay {
     width: 95%;
     max-width: 1215px;
-    margin: auto;
+    margin: 0 auto 50px auto;
     background: white;
     border-radius: 10px;
     padding: 60px;
@@ -110,4 +117,12 @@
 
 .header .search input {
     height: 50px;
+}
+
+@media (max-width: 1023px) {
+    .sectionWrapper, 
+    .chooseDisplay
+    {
+        margin: 90px 20px;
+    }
 }
