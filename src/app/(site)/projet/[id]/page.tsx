@@ -19,18 +19,18 @@ import editTask from '@/app/utils/editTask'
 import { projectWriteAnalyzeData } from 'next/dist/build/swc/generated-native'
 import getInitials from '@/app/utils/getInitials'
 import { useProfile } from '@/app/context/profileContext'
+import { useRouter } from 'next/navigation'
 
 export default function SingleProject() {
     const params = useParams<{ id: string }>()
     const projectId = params.id
     const { profile, setProfile } = useProfile()
-    console.log(profile)
     const project = useProjectStore((state) =>
         state.projects.find((p) => p.id === projectId)
     )
+    console.log(project)
     const token = Cookies.get('token')
     console.log(project)
-    //const [tasks, setTasks] = useState<Task[] | null>(null)
     const [loading, setLoading] = useState(true)
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiResponse, setApiResponse] = useState<string>("");
@@ -43,6 +43,12 @@ export default function SingleProject() {
     const [modifyProject, setModifyProject] = useState(false)
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [isList, setIsList] = useState(true)
+    const router = useRouter();
+
+    const toggleIsList = () => {
+        setIsList((prev) => !prev)
+    }
 
     const initProjectData = {
         formTitle: "",
@@ -143,6 +149,10 @@ export default function SingleProject() {
         console.log('search')
     }
 
+    const returnToProjects = () => {
+        router.push("/projets");
+    }
+
     const handleModifyProject = () => {
         console.log(project)
         if(!project) return
@@ -165,6 +175,9 @@ export default function SingleProject() {
         setModifyProject(true)
     }
 
+    const handleDeleteProject = () => {
+        alert("suppression projet")
+    }
 
     const projectFormStructure = {
 
@@ -275,21 +288,32 @@ export default function SingleProject() {
     
    
     return (
+        
         <div className={styles.singleProjectWrapper}>
             <section className={styles.banner}>
-                <div className={styles.projectHeader}>
-                    <div className={styles.label}>
-                        Nom du projet
-                        <button className={styles.modifyProject} onClick={handleModifyProject}>Modifier</button>
+                <article className={styles.label}>
+                    <button onClick={returnToProjects}><img src="/pictures/static/back-arrow.svg"/></button>
+                    <div className={styles.left}>
+                        <div className={styles.data}>
+                            Nom du projet
+                            {(project?.owner.id === profile?.id )&& 
+                                <>
+                                    <button className={styles.modifyProject} onClick={handleModifyProject}>Modifier</button>
+                                    <button className={styles.deleteProject} onClick={handleDeleteProject}>Supprimer</button>
+                                </>  
+                            }
+                            
+                        </div>
+                        <span>{project?.name}</span>
                     </div>
-                    {project?.name}
-                </div>
+                </article>
                 <div className={styles.buttons}>
                     <Button color={"black"} width={"mediumplus"} onClick={handleClick}>Créer une tâche</Button>
                     <Button color={"orange"} width={"small"} onClick={handleClick}>IA</Button>
                 </div>
             </section>
-            <section className={styles.contributors}>
+            <section className={styles.main}>
+               <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
                     Contributeurs <span>{(project?.members.length ?? 0) + 1} {project?.members.length == 0 ? "personne" : "personnes"}</span>
                 </div>
@@ -314,10 +338,10 @@ export default function SingleProject() {
                         <span>Par ordre de priorité</span>
                     </div>
                     <div className={styles.cta}>
-                        <button className={`${styles.displayTask}`}>
+                        <button className={`${styles.displayTask} ${isList ? styles.selected : ""}`} onClick={toggleIsList}>
                             <img src="/pictures/static/coche-orange.svg"/>
                             Liste</button>
-                        <button className={`${styles.displayTask}`}>
+                        <button className={`${styles.displayTask} ${isList ? "" : styles.selected}`} onClick={toggleIsList}>
                             <img src="/pictures/static/calendar-orange.svg"/>
                             Calendrier</button>
                         <select id="status" name="status" required>
@@ -335,10 +359,15 @@ export default function SingleProject() {
 
                     </div>
                 </section>
-                {tasksInStore?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
-                {tasksInStore?.map((task)=>(
-                    <TaskCard key={task.id} task={task} projectId={projectId} token={token} editCurrentTask={editCurrentTask} ctaAvaliable={ctaAvaliable}/>
-                ))}
+                <section className={styles.tasksWrapper}>
+                    {tasksInStore?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
+                    {tasksInStore?.map((task)=>(
+                        <div className={styles.taskWrapper} key={task.id}>
+                            <TaskCard  task={task} projectId={projectId} token={token} editCurrentTask={editCurrentTask} ctaAvaliable={ctaAvaliable}/> 
+                        </div>
+                    ))}
+                </section>
+                
                 {isOpen && (
                     <Modal onClose={closeModal}>
                         <Form data={taskFomStructure} formData={taskData} setFormData={setTaskData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse} ></Form>
@@ -354,7 +383,9 @@ export default function SingleProject() {
                 <div className="fixed top-5 right-5 rounded-lg bg-red-500 px-4 py-3 text-white shadow-lg">
                     {errorMessage}
                 </div>
-            )}
+            )} 
+            </section>
+            
         </div>
     )
 }

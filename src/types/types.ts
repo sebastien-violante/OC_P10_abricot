@@ -1,5 +1,16 @@
 export type Token = string;
 
+export type LoginResponseData = {
+    user: {
+        id: string;
+        email: string;
+        name: string;
+        createdAt: string;
+        updatedAt: string;
+    };
+    token: string;
+};
+
 export type AuthenticateData = {
     user: User;
     token: string;
@@ -20,12 +31,13 @@ export type AuthenticateResult = {
     details?: Details;
 }
 
-
+// ok
 export type RegistrationFormData = {
     email: string;
     password: string;
-    name?: string;
-    type?: string;
+    firstName: string;
+    lastName: string;
+    //type?: string;
 }
 
 export type FormErrors = {
@@ -155,12 +167,20 @@ export type TextInput = {
     defaultValue?: string;
 }
 
+export type EmailInput = {
+    type: "email";
+    name: string;
+    label: string;
+    required: boolean;
+    defaultValue?: string;
+}
+
 export type DateInput = {
     type: "date";
     name: string;
     label: string;
     required: boolean;
-     defaultValue?: string;
+    defaultValue?: string;
 }
 
 export type CollaboratorInput = {
@@ -189,7 +209,7 @@ export type StatusInput = {
     }[];
 };
 
-export type CustomInput = | TextInput | DateInput | CollaboratorInput | UserInput | StatusInput;
+export type CustomInput = | TextInput | DateInput | CollaboratorInput | UserInput | StatusInput | EmailInput;
 
 export type ProjectResponse = {
     success: boolean;
@@ -234,6 +254,17 @@ export type UserFormData = {
     email: string;
 }
 
+export type AuthFormData = {
+    email: string;
+    password: string;
+}
+
+export type registerFormData = {
+    name: string;
+    email: string;
+    password: string;
+}
+
 export type UserPasswordFormData = {
     currentPassword: string;
     newPassword: string;
@@ -250,4 +281,9 @@ export type TaskFormData = {
     status: string;
     edit: boolean;
     taskId?: string;
+}
+
+export type FlashMessage = {
+    status: boolean
+    message: string
 }

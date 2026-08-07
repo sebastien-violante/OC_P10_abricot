@@ -137,7 +137,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                 </div>
             </section>
             <section className={styles.comments}>
-                <div className={styles.commentsHeader}>
+                <div onClick={showComments} className={styles.commentsHeader}>
                     <div className={styles.label}>
                         Commentaires ({commentsInStore.length})
                     </div>

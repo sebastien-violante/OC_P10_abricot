@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --dark-orange: #D3590B;
+  --dark-orange: #B84D0A;
   --light-orange: #FFE8D9;
   --grey950: #0F0F0F;
   --grey800: #1F1F1F;
@@ -23,3 +23,14 @@ body {
   background: var(--grey50) !important;
 }
 
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}

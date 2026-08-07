@@ -1,155 +1,251 @@
 'use client' 
 
+import { z } from "zod";
 import styles from './page.module.css'
 import Image from 'next/image'
 import Link from 'next/link'
-import validateForm from './utils/validateForm'
-import { useState, useEffect } from 'react'
+import { useState, SubmitEvent, ChangeEvent  } from 'react'
 import { useRouter } from 'next/navigation'
-import { SubmitEvent, ChangeEvent } from 'react'
 import Cookies from "js-cookie"
-import { AuthenticateResult, RegistrationFormData, FormErrors, FetchErrors, FetchSuccessData } from '../types/types'
-import fetchProfile from './utils/fetchProfile'
+import { AuthFormData, FlashMessage, LoginResponseData } from '../types/types'
 import { useProfile } from './context/profileContext'
+import Modal from '@/components/Modal/Modal'
+import { authSchema } from '@/types/schemas/authSchema'
+import postRequest, {ApiResponse} from "./utils/postRequest";
 
 export default function Login() {
     
     const { loadProfile } = useProfile()
-
     const router = useRouter()
-    const [formData, setFormData] = useState<RegistrationFormData>({
+    const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [errors, setErrors] = useState<z.ZodIssue[]>([])
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    // AUTHENTIFICATION ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    // Composition des données de formulaire d'authentification
+    const [formData, setFormData] = useState<AuthFormData>({
         email: "",
         password: "",
     });
 
-    const [formErrors, setFormErrors] = useState<FormErrors>({})
-    const [fetchErrors, setFetchErrors] = useState<FetchErrors>("")
-    const [flashMessage, setFlashMessage] = useState<string | null>(null)
-
-    useEffect(() => {
-        const flash = sessionStorage.getItem('flash')
-            
-            if(!flash) return 
-            setFlashMessage(flash)
-            sessionStorage.removeItem('flash')
-            const timer =window.setTimeout(() => {
-                setFlashMessage(null);
-            }, 3000);
-            return () => window.clearTimeout(timer);
-        
-    }, [])
+    // Captation des données d'authentification dans FormData
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target 
         setFormData((prev) => ({...prev, [name]: value}))
     }
+
+    // Recherche des erreurs zod par champ
+    const getFieldErrors = (fieldName: string) => { 
+        return errors.filter( (error) => error.path[0] === fieldName ) 
+    } 
+    // Définition des deux erreurs de champs possibles
+    const emailErrors = getFieldErrors('email') 
+    const passwordErrors = getFieldErrors('password')
     
-    async function handleSubmit (event: SubmitEvent<HTMLFormElement>) {
+    
+    // Soumission du formulaire
+    async function handleSubmit (event: SubmitEvent<HTMLFormElement>) {   
         event.preventDefault()
-        const errors = validateForm(formData)
-        setFormErrors(errors)
-        
-        if(!errors.email && !errors.password) {
-            const email = formData.email
-            const password = formData.password
-            
-            try {
+        // Remise à zéro des erreurs
+        setErrors([])
+        setFlashMessage(null)
+        // Validation Zod
+        const zodValidation = authSchema.safeParse(formData)
+        if(!zodValidation.success) {
+            setErrors(zodValidation.error.issues)
+            return
+        }
+        // Création de la payload
+        const payload = {
+            email: formData.email.trim(),
+            password: formData.password.trim()
+        }
+        // Passage à l'état soumission de formulaire
+        setIsSubmitting(true)
 
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({email, password}),
-                })
+        // Envoi de la requête
+        try {
+            const data = await postRequest({
+                url: "/api/auth/login",
+                payload 
+            }) as ApiResponse<LoginResponseData>
 
-                if(!response.ok) {
-                    let errorData: FetchErrors = "";
-                    try {
-                        errorData = await response.json();
-                    } catch {
-                        throw new Error("Erreur serveur ou réponse invalide");
-                    }   
-
-                    switch (response.status) {
-                        case 400:
-                            throw new Error("Données invalides");
-                        case 401:
-                            throw new Error("Email ou mot de passe incorrect");
-                        case 403:
-                            throw new Error("Accès interdit");
-                        case 404:
-                            throw new Error("Endpoint introuvable");
-                        case 500:
-                        default:
-                            throw new Error("Erreur serveur, veuillez réessayer");
-                    }
-                }
-
-                const data: FetchSuccessData = await response.json();
-                if (!data.data.token) {
-                    throw new Error("Token manquant dans la réponse");
-                } else {
-                    Cookies.set('token', data.data.token, {
-                        expires: 1 / 24,
-                        secure: true,
-                        sameSite: 'strict',
-                    });
-                    await loadProfile()
-                    router.push('/dashboard')
-                }
-            } catch(error) {
-
-                if (error instanceof Error) {
-                    setFetchErrors(error.message)
-                throw error;
-                }
-
-            throw new Error("Erreur inconnue");
+            // Réponse sans token
+            if (!data.data?.token) {
+                throw new Error("Token manquant dans la réponse");
+            } else 
+            // Token ok, mise en cookie et redirection  
+            {
+                Cookies.set('token', data.data.token, {
+                    expires: 1 / 24,
+                    secure: true,
+                    sameSite: 'strict',
+                });
+                await loadProfile()
+                router.push('/dashboard')
             }
-        }    
-        
+
+        // Erreur renvoyée par l'API
+        } catch(error) {
+            const apiError = error as { 
+                status?: number; 
+                message?: string; 
+                details?: { 
+                    field: string; 
+                    message: string; }[]; 
+            }; 
+            
+            // Erreur de validation API 
+            if (apiError.status === 401) { 
+                setFlashMessage({ status: false, message: "Les identifiants sont invalides.", })
+                setTimeout(() => {setFlashMessage(null)}, 2000);
+                return; 
+            } 
+            // Autre erreur 
+            setFlashMessage({ status: false, message: "Une erreur est survenue. Veuillez réessayer.", }) 
+                setTimeout(() => {setFlashMessage(null)}, 2000);
+
+        } finally {
+            // SOrtie du mode soumission de formulaire
+            setIsSubmitting(false)
+        }
+    }  
+    
+    // REINITIALISATION DU MOT DE PASSE ///////////////////////////////////////////////////////////////////////////////////////
+
+    // Variable servant à l'ouverture de la modale
+    const displayModal = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        setIsModalOpen(true)
     }
+    // Initialisation de la variable contenant les données du formulaire
+    const initPasswordFormData = {
+        email: ""
+    }
+    const [passwordData, setPasswordData] = useState(initPasswordFormData)
+
+    // Soumission du formulaire de ré initialisation
+    const reInitPasswordHandleSubmit = (e: React.FormEvent<HTMLFormElement>) => {  
+        e.preventDefault();
+        setIsModalOpen(false)
+        setFlashMessage({status: true, message: "Votre demande de réinitialisation de mot de passe a bien été envoyée. Surveillez votre boîte mail..."})
+        setTimeout(() => {setFlashMessage(null)}, 2000);
+    }
+         
     return (
         <>
             <div className={styles.loginBackground}>
-                <Image className={styles.backgroundImage} src="/pictures/static/login.png" alt="affaires scolaires posées sur un bureau" fill priority/>
+                <Image 
+                    className={styles.backgroundImage} 
+                    src="/pictures/static/login.png" 
+                    alt="affaires scolaires posées sur un bureau" 
+                    fill 
+                    priority/>
                 <section className={styles.login}>
-                    <img className={styles.loginLogo} src="/pictures/static/logo-orange.svg"/>
-                    <form className={styles.loginForm} onSubmit={handleSubmit}>
-                        {flashMessage && (
-                            <div className="bg-green-100 text-green-700 p-2 rounded">
-                                {flashMessage}
-                            </div>
-                        )}
-                        <h1 className={styles.formTitle}>Connexion</h1>
-                        {fetchErrors && (<span id="firstname-error" role="alert">{fetchErrors}</span>)}
+                    <Image 
+                        className={styles.loginLogo} 
+                        src="/pictures/static/logo-orange.svg" 
+                        width={252} 
+                        height={32} 
+                        alt="Abricot"/>
 
+                    {/* FORMULAIRE DE CONNEXION */}
+                    <form 
+                        className={styles.loginForm} 
+                        onSubmit={handleSubmit}
+                        noValidate
+                        aria-describedby={ errors.length > 0 ? 'login-errors' : undefined }
+                        >
+                        <h1 className={styles.formTitle}>Connexion</h1>
+                        
                         <section className={styles.formGroup}>
-                            <label htmlFor="email">Email</label>
+                            <label htmlFor="login-email">Email</label>
                             <input 
                                 type="email" 
+                                id="login-email"
                                 name="email"
                                 onChange={handleChange}
-                                //required 
+                                autoComplete="email"
+                                required 
+                                aria-invalid={ emailErrors.length > 0 } 
+                                aria-describedby={ emailErrors.length > 0 ? 'login-email-error' : undefined }
                             />
-                            {formErrors.email && (<span id="firstname-error" role="alert">{formErrors.email}</span>)}
+                            {emailErrors.length > 0 && ( 
+                                <p id="login-email-error" className={styles.fieldError} > {emailErrors[0].message} </p> 
+                            )}
                         </section>
+
                         <section className={styles.formGroup}>
-                            <label htmlFor="password">Mot de passe</label>
+                            <label htmlFor="login-password">Mot de passe</label>
                             <input 
                                 type="password" 
+                                id="login-password"
                                 name="password" 
                                 onChange={handleChange}
-                                required 
+                                autoComplete="current-password"
+                                required
+                                aria-invalid={ passwordErrors.length > 0 } 
+                                aria-describedby={ passwordErrors.length > 0 ? 'login-password-error' : undefined }
                             />
-                            {formErrors.password && (<span id="firstname-error" role="alert">{formErrors.password}</span>)}
-
+                            {passwordErrors.length > 0 && ( 
+                                <p id="login-password-error" className={styles.fieldError} > {passwordErrors[0].message} </p> 
+                            )}
                         </section>
-                        <button className={styles.btnSubmit} type="submit">Se connecter</button>
-                        <Link className={styles.registerLink} href="#">Mot de passe oublié ?</Link>
+                        <button 
+                            className={styles.btnSubmit} 
+                            type="submit"
+                            disabled={isSubmitting} 
+                            aria-busy={isSubmitting}>{isSubmitting ? 'Connexion en cours…' : 'Se connecter'}
+                        </button>
+                        <button 
+                            type="button" 
+                            onClick={displayModal} 
+                            className={styles.registerLink}>Mot de passe oublié ?</button>
                     </form>
-                    <p>Pas encore de compte ? <Link className={styles.registerLink} href="#">Créer un compte</Link></p>
+                    <div className={styles.ctaRegister}>
+                        <p>Pas encore de compte ? </p><Link className={styles.registerLink} href="/inscription">Créer un compte</Link>
+                    </div>
                 </section>
             </div>
-            
+
+            {/* MODALE DE RÉINITIALISATION */}
+            {isModalOpen && (
+                <Modal 
+                    onClose={()=>setIsModalOpen(false)} 
+                    titleId="reset-password-title">
+                    <form onSubmit={reInitPasswordHandleSubmit} className={styles.reInitForm}>
+                        <h2 id="reset-password-title">Demander la réinitialiation du mot de passe</h2>
+                        <div className={styles.formGroup}>
+                            <label htmlFor='reset-email'>Indiquez à quelle adresse envoyer la procédure de ré initialisation</label>
+                            <input 
+                                type="email" 
+                                name="email" 
+                                id="reset-email" 
+                                onChange={(e) => setPasswordData({...passwordData, email: e.target.value})}
+                                autoComplete="email"
+                                required
+                            >
+                            </input>
+                        </div>
+                        <div className={styles.cta}>
+                            <button type="submit">Envoyer</button>
+                        </div>
+                    </form>
+                </Modal>
+            )}
+
+            {/* MESSAGE GLOBAL */}
+            {flashMessage && (
+                <div  
+                    className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-6 py-4 text-white shadow-lg`}
+                    role={ flashMessage.status ? 'status' : 'alert' } 
+                    aria-live={ flashMessage.status ? 'polite' : 'assertive' }
+                >
+                    {flashMessage.message}
+                </div>
+            )}
         </>
     )
 }

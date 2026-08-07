@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import styles from './page.module.css'
 import type { UserFormData } from '@/types/types'
 import type { UserPasswordFormData } from '@/types/types'
+import type { FlashMessage } from '@/types/types'
 import { SubmitEvent } from 'react'
 import { userSchema } from '@/types/schemas/userSchema'
 import { userPasswordSchema } from '@/types/schemas/userPasswordSchema'
@@ -14,6 +15,7 @@ import PasswordInput from '@/components/PasswordInput/PasswordInput'
 
 export default function Account() {
     const [successMessage, setSuccessMessage] = useState("");
+    const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     const [errorMessage, setErrorMessage] = useState("");
     const [passwordZoneOpen, setPasswordOpen] = useState(false)
     const { profile, setProfile } = useProfile()
@@ -48,6 +50,7 @@ export default function Account() {
     async function handleSubmit (event: SubmitEvent<HTMLFormElement>) {
         
         event.preventDefault()
+
         // validation des données par Zod
         const zodValidation = userSchema.safeParse(userFormData);
         if(zodValidation.success) {
@@ -84,11 +87,10 @@ export default function Account() {
     async function changePassword(event: SubmitEvent<HTMLFormElement>){
         
         event.preventDefault()
-        console.log(userPasswordFormData)
+        
         if(userPasswordFormData.newPassword === userPasswordFormData.confirmPassword) {
             // validation des données par Zod
             const zodValidation = userPasswordSchema.safeParse(userPasswordFormData)
-            console.log(zodValidation)
             if(zodValidation.success) {
                 const payload = {
                     currentPassword: userPasswordFormData.currentPassword,
@@ -100,26 +102,19 @@ export default function Account() {
                     const result = await putRequest({ url,token,payload })
                     const response = await result.json()
                     if(response.success) {
-                        setSuccessMessage(response.message); 
+                        setFlashMessage({status: true, message:response.message}); 
                 } else {
-                    setErrorMessage(response.message);
+                    setFlashMessage({status: false, message: response.message});
                 }
-                setTimeout(() => {
-                    setSuccessMessage("")
-                    setErrorMessage("")
-                }, 3000);
+                setTimeout(() => {setFlashMessage(null)}, 3000);
                 }
             } else {
-                setErrorMessage("Les mots de passe saisis ne respectent pas les règles prescrites")
-                setTimeout(() => {
-                setErrorMessage("")
-            }, 3000);
+                setFlashMessage({status: false, message: "Les mots de passe saisis ne respectent pas les règles prescrites"})
+                setTimeout(() => {setFlashMessage(null)}, 3000);
             }
         } else {
-            setErrorMessage("Le nouveau mot de passe et sa confirmation doivent être identiques")
-            setTimeout(() => {
-                setErrorMessage("")
-            }, 3000);
+            setFlashMessage({status: false, message: "Le nouveau mot de passe et sa confirmation doivent être identiques"})
+            setTimeout(() => {setFlashMessage(null)}, 3000);
         }
     }
 
@@ -203,6 +198,11 @@ export default function Account() {
             {errorMessage && (
                 <div className="fixed top-5 right-5 rounded-lg bg-red-500 px-4 py-3 text-white shadow-lg">
                     {errorMessage}
+                </div>
+            )}
+            {flashMessage && (
+                <div className={`fixed top-5 right-5 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-4 py-3 text-white shadow-lg`}>
+                    {flashMessage.message}
                 </div>
             )}
         </div>

@@ -3,7 +3,7 @@ import { z } from "zod";
 export const userSchema = z.object({
     lastName: z.string().min(2),
     firstName: z.string().min(2),
-    email: z.email()
+    email: z.email(),
 });
 
-export type userFormData = z.infer<typeof userSchema>;
+export type UserFormData = z.infer<typeof userSchema>;

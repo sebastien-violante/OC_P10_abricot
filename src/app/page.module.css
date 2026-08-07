@@ -1,10 +1,8 @@
 .loginBackground { 
     width: 100%;
-    width: 1440px;
     height: 100vh;
     position: relative;
     margin: 0 auto;
-    overflow: hidden;
 }
 
 .backgroundImage {
@@ -16,13 +14,13 @@
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
+    min-height: 100vh;
+    height: auto;
     width: 562px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    z-index: 1;
     background: var(--grey50);
     padding: 92px 0;
 }
@@ -40,11 +38,6 @@
     font-size: 40px;
     font-weight: bold;
     margin-bottom: 30px;
-}
-
-.login .loginLogo {
-    width: 252px;
-    height: 32px;
 }
 
 .login .formGroup {
@@ -83,4 +76,71 @@
     border-radius: 10px;
     cursor: pointer;
     margin-bottom: 20px;
+}
+.login .ctaRegister {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0  20px;
+}
+
+.fieldError {
+    color: red;
+    font-size: 12px;
+}
+
+.reInitForm h2{
+    font-size: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--grey200);
+}
+
+.reInitForm .formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.reInitForm .formGroup label {
+    font-size: 14px;
+    color: black;
+}
+
+.reInitForm .formGroup input {
+    width: 100%;
+    height: 53px;
+    border: 1px solid var(--grey200);
+    border-radius: 4px;
+    padding: 16px;
+    color: var(--grey600);
+    font-size: 12px;
+}
+
+.reInitForm .cta {
+    display: flex;
+    justify-content: end;
+    align-items: baseline;
+    padding-top: 20px;
+}
+
+.reInitForm .cta button {
+    width: 250px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background: black;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    margin: 0;
+}
+
+@media screen and (max-width: 561px) {
+    .login {
+        width: 100%;
+    }
 }

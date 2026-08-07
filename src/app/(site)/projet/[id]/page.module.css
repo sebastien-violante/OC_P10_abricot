@@ -1,23 +1,44 @@
 .singleProjectWrapper {
-    margin: 90px 125px 0 100px;
+    padding: 0 44px;
+}
+
+
+.main {
+    padding: 0 125px 0 100px;
 }
 
 .banner {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 78px;
 }
 
-.projectHeader .label {
+
+.label {
     color: var(--grey800);
     font-size: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
 }
 
-.projectHeader .modifyProject {
+.label button {
+    cursor: pointer;
+}
+
+.label .data .modifyProject,
+.label .data .deleteProject
+{
     color: var(--dark-orange);
     text-decoration: underline;
     font-size: 14px;
     margin-left: 14px;
+}
+
+.label .left span {
+    color: var(--grey600);
+    font-size: 18px;
 }
 .buttons {
     display: flex;
@@ -55,6 +76,7 @@
     background: white;
     border-radius: 10px;
     margin-top: 51px;
+    margin-bottom: 80px;
     border: 1px solid var(--grey200);
 }
 
@@ -62,14 +84,21 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 40px;
-
 }
 
 .taskList .header .label {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    font-size: 18px;
+    color: var(--grey800);
 }
+
+.taskList .header .label span:nth-child(2){
+    font-size: 16px;
+    color: var(--grey600);
+}
+
 .taskList .header .cta {
     display: flex;
     gap: 16px;
@@ -81,6 +110,8 @@
     align-items: center;
     gap: 14px;
     padding: 14px;
+    height: 45px;
+    border-radius: 8px;
 }
 .taskList select {
     height: 63px;
@@ -156,4 +187,23 @@
 
 .idTag .memberId {
     background: var(--grey200);
+}
+
+.selected {
+    background: var(--light-orange);
+}
+
+.taskList .tasksWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+.taskList .taskWrapper {
+    border: 1px solid var(--grey200);
+    margin: 0 40px;
+    border-radius: 10px;
+}
+
+.taskList .taskWrapper:hover {
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }

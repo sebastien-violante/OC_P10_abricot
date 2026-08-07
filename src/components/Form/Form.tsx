@@ -14,7 +14,7 @@ type FormProps<T extends Record<string, any>> = {
     setFormData: React.Dispatch<React.SetStateAction<T>>;
     handleSubmit: (e: React.FormEvent<HTMLFormElement>, taskId: string) => void;
     errors: Record<string, string>;
-    apiResponse: string;
+    apiResponse?: string;
 };
 
 export default function Form<T extends Record<string, any>>({data, formData, setFormData, handleSubmit, errors, apiResponse}: FormProps<T>) {
