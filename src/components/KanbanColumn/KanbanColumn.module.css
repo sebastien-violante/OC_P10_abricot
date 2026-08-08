@@ -4,6 +4,7 @@
     flex: 1;
     background: white;
     padding: 40px 24px;
+    min-width: 450px
 }
 
 .kanbanColumn .header {
@@ -26,4 +27,10 @@
     align-items: center;
     justify-content: center;
     border-radius: 50px;
+}
+
+@media (max-width: 767px) {
+    .kanbanColumn {
+        min-width: 100%;
+    }
 }

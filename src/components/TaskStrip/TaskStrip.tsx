@@ -27,7 +27,7 @@ export default function TaskStrip({task, kanban}: TaskStripProps) {
             <div className={styles.taskData}>
                 <div className={styles.label}>
                     <h2 id={`task-title-${task.id}`}>{task.title}</h2>
-                    <p>{task.description}</p>
+                    <p className={styles.taskDescription}>{task.description}</p>
                 </div>
                 <div className={styles.tags}>
                     <TaskTags 

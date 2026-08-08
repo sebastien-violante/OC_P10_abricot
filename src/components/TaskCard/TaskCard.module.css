@@ -112,7 +112,7 @@
 }
 
 .taskAssignees .assignee .fullNameBadge {
-    color: var(--grey600);
+    color: var(--grey800);
     font-size: 14px;
     border-radius: 50px;
     background: var(--grey200);
@@ -126,6 +126,8 @@
 .commentsHeader {
     display: flex;
     justify-content: space-between;
+    cursor: pointer;
+    width: 100%;
 }
 
 .commentStripe {
@@ -163,7 +165,7 @@
 
 .commentStripe .description .createdAt {
     font-size: 10px;
-    color: var(--grey600);
+    color: var(--grey800);
 }
 .formComment {
     display: flex;
@@ -194,6 +196,8 @@
     gap: 16px;
 }
 
+
+
 .commentsArea.extended {
     padding-top: 24px;
     max-height: 1500px;
@@ -205,5 +209,5 @@
     padding: 15px 75px;
     border-radius: 10px;
     margin-top: 16px;
-    color: var(--grey400);
+    color: var(--grey800);
 }

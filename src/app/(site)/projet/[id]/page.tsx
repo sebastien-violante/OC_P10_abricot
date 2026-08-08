@@ -293,10 +293,13 @@ export default function SingleProject() {
             <section className={styles.banner}>
                 <article className={styles.label}>
                     <button onClick={returnToProjects}>
+                        <span className={styles.visuallyHidden}>
+                            Retour à la liste des projets
+                        </span>
                         <img 
                             src="/pictures/static/back-arrow.svg"
                             alt=""
-                            aria-hiddent="true"
+                            aria-hidden="true"
                             aria-label="Revenir à la liste des projets"/>
                         </button>
                     <div className={styles.left}>
@@ -322,7 +325,7 @@ export default function SingleProject() {
             <section className={styles.main}>
                <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
-                    Contributeurs <span>{(project?.members.length ?? 0) + 1} {project?.members.length == 0 ? "personne" : "personnes"}</span>
+                    Contributeurs <span>{(project?.members.length ?? 0) + 1} {project?.members.length === 0 ? "personne" : "personnes"}</span>
                 </div>
                 <div className={styles.detailsContributors}>
                     <div className={styles.idTag}>
@@ -350,7 +353,7 @@ export default function SingleProject() {
                             <img 
                                 src="/pictures/static/coche-orange.svg"
                                 alt=""
-                                aria-hiddent="true"
+                                aria-hidden="true"
                             />
                             <span>Liste</span>
                         </button>
@@ -358,7 +361,7 @@ export default function SingleProject() {
                             <img 
                                 src="/pictures/static/calendar-orange.svg"
                                 alt=""
-                                aria-hiddent="true"
+                                aria-hidden="true"
                             />
                             <span>Calendrier</span>
                         </button>
@@ -380,10 +383,13 @@ export default function SingleProject() {
                                  name="search" 
                                  placeholder="Rechercher une tâche"></input>
                             <button type="submit" onClick={searchTask}>
+                                <span className={styles.visuallyHidden}>
+                                    Rechercher des tâches
+                                </span>
                                 <img 
                                     src="/pictures/static/search.svg"
                                     alt=""
-                                    aria-hiddent="true"
+                                    aria-hidden="true"
                                     aria-label="Rechercher des tâches"
                                     />
                                 </button>

@@ -47,6 +47,7 @@
     display: flex;
     justify-content: space-between;
     gap: 22px;
+    flex-wrap: wrap;
 }
 
 .hiddenLabel {
@@ -105,7 +106,7 @@
 }
 
 .header .search {
-    width: 353px;
+    max-width: 353px;
     height: 63px;
     border: 1px solid var(--grey200);
     border-radius: 8px;
@@ -124,5 +125,18 @@
     .chooseDisplay
     {
         margin: 90px 20px;
+    }
+}
+
+@media (max-width: 767px) {
+    .listDisplay {
+        padding: 30px 5px 0 5px;
+    }
+    .header .search {
+        margin-top: 20px;
+        width: 100%;
+    }
+    .header {
+        flex-direction: column;
     }
 }

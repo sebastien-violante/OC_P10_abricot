@@ -60,7 +60,7 @@
 }
 
 .contributors .totalContributors span {
-    color: var(--grey600);
+    color: var(--grey800);
     font-size: 16px;
 }
 

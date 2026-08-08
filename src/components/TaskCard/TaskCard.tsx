@@ -136,11 +136,11 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                             aria-label={`Actions pour la tâche ${task.title}`}
                             className={styles.ctaButton}
                         >
-                            <img 
-                                src="/pictures/static/taskCta.svg"
-                                alt=""
-                                aria-hidden="true"
-                            />
+                         <img 
+                            src="/pictures/static/taskCta.svg"
+                            alt=""
+                            aria-hidden="true"
+                        />
                         </button>
 
                         {cta && (
@@ -205,9 +205,8 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
 
             <section 
                 className={styles.assignees}
-                aria-labelledby={`assignees-title-${task.id}`}
             >
-                <span aria-hidden="true">Assigné à :</span>
+                <span>Assigné à :</span>
 
                 <div className={styles.taskAssignees}>
                     {task.assignees.map((assignee)=>(
@@ -221,7 +220,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                             </span>
                             <span 
                                 className={styles.fullNameBadge}
-                                aria-hidden="true">{assignee.user.name}
+                            >{assignee.user.name}
                             </span>
                         </div>
                     ))}
@@ -230,33 +229,23 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
 
             <section 
                 className={styles.comments}
-                aria-labelledby={`comments-title-${task.id}`}
             >
-                <div 
+                <button
+                    type="button" 
                     className={styles.commentsHeader}
+                    onClick={toggleComments} 
+                    aria-expanded={displayComments}
+                    aria-controls={commentsId}
                 >
-                    <div className={styles.label}>
+                    <span className={styles.label}>
                         Commentaires ({commentsInStore.length})
-                    </div>
-                    <button 
-                        type="button"
-                        onClick={toggleComments} 
+                    </span>
+                    <img 
+                        src="/pictures/static/chevron.svg"
                         className={`${styles.showCommentsCta} ${!displayComments ? '' : styles.rotate }`}
-                        aria-expanded={displayComments}
-                        aria-controls={commentsId}
-                        aria-label={
-                            displayComments
-                                ? 'Masquer les commentaires'
-                                : 'Afficher les commentaires'
-                        }
-                        >
-                        <img 
-                            src="/pictures/static/chevron.svg"
-                            alt=""
-                            aria-hidden="true"/>
-                    </button>
-                </div>
-
+                        alt=""
+                        aria-hidden="true"/>
+                </button>
                 <div 
                     id={commentsId}
                     className={`${styles.commentsArea} ${displayComments ? styles.extended : ''}`}
@@ -332,9 +321,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                             </button>
                         </form>
                     </div>
-                    
-                </div>
-                
+                </div>     
             </section>
         </article>
     )

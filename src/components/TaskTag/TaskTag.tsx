@@ -9,22 +9,25 @@ export default function TaskTags({projectLabel, dueDateLabel, assigneesLabel}: T
     return(
         <div className={styles.taskTag}>
             <div className={styles.project}>
-                <img 
+                <img
+                    className={styles.icon}
                     src="pictures/static/folder.svg"
                     alt=""/>
-                {projectLabel}
+                <span>{projectLabel}</span>
             </div>
             <div className={styles.calendar}>
                 <img 
+                    className={styles.icon}
                     src="pictures/static/calendar.svg"
                     alt=""/>
-                {dueDateLabel}
+                <span>{dueDateLabel}</span>
             </div>
             <div className={styles.message}>
                 <img 
+                    className={styles.icon}
                     src="pictures/static/message.svg"
                     alt=""/>
-                {assigneesLabel}
+                <span>{assigneesLabel}</span>
             </div>
         </div>
     )

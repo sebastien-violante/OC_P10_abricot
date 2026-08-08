@@ -123,7 +123,7 @@ export default function Header() {
                     aria-expanded={userMenuOpen} 
                     aria-haspopup="menu" 
                     aria-controls="user-menu" 
-                    aria-label="Ouvrir le menu du compte">
+                    aria-label={`"Ouvrir le menu du compte de ${profile?.name}`}>
                         {initials}
                 </button>  
                 { userMenuOpen && <ul

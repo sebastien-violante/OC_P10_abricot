@@ -8,7 +8,7 @@
 .taskTag .calendar,
 .taskTag .message {
     display: flex;
-    gap: 8px
+    gap: 8px;
 }
 
 .taskTag .calendar {
@@ -23,4 +23,24 @@
 
 .taskTag .message {
     padding-left: 15px;
+}
+
+.icon {
+   height: 15px;
+   width: 15px; 
+}
+
+@media (max-width: 767px) {
+    .taskTag .project span {
+        max-width: 90px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .taskTag .calendar span {
+        max-width: 40px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
