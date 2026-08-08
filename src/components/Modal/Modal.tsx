@@ -9,7 +9,7 @@ type ModalProps = {
   titleId: string;
 }
 
-export default function Modal({ onClose, children, titleId }: ModalProps) {
+export default function Modal({ onClose, children, titleId}: ModalProps) {
 
   const modalRef = useRef<HTMLDivElement>(null)
   // Élément qui avait le focus avant l'ouverture de la modale 

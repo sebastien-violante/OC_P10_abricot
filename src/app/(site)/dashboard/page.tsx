@@ -260,7 +260,8 @@ export default function Dashboard() {
         {selectedTask && (
             <Modal 
                 onClose={()=>removeTask()}
-                titleId={`Détails de la tâche : ${selectedTask.title}`}>
+                titleId={`Détails de la tâche : ${selectedTask.title}`}
+                className={styles.detailsTaskModal}>
                 <TaskCard 
                     task = {selectedTask} 
                     projectId={selectedTask.projectId} 
