@@ -282,45 +282,47 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                         </article>
                     ))}
                     
-                     <div className={styles.commentStripe}>
-                        {profile && (
-                            <div
-                                className={styles.initialCurrentUserBadge}
-                                aria-hidden="true"
-                            >
-                                {currentUserInitials}
-                            </div>
-                        )}
-
-                        <form
-                            onSubmit={handleSubmit}
-                            className={styles.formComment}
-                        >
-                            <div className={styles.description}>
-                                <label
-                                    htmlFor={`comment-${task.id}`}
-                                    className={styles.visuallyHidden}
+                    {ctaAvaliable && (
+                        <div className={styles.commentStripe}>
+                            {profile && (
+                                <div
+                                    className={styles.initialCurrentUserBadge}
+                                    aria-hidden="true"
                                 >
-                                    Ajouter un commentaire
-                                </label>
+                                    {currentUserInitials}
+                                </div>
+                            )}
 
-                                <input
-                                    id={`comment-${task.id}`}
-                                    type="text"
-                                    name="comment"
-                                    placeholder="Ajouter un commentaire..."
-                                    autoComplete="off"
-                                />
-                            </div>
-
-                            <button
-                                className={styles.sendComment}
-                                type="submit"
+                            <form
+                                onSubmit={handleSubmit}
+                                className={styles.formComment}
                             >
-                                Envoyer
-                            </button>
-                        </form>
-                    </div>
+                                <div className={styles.description}>
+                                    <label
+                                        htmlFor={`comment-${task.id}`}
+                                        className={styles.visuallyHidden}
+                                    >
+                                        Ajouter un commentaire
+                                    </label>
+
+                                    <input
+                                        id={`comment-${task.id}`}
+                                        type="text"
+                                        name="comment"
+                                        placeholder="Ajouter un commentaire..."
+                                        autoComplete="off"
+                                    />
+                                </div>
+
+                                <button
+                                    className={styles.sendComment}
+                                    type="submit"
+                                >
+                                    Envoyer
+                                </button>
+                            </form>
+                        </div>
+                    )}
                 </div>     
             </section>
         </article>

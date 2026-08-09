@@ -20,6 +20,7 @@ import { projectWriteAnalyzeData } from 'next/dist/build/swc/generated-native'
 import getInitials from '@/app/utils/getInitials'
 import { useProfile } from '@/app/context/profileContext'
 import { useRouter } from 'next/navigation'
+import deleteRequest from '@/app/utils/deleteRequest'
 
 export default function SingleProject() {
     const params = useParams<{ id: string }>()
@@ -175,8 +176,26 @@ export default function SingleProject() {
         setDeleteProject(true)
     }
 
-    const confirmDeleteProject = () => {
-        console.log('je supprie ce projet')
+    const confirmDeleteProject = async () => {
+        // Vérification de la connexion de l'utilisateur
+        const token = Cookies.get('token')
+        if(token) {
+            const url = `/api/projects/${projectId}`
+            console.log(token)
+            console.log(url)
+            const result = await deleteRequest({ url, token })
+            if(result.success) {
+                router.push('/projets')
+                // Mise en cache d'un message de succès pour l'afficher dans la page projets
+                localStorage.setItem(
+                    "flashBag",
+                    JSON.stringify({
+                        status: true,
+                        message: "le projet a bien été supprimé"
+                    })
+                )
+            }
+        }
     }
 
     const projectFormStructure = {

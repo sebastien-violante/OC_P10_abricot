@@ -27,8 +27,6 @@ export default function Projects() {
     const [loading, setLoading] = useState(true)
     const { profile, setProfile } = useProfile()
     const projectsInStore = useProjectStore((state) => state.projects)
-    
-    
     const title = "Mes projets"
     const subtitle = "Gérer mes projets"
     const [isOpen, setIsOpen] = useState(false)
@@ -36,7 +34,17 @@ export default function Projects() {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const addProjectInStore = useProjectStore((state) => state.addProject)
     const setProjectsInStore = useProjectStore((state) => state.setProjects)
+    const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     
+    useEffect(() => {
+        const flashBag = JSON.parse(localStorage.getItem("flashBag"));
+         if(flashBag) {
+        setFlashMessage({ status: flashBag.status, message: flashBag.message, }) 
+                setTimeout(() => {setFlashMessage(null)}, 2000);
+                localStorage.removeItem("flashBag")
+    }
+    }, [localStorage])
+   
     // Objet de récupération des données de formulaire
         const [formData, setFormData] = useState<ProjectFormData>({
             formTitle: "Créer un projet",
@@ -178,6 +186,11 @@ export default function Projects() {
                 <Modal onClose={()=>setIsOpen(false)}>
                     <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
                 </Modal>
+            )}
+            {flashMessage && (
+                <div className={`fixed top-5 right-5 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-4 py-3 text-white shadow-lg`}>
+                    {flashMessage.message}
+                </div>
             )}
          
         </>
