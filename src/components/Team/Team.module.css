@@ -1,3 +1,9 @@
+.teamWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
 .teamLabel {
     display: flex;
     gap: 8px;

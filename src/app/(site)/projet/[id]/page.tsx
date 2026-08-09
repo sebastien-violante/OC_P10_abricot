@@ -23,14 +23,14 @@ import { useRouter } from 'next/navigation'
 
 export default function SingleProject() {
     const params = useParams<{ id: string }>()
+    const token = Cookies.get('token')
+    const router = useRouter()
     const projectId = params.id
     const { profile, setProfile } = useProfile()
     const project = useProjectStore((state) =>
         state.projects.find((p) => p.id === projectId)
     )
-    console.log(project)
-    const token = Cookies.get('token')
-    console.log(project)
+   
     const [loading, setLoading] = useState(true)
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiResponse, setApiResponse] = useState<string>("");
@@ -41,10 +41,11 @@ export default function SingleProject() {
     const [isOpen, setIsOpen] = useState(false)
     const ctaAvaliable = true
     const [modifyProject, setModifyProject] = useState(false)
+    const [deleteProject, setDeleteProject] = useState(false)
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [isList, setIsList] = useState(true)
-    const router = useRouter();
+    
 
     const toggleIsList = () => {
         setIsList((prev) => !prev)
@@ -156,13 +157,8 @@ export default function SingleProject() {
     const handleModifyProject = () => {
         console.log(project)
         if(!project) return
-        if(project.owner.id !== profile?.id) {
-            setErrorMessage("Vous n'êtes pas propiétaire du projet. Vous ne pouvez pas le modifier")
-                setTimeout(() => {
-                setErrorMessage("")
-            }, 3000);
-            return
-        }
+        // On ne peut modifier ou supprimer un projet que si on est propriétaire
+        if(project.owner.id !== profile?.id) return
         const collaborators = project.members.map(member => (member.user))
         
         setProjectData({
@@ -176,7 +172,11 @@ export default function SingleProject() {
     }
 
     const handleDeleteProject = () => {
-        alert("suppression projet")
+        setDeleteProject(true)
+    }
+
+    const confirmDeleteProject = () => {
+        console.log('je supprie ce projet')
     }
 
     const projectFormStructure = {
@@ -415,6 +415,17 @@ export default function SingleProject() {
                 {modifyProject && (
                     <Modal onClose={()=>setModifyProject(false)}>
                         <Form data={projectFormStructure} formData={projectData} setFormData={setProjectData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
+                    </Modal>
+                )}
+                {deleteProject && (
+                    <Modal titleId="deleteProject" onClose={()=>setDeleteProject(false)}>
+                        <div>
+                            <h3>Etes-vous sûr(e) de vouloir supprimer ce message ?</h3>
+                            <button 
+                                type="button"
+                                onClick={confirmDeleteProject}
+                            >Confirmer</button>
+                        </div>
                     </Modal>
                 )}
                 {errorMessage && (

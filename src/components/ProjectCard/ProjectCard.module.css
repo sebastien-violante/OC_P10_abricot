@@ -1,6 +1,6 @@
 .cardWrapper {
     width: 380px;
-    height: 381px;
+    height: 350px;
     border: 1px solid var(--grey200);
     border-radius: 10px;
     padding: 30px 34px;
@@ -22,4 +22,15 @@
     color: var(--grey600);
     line-height: 1.2;
     text-align: justify;
+}
+
+@media (max-width: 767px) {
+    .projectCard {
+        width: 100%;
+        min-width: 280px;
+
+    }
+    .cardWrapper {
+      
+    }
 }

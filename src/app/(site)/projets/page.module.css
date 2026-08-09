@@ -1,10 +1,18 @@
 .sectionWrapper {
-    
+    margin: 90px 137px 64px 137px;
 }
+
 .projectsWrapper {
     margin: auto;
     display: flex;
     flex-wrap: wrap;
     max-width: 1166px;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 13px;
+}
+
+@media (max-width: 1023px) {
+    .sectionWrapper {
+        margin: 90px 20px;
+    }
 }

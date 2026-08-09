@@ -14,7 +14,10 @@ export default function Team({project}: TeamProps) {
     return (
         <article className={styles.teamWrapper}>
             <div className={styles.teamLabel}>
-                <img src="pictures/static/union.svg"/>
+                <img 
+                    src="pictures/static/union.svg"
+                    alt=""
+                    aria-hidden="true"/>
                 Equipe
                 <span>({project.members.length})</span>
             </div>
