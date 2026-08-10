@@ -53,3 +53,9 @@
     outline: none;
     border-color: var(--grey400);
 }
+
+.apiResponse {
+    width: 100%;
+    text-align: center;
+    color: red;
+}

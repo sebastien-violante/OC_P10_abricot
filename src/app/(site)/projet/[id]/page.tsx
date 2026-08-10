@@ -8,24 +8,23 @@ import { type Task, type CustomInput, type TaskFormData, ProjectFormData } from 
 import TaskCard from '@/components/TaskCard/TaskCard'
 import Modal from '@/components/Modal/Modal'
 import Form from '@/components/Form/Form'
-import Button from '@/components/Button/Button'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useTaskStore } from '@/store/TaskStore'
-import { useSelectedProject } from '@/store/SelectedProjectStore'
-import type { Project } from '@/types/types'
+import type { Project, FlashMessage } from '@/types/types'
 import { useParams } from 'next/navigation'
 import { taskSchema } from '@/types/schemas/taskSchema'
 import recordTask from '@/app/utils/recordTask'
 import editTask from '@/app/utils/editTask'
-import { projectWriteAnalyzeData } from 'next/dist/build/swc/generated-native'
 import getInitials from '@/app/utils/getInitials'
 import { useProfile } from '@/app/context/profileContext'
 import { useRouter } from 'next/navigation'
 import deleteRequest from '@/app/utils/deleteRequest'
 import { projectSchema } from '@/types/schemas/projectSchema'
-import recordProject from '@/app/utils/recordProject'
+import putRequest from '@/app/utils/putRequest'
+
 
 export default function SingleProject() {
+    
     const params = useParams<{ id: string }>()
     const token = Cookies.get('token')
     const router = useRouter()
@@ -34,15 +33,9 @@ export default function SingleProject() {
     const project = useProjectStore((state) =>
         state.projects.find((p) => p.id === projectId)
     )
-   
-    const setSelectedProject = useSelectedProject((state) => state.setProject)
-    const updateSelectedProject = useSelectedProject((state) => state.updateProject)
-    useEffect(() => {
-        if (project) {
-            setSelectedProject(project)
-        }
-    }, [project, setSelectedProject])
-    const selectedProject = useSelectedProject((state) => state.project)
+    const updateProject = useProjectStore(
+        (state) => state.updateProject
+    )
     const [loading, setLoading] = useState(true)
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiResponse, setApiResponse] = useState<string>("");
@@ -50,28 +43,20 @@ export default function SingleProject() {
     const setTasksInStore = useTaskStore((state) => state.setTasks)
     const addTaskInStore = useTaskStore((state) => state.addTask)
     const updateTaskInStore = useTaskStore((state) => state.updateTask)
-    const [isOpen, setIsOpen] = useState(false)
+    const [openTaskModal, setOpenTaskModal] = useState(false)
     const ctaAvaliable = true
     const [modifyProject, setModifyProject] = useState(false)
     const [deleteProject, setDeleteProject] = useState(false)
-    const [successMessage, setSuccessMessage] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
     const [isList, setIsList] = useState(true)
+    const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     
 
     const toggleIsList = () => {
         setIsList((prev) => !prev)
     }
 
-    const initProjectData = {
-        formTitle: "",
-        title: "",
-        description: "",
-        ctaLabel: "",
-        collaborators: []
-    }
-    // Objet de récupération des données de formulaire
-
+    
+    // Initialisation des données de tâches
     const initTaskData = {
         formTitle: "Créer une tâche",
         ctaLabel: "+ Ajouter une tâche",
@@ -84,13 +69,23 @@ export default function SingleProject() {
         taskId: ""
     }
     const [taskData, setTaskData] = useState<TaskFormData>(initTaskData)
+    
+    // Initialisation des données de projet
+    const initProjectData = {
+        formTitle: "",
+        title: "",
+        description: "",
+        ctaLabel: "",
+        collaborators: []
+    }
     const [projectData, setProjectData] = useState<ProjectFormData>(initProjectData)
 
-    function handleClick() {
-        setIsOpen(true)
+
+    function handleCreateTask() {
+        setOpenTaskModal(true)
     }
 
-    function handleClickIa() {
+    function handleCreateTaskIa() {
         console.log('IA')
     }
 
@@ -107,22 +102,24 @@ export default function SingleProject() {
             edit: true,
             taskId: task.id
         })
-        setIsOpen(true)
+        setOpenTaskModal(true)
     }
 
 
     function closeModal() {
-        setIsOpen(false)
+        setOpenTaskModal(false)
         setTaskData(initTaskData)
     }
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => {
+    const createTask = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => {
         
         e.preventDefault();
         if (!token) {
-            setApiResponse("Vous devez être connecté.");
+            setFlashMessage({status: false, message: "Vous devez être connecté(e) pour pouvoir modifier une tâche"})
+            setTimeout(() => { setFlashMessage(null)}, 2000);
             return;
         }
+
         // Création de la payload en fonction du formData
         const payload = {
             title: taskData.title,
@@ -131,35 +128,57 @@ export default function SingleProject() {
             assigneeIds: taskData.collaborators.map(({ id }) => id),
             status: taskData.status
         };
-        console.log(payload)
-
+       
         // Validation des données par le schéma Zod
         const result = taskSchema.safeParse(payload);
-            if (!result.success) {
-                const formattedErrors: Record<string, string> = {};
-                result.error.issues.forEach((error) => {
-                    const field = error.path[0];
-                    formattedErrors[field as string] = error.message;
-                });
-                setErrors(formattedErrors);
-                return;
-            }
-            setErrors({});
-            if(taskData.edit && taskData.taskId) {
-                const taskId = taskData.taskId
-                const response = await editTask({payload, token, projectId, taskId})
-                const fetchResult = await response.json()
-                console.log(fetchResult)
-                updateTaskInStore(fetchResult.data.task)
-            }
-            else {
-                const response = await recordTask({payload, token, projectId})
-                const fetchResult = await response.json()
-                console.log(fetchResult)
-                const newTask = fetchResult.data.task
+        if (!result.success) {
+            const formattedErrors: Record<string, string> = {};
+            result.error.issues.forEach((error) => {
+                const field = error.path[0];
+                formattedErrors[field as string] = error.message;
+            });
+            setErrors(formattedErrors);
+            return;
+        }
+
+        setErrors({});
+        setApiResponse("")
+
+        // Mode modification de tâche : edit et il existe un task.id
+        if(taskData.edit && taskData.taskId) {
+            const taskId = taskData.taskId
+            // Envoi de la requête à l'API
+            const response = await editTask({payload, token, projectId, taskId})
+            const fetchResult = await response.json()
+            if(!fetchResult.success) {
                 setApiResponse(fetchResult.message)
-                addTaskInStore(newTask)
+                setTaskData(initTaskData)
+                return
             }
+            // Mise à jour du store pour répercussion sur l'affichage
+            updateTaskInStore(fetchResult.data.task)
+            // Fermeture de la modale, vidage des données et affichage du message flash
+            setOpenTaskModal(false)
+            setTaskData(initTaskData)
+            setFlashMessage({status: true, message: "La tâche a été modifiée"})
+            setTimeout(() => {setFlashMessage(null)}, 2000);
+                
+        }
+        // Mode création de tâche
+        else {
+            // Envoi
+            const response = await recordTask({payload, token, projectId})
+            const fetchResult = await response.json()
+            if(!fetchResult.success) {
+                setApiResponse(fetchResult.message)
+                return
+            }
+            const newTask = fetchResult.data.task
+            addTaskInStore(newTask)
+            setOpenTaskModal(false)
+            setFlashMessage({status: true, message: "La nouvelle tâche a été ajoutée"})
+            setTimeout(() => {setFlashMessage(null)}, 2000);
+        }
             
     }
 
@@ -172,16 +191,16 @@ export default function SingleProject() {
     }
 
     const handleModifyProject = () => {
-        if(!selectedProject) return
+        if(!project) return
         // On ne peut modifier ou supprimer un projet que si on est propriétaire
-        if(selectedProject.owner.id !== profile?.id) return
+        if(project.owner.id !== profile?.id) return
         
-        const collaborators = selectedProject.members.map(member => (member.user))
+        const collaborators = project.members.map(member => (member.user))
         setProjectData({
             formTitle: "Modifier un projet",
-            title: selectedProject?.name,
+            title: project?.name,
             ctaLabel: "Enregistrer",
-            description: selectedProject?.description,
+            description: project?.description,
             collaborators
         })
         console.log(projectData)
@@ -214,12 +233,16 @@ export default function SingleProject() {
             return;
         }
         setErrors({});
-        
-        const response = await recordProject({payload, token})
-        const fetchResult = await response.json()
-        const modifiedProject = fetchResult.data.project 
-        setSelectedProject(modifiedProject)
-        setApiResponse(fetchResult.message)
+        const url = `/api/projects/${project?.id}`
+        const putResult = await putRequest({ url,token,payload })
+        const response = await putResult.json()
+        console.log(response)
+                 
+        updateProject(response.data.project)
+        setModifyProject(false)
+        setFlashMessage({status: true, message: "Le projet a bien été mis à jour"})
+        setTimeout(() => {setFlashMessage(null)}, 2000);
+        //setApiResponse(fetchResult.message)
     }
         
 
@@ -368,8 +391,8 @@ export default function SingleProject() {
                         </button>
                     <div className={styles.left}>
                         <div className={styles.data}>
-                            {selectedProject?.name}
-                            {(selectedProject?.owner.id === profile?.id )&& 
+                            {project?.name}
+                            {(project?.owner.id === profile?.id )&& 
                                 <>
                                     <button className={styles.modifyProject} onClick={handleModifyProject}>Modifier</button>
                                     <button className={styles.deleteProject} onClick={handleDeleteProject}>Supprimer</button>
@@ -377,21 +400,21 @@ export default function SingleProject() {
                             }
                             
                         </div>
-                        <span>{selectedProject?.description}</span>
+                        <span>{project?.description}</span>
                     </div>
                 </article>
                 <div className={styles.buttons}>
                     <button 
                         className={styles.createTaskBtn}
                         type="button"
-                        onClick={handleClick}
+                        onClick={handleCreateTask}
                         aria-haspopup="dialog">
                             Créer une tâche
                     </button>
                     <button 
                         className={styles.createTaskIaBtn}
                         type="button"
-                        onClick={handleClickIa}
+                        onClick={handleCreateTaskIa}
                         aria-haspopup="dialog">
                             <img src="/pictures/static/star-orange.svg" alt="" aria-hidden="true"/>
                             IA
@@ -402,7 +425,7 @@ export default function SingleProject() {
             <section className={styles.main}>
                <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
-                    Contributeurs <span>{(selectedProject?.members.length ?? 0) + 1} {selectedProject?.members.length === 0 ? "personne" : "personnes"}</span>
+                    Contributeurs <span>{(project?.members.length ?? 0) + 1} {project?.members.length === 0 ? "personne" : "personnes"}</span>
                 </div>
                 <div className={styles.detailsContributors}>
                     <div className={styles.idTag}>
@@ -410,7 +433,7 @@ export default function SingleProject() {
                         <p className={styles.ownerName}>Propriétaire</p>
                     </div>
                     
-                    {selectedProject?.members.map((member)=>(
+                    {project?.members.map((member)=>(
                         <div key={member.id} className={styles.idTag}>
                             <p className={styles.memberId}>{getInitials(member.user.name)}</p>
                             <p className={styles.memberName}>{member.user.name}</p>
@@ -483,9 +506,9 @@ export default function SingleProject() {
                     ))}
                 </section>
                 
-                {isOpen && (
+                {openTaskModal && (
                     <Modal onClose={closeModal}>
-                        <Form data={taskFomStructure} formData={taskData} setFormData={setTaskData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse} ></Form>
+                        <Form data={taskFomStructure} formData={taskData} setFormData={setTaskData} handleSubmit={createTask} errors={errors} apiResponse={apiResponse} ></Form>
                     </Modal>
                 )}
                 </section>
@@ -504,14 +527,18 @@ export default function SingleProject() {
                             >Confirmer</button>
                         </div>
                     </Modal>
-                )}
-                {errorMessage && (
-                <div className="fixed top-5 right-5 rounded-lg bg-red-500 px-4 py-3 text-white shadow-lg">
-                    {errorMessage}
-                </div>
-            )} 
+                )} 
             </section>
-            
+            {/* MESSAGE GLOBAL */}
+            {flashMessage && (
+                <div  
+                    className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-6 py-4 text-white shadow-lg`}
+                    role={ flashMessage.status ? 'status' : 'alert' } 
+                    aria-live={ flashMessage.status ? 'polite' : 'assertive' }
+                >
+                    {flashMessage.message}
+                </div>
+            )}
         </div>
     )
 }

@@ -63,7 +63,6 @@ export default function Account() {
             const token = Cookies.get('token')
             if(token) {
                 const url = "api/auth/profile"
-               
                 const result = await putRequest({ url,token,payload })
                 const response = await result.json()
                 console.log(response)

@@ -29,7 +29,7 @@ export default function Form<T extends Record<string, any>>({data, formData, set
                 {error}
             </p>
             ))}
-            {apiResponse}
+            <span className={styles.apiResponse}>{apiResponse}</span>
             <section className={styles.formContainer}>
                 {data.inputs
                 .filter(input => input.type !== "status" || formData.edit)
