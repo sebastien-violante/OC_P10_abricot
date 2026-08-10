@@ -219,3 +219,20 @@
     white-space: nowrap;
     border: 0;
 }
+
+.modalDeleteProject {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.modalDeleteProject button {
+    background: red;
+    height: 50px;
+    width: 40%;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}

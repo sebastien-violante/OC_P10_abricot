@@ -438,7 +438,7 @@ export default function SingleProject() {
                 )}
                 {deleteProject && (
                     <Modal titleId="deleteProject" onClose={()=>setDeleteProject(false)}>
-                        <div>
+                        <div className={styles.modalDeleteProject}>
                             <h3>Etes-vous sûr(e) de vouloir supprimer ce message ?</h3>
                             <button 
                                 type="button"
