@@ -155,12 +155,12 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                                             onClick={editTask} 
                                             className={styles.li}
                                         >
+                                            <span>Modifier</span>
                                             <img 
                                                 src="/pictures/static/pen.svg"
                                                 alt=""
                                                 aria-hidden="true"
                                             />
-                                            <span>Modifier</span>
                                         </button> 
                                     </li>
                                     <li> 
@@ -169,12 +169,12 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                                             onClick={removeTask}
                                             className={styles.li}
                                         >
+                                            <span>Supprimer</span>
                                             <img 
                                                 src="/pictures/static/bin.svg"
                                                 alt=""
                                                 aria-hidden="true"
                                             />
-                                            <span>Supprimer</span>
                                         </button>
                                     </li>
                                 </ul>

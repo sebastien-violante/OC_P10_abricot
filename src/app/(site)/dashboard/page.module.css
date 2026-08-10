@@ -2,6 +2,15 @@
     margin: 90px 125px 0 100px;
 }
 
+.createProjectBtn {
+    background: black;
+    color: white;
+    height: 50px;
+    width: 180px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
 .loaderContainer {
     display: flex;
     justify-content: center;
@@ -121,6 +130,7 @@
     height: 50px;
 }
 
+
 @media (max-width: 1023px) {
     .sectionWrapper, 
     .chooseDisplay
@@ -139,5 +149,8 @@
     }
     .header {
         flex-direction: column;
+    }
+    .kanbanWrapper {
+        padding: 5px;
     }
 }

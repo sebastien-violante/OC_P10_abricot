@@ -160,13 +160,13 @@ export default function Dashboard() {
             className={styles.sectionWrapper}>
             
             <Banner title={title} subtitle={subtitle}>
-                <Button 
-                    color={"black"} 
-                    width={"xlarge"} 
+                <button 
+                    className={styles.createProjectBtn}
+                    type="button"
                     onClick={handleClick}
                     aria-haspopup="dialog">
                         + Créer un projet
-                </Button>
+                </button>
             </Banner>
         </section>
         <section 

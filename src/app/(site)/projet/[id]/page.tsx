@@ -11,6 +11,7 @@ import Form from '@/components/Form/Form'
 import Button from '@/components/Button/Button'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useTaskStore } from '@/store/TaskStore'
+import { useSelectedProject } from '@/store/SelectedProjectStore'
 import type { Project } from '@/types/types'
 import { useParams } from 'next/navigation'
 import { taskSchema } from '@/types/schemas/taskSchema'
@@ -21,6 +22,8 @@ import getInitials from '@/app/utils/getInitials'
 import { useProfile } from '@/app/context/profileContext'
 import { useRouter } from 'next/navigation'
 import deleteRequest from '@/app/utils/deleteRequest'
+import { projectSchema } from '@/types/schemas/projectSchema'
+import recordProject from '@/app/utils/recordProject'
 
 export default function SingleProject() {
     const params = useParams<{ id: string }>()
@@ -32,6 +35,14 @@ export default function SingleProject() {
         state.projects.find((p) => p.id === projectId)
     )
    
+    const setSelectedProject = useSelectedProject((state) => state.setProject)
+    const updateSelectedProject = useSelectedProject((state) => state.updateProject)
+    useEffect(() => {
+        if (project) {
+            setSelectedProject(project)
+        }
+    }, [project, setSelectedProject])
+    const selectedProject = useSelectedProject((state) => state.project)
     const [loading, setLoading] = useState(true)
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiResponse, setApiResponse] = useState<string>("");
@@ -79,6 +90,10 @@ export default function SingleProject() {
         setIsOpen(true)
     }
 
+    function handleClickIa() {
+        console.log('IA')
+    }
+
     function editCurrentTask(task: Task) {
         const collaborators = task.assignees.map(assignee => (assignee.user))
         setTaskData({
@@ -100,13 +115,14 @@ export default function SingleProject() {
         setIsOpen(false)
         setTaskData(initTaskData)
     }
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => {
         
         e.preventDefault();
         if (!token) {
-        setApiResponse("Vous devez être connecté.");
-        return;
-    }
+            setApiResponse("Vous devez être connecté.");
+            return;
+        }
         // Création de la payload en fonction du formData
         const payload = {
             title: taskData.title,
@@ -156,21 +172,56 @@ export default function SingleProject() {
     }
 
     const handleModifyProject = () => {
-        console.log(project)
-        if(!project) return
+        if(!selectedProject) return
         // On ne peut modifier ou supprimer un projet que si on est propriétaire
-        if(project.owner.id !== profile?.id) return
-        const collaborators = project.members.map(member => (member.user))
+        if(selectedProject.owner.id !== profile?.id) return
         
+        const collaborators = selectedProject.members.map(member => (member.user))
         setProjectData({
             formTitle: "Modifier un projet",
-            title: project?.name,
+            title: selectedProject?.name,
             ctaLabel: "Enregistrer",
-            description: project?.description,
+            description: selectedProject?.description,
             collaborators
         })
+        console.log(projectData)
         setModifyProject(true)
     }
+
+    const confirmModifyProject = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => { 
+        
+        e.preventDefault();
+        if (!token) {
+            router.push('/');
+            return;
+        }   
+        // validation des données de formulaire
+        const payload = {
+            name: projectData.title,
+            description: projectData.description,
+            contributors: projectData.collaborators.map(({ email }) => email)
+            };
+        
+        const result = projectSchema.safeParse(payload);
+        if (!result.success) {
+            const formattedErrors: Record<string, string> = {};
+            result.error.issues.forEach((error) => {
+                const field = error.path[0];
+                formattedErrors[field as string] = error.message;
+            });
+            setErrors(formattedErrors);
+            
+            return;
+        }
+        setErrors({});
+        
+        const response = await recordProject({payload, token})
+        const fetchResult = await response.json()
+        const modifiedProject = fetchResult.data.project 
+        setSelectedProject(modifiedProject)
+        setApiResponse(fetchResult.message)
+    }
+        
 
     const handleDeleteProject = () => {
         setDeleteProject(true)
@@ -224,7 +275,7 @@ export default function SingleProject() {
     } satisfies {
         title: string;
         inputs: CustomInput[];
-    };
+    }
 
     const taskFomStructure = {
             title: "Créer une tâche",
@@ -241,19 +292,17 @@ export default function SingleProject() {
                     name : "description", 
                     required: true
                 },
-                
-                {
-                    label : "Assignée à :", 
-                    type: "collaborators", 
-                    name: "collaborators", 
-                    required: false
-                },
-                
                 {
                     label : "Echéance", 
                     type: "date", 
                     name: "dueDate", 
                     required: true
+                },
+                {
+                    label : "Assignée à :", 
+                    type: "collaborators", 
+                    name: "collaborators", 
+                    required: false
                 },
                 {
                     label: "Statut",
@@ -270,12 +319,8 @@ export default function SingleProject() {
         } satisfies {
             title: string;
             inputs: CustomInput[];
-        };
-/*
-    if (!token) {
-        throw new Error("Token manquant");
-    }
-*/
+        }
+
     useEffect (() => {
         if(!token) {
             return
@@ -293,8 +338,8 @@ export default function SingleProject() {
                     setLoading(false);
                 }
             }
-            loadTasks(token);
-        }, [token]);
+            loadTasks(token)
+        }, [token])
 
     
      if (loading) {
@@ -323,8 +368,8 @@ export default function SingleProject() {
                         </button>
                     <div className={styles.left}>
                         <div className={styles.data}>
-                            Nom du projet
-                            {(project?.owner.id === profile?.id )&& 
+                            {selectedProject?.name}
+                            {(selectedProject?.owner.id === profile?.id )&& 
                                 <>
                                     <button className={styles.modifyProject} onClick={handleModifyProject}>Modifier</button>
                                     <button className={styles.deleteProject} onClick={handleDeleteProject}>Supprimer</button>
@@ -332,19 +377,32 @@ export default function SingleProject() {
                             }
                             
                         </div>
-                        <span>{project?.name}</span>
+                        <span>{selectedProject?.description}</span>
                     </div>
                 </article>
                 <div className={styles.buttons}>
-                    <Button color={"black"} width={"mediumplus"} onClick={handleClick}>Créer une tâche</Button>
-                    <Button color={"orange"} width={"small"} onClick={handleClick}>IA</Button>
+                    <button 
+                        className={styles.createTaskBtn}
+                        type="button"
+                        onClick={handleClick}
+                        aria-haspopup="dialog">
+                            Créer une tâche
+                    </button>
+                    <button 
+                        className={styles.createTaskIaBtn}
+                        type="button"
+                        onClick={handleClickIa}
+                        aria-haspopup="dialog">
+                            <img src="/pictures/static/star-orange.svg" alt="" aria-hidden="true"/>
+                            IA
+                    </button>
                 </div>
             </section>
 
             <section className={styles.main}>
                <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
-                    Contributeurs <span>{(project?.members.length ?? 0) + 1} {project?.members.length === 0 ? "personne" : "personnes"}</span>
+                    Contributeurs <span>{(selectedProject?.members.length ?? 0) + 1} {selectedProject?.members.length === 0 ? "personne" : "personnes"}</span>
                 </div>
                 <div className={styles.detailsContributors}>
                     <div className={styles.idTag}>
@@ -352,7 +410,7 @@ export default function SingleProject() {
                         <p className={styles.ownerName}>Propriétaire</p>
                     </div>
                     
-                    {project?.members.map((member)=>(
+                    {selectedProject?.members.map((member)=>(
                         <div key={member.id} className={styles.idTag}>
                             <p className={styles.memberId}>{getInitials(member.user.name)}</p>
                             <p className={styles.memberName}>{member.user.name}</p>
@@ -432,8 +490,8 @@ export default function SingleProject() {
                 )}
                 </section>
                 {modifyProject && (
-                    <Modal onClose={()=>setModifyProject(false)}>
-                        <Form data={projectFormStructure} formData={projectData} setFormData={setProjectData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
+                    <Modal titleId="modifyProject" onClose={()=>setModifyProject(false)}>
+                        <Form data={projectFormStructure} formData={projectData} setFormData={setProjectData} handleSubmit={confirmModifyProject} errors={errors} apiResponse={apiResponse}></Form>
                     </Modal>
                 )}
                 {deleteProject && (

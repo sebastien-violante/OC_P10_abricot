@@ -174,7 +174,13 @@ export default function Projects() {
         <>
             <section className={styles.sectionWrapper}>
                 <Banner title={title} subtitle={subtitle}>
-                    <Button color={"black"} width={"xlarge"} onClick={handleClick}>+ Créer un projet</Button>
+                    <button 
+                        className={styles.createProjectBtn}
+                        type="button"
+                        onClick={handleClick}
+                        aria-haspopup="dialog">
+                            + Créer un projet
+                    </button>
                 </Banner>
             </section>
             <div className={styles.projectsWrapper}>
@@ -183,7 +189,7 @@ export default function Projects() {
                 ))}
             </div>
            {isOpen && (
-                <Modal onClose={()=>setIsOpen(false)}>
+                <Modal titleId="createProject" onClose={()=>setIsOpen(false)}>
                     <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
                 </Modal>
             )}

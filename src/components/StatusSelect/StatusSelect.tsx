@@ -35,7 +35,7 @@ export default function StatusSelect({
     };
 
     return (
-        <div>
+        <div className={styles.statusSelect}>
             <label>{label}</label>
 
             <div className={styles.container}>

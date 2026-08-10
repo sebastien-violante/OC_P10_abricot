@@ -9,11 +9,32 @@
 
 .banner {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     margin-top: 78px;
 }
 
+.banner .buttons .createTaskBtn {
+    background: black;
+    color: white;
+    height: 50px;
+    width: 140px;
+    border-radius: 10px;
+    cursor: pointer
+}
+
+.banner .buttons .createTaskIaBtn {
+    background: var(--dark-orange);
+    color: white;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 23px;
+    cursor: pointer;
+}
 
 .label {
     color: var(--grey800);
@@ -34,6 +55,7 @@
     text-decoration: underline;
     font-size: 14px;
     margin-left: 14px;
+    cursor: pointer;
 }
 
 .label .left span {
@@ -44,12 +66,14 @@
     display: flex;
     gap: 12px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .contributors {
     background: var(--grey100);
     padding: 20px 50px;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-top: 50px;
 }
@@ -66,6 +90,7 @@
 
 .contributors .detailsContributors {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     border-radius: 10px;
 }
@@ -82,6 +107,7 @@
 
 .taskList .header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-bottom: 40px;
 }
@@ -101,6 +127,7 @@
 
 .taskList .header .cta {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
 }
 
@@ -232,7 +259,26 @@
     background: red;
     height: 50px;
     width: 40%;
+    min-width: 150px;
     color: white;
     border-radius: 5px;
     cursor: pointer;
+}
+
+@media (max-width: 1023px) {
+    .main {
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 767px) {
+    .singleProjectWrapper {
+        padding: 0 5px;
+    }
+    .taskList {
+        padding: 40px 10px;
+    }
+    .taskList .taskWrapper {
+        margin: 0;
+    }
 }

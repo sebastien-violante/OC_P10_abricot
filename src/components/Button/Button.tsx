@@ -13,7 +13,7 @@ type ButtonProps = {
 const variants: Record<ButtonColor, React.CSSProperties> = {
     black: { background: "black", color: "white" },
     orange: { background: "var(--dark-orange)", color: "white" },
-    grey: { background: "var(--grey200", color: "var(--grey400)" }
+    grey: { background: "var(--grey200", color: "var(--grey800)" }
 };
 
 const sizes: Record<ButtonWidth, React.CSSProperties> = {
@@ -34,6 +34,7 @@ const baseStyle: React.CSSProperties = {
     border: "none",
     cursor: "pointer",
     height: "50px",
+    marginTop: "56px"
 };
 
 export default function Button({color, width, onClick, children}: ButtonProps) {

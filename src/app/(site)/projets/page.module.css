@@ -2,6 +2,15 @@
     margin: 90px 137px 64px 137px;
 }
 
+.createProjectBtn {
+    background: black;
+    color: white;
+    height: 50px;
+    width: 180px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
 .projectsWrapper {
     margin: auto;
     display: flex;
@@ -9,6 +18,8 @@
     max-width: 1166px;
     justify-content: center;
     gap: 13px;
+    margin-bottom: 80px;
+
 }
 
 @media (max-width: 1023px) {

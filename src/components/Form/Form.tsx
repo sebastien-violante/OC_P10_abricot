@@ -2,7 +2,7 @@ import styles from './Form.module.css'
 import CollaboratorSelect from '../CollaboratorSelect/CollaboratorSelect'
 import StatusSelect from '../StatusSelect/StatusSelect'
 import type { CustomInput } from '@/types/types'
-import type { ProjectFormData, User } from '@/types/types'
+import type { User } from '@/types/types'
 import Button from '../Button/Button'
 
 type FormProps<T extends Record<string, any>> = {
@@ -36,34 +36,42 @@ export default function Form<T extends Record<string, any>>({data, formData, set
                 .map((input) => {
                     switch (input.type) {
                         case "text": return (
-                            <div key={input.label} className={styles.formGroup}>
+                            <div key={input.name} className={styles.formGroup}>
                                 <label>{input.label}{input.required && '*'}</label>
                                 <input
-                                    type={input.type}
+                                    name={formData[input.name]}
+                                    type="text"
                                     className={styles.input}
                                     value={formData[input.name] as string ?? ""}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                         console.log("CHAMP :", input.name)
+                                        console.log("VALEUR :", e.target.value);
                                         setFormData(prev => ({
                                             ...prev,
                                             [input.name]: e.target.value
                                         }))
                                     }
+                                    }
+                                        
                                 />
                             </div>)
                         
                         case "date": return (
-                            <div key={input.label} className={styles.formGroup}>
-                                <label>{input.label}</label>
-                                <input
-                                    type="date"
-                                    value={formData[input.name] as string}
-                                    onChange={(e) =>
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            [input.name]: e.target.value
-                                        }))
-                                    }
-                                />
+                            <div key={input.name} className={styles.formGroup}>
+                                <label>{input.label}{input.required && '*'}</label>
+                                 <div className={styles.dateInputWrapper}>
+                                    <input
+                                        type="date"
+                                        className={styles.dateInput}
+                                        value={formData[input.name] as string ?? ""}
+                                        onChange={(e) =>
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                [input.name]: e.target.value
+                                            }))
+                                        }
+                                    />
+                                </div>
                             </div>
                             )
                        
@@ -98,7 +106,6 @@ export default function Form<T extends Record<string, any>>({data, formData, set
                     }
                 })}
             </section>
-            
             <Button type="submit" color={"grey"} width={"xxlarge"}>{formData.ctaLabel}</Button>
         </form>
             
