@@ -243,6 +243,7 @@ export type ProjectFormData = {
     formTitle?: string;
     title: string;
     ctaLabel: string;
+    mode: boolean;
     description: string;
     collaborators: User[];
 }
@@ -276,6 +277,7 @@ export type TaskFormData = {
     ctaLabel: string;
     title: string;
     description: string;
+    mode: boolean;
     collaborators: User[];
     dueDate: string;
     status: string;
@@ -307,3 +309,7 @@ export type ApiResponse<T = unknown> = {
     error?: string; 
     details?: ApiErrorDetail[]; 
 };
+
+export type UpdateProjectResponse = {
+    project: Project;
+}

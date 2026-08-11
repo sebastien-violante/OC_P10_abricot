@@ -31,47 +31,37 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 1rem;
   background: rgb(0 0 0 / 50%);
 }
 
 .modal {
   position: relative;
-
   display: flex;
   flex-direction: column;
-
   width: 100%;
   max-width: 600px;
-
   max-height: 90dvh;
-
   background: white;
   border-radius: 12px;
-
   overflow: hidden;
 }
 
 .modalContent {
   min-height: 0;
   overflow-y: auto;
-
-  padding: 1.5rem;
-
+  padding: 30px 50px;
   -webkit-overflow-scrolling: touch;
 }
 
 .closeButton {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 30px;
+  right: 30px;
 }
-
 
 @media (max-width = 756px) {
   .modal {

@@ -43,6 +43,7 @@ export default function Dashboard() {
         title: "",
         ctaLabel: "Ajouter un projet",
         description: "",
+        mode: true,
         collaborators: [] 
     })
     const selectedTask = useSelectedTask((state) => state.task)

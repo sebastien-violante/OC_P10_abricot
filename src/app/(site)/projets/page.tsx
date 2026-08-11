@@ -12,7 +12,7 @@ import { useProfile } from '@/app/context/profileContext'
 import Button from '@/components/Button/Button';
 import Banner from '@/components/Banner/Banner';
 import { CustomInput } from '@/types/types';
-import type { ProjectFormData } from '@/types/types';
+import type { ProjectFormData, FlashMessage } from '@/types/types';
 import { projectSchema } from "@/types/schemas/projectSchema";
 import recordProject from '@/app/utils/recordProject';
 import Modal from '@/components/Modal/Modal';
@@ -37,13 +37,14 @@ export default function Projects() {
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     
     useEffect(() => {
-        const flashBag = JSON.parse(localStorage.getItem("flashBag"));
-         if(flashBag) {
-        setFlashMessage({ status: flashBag.status, message: flashBag.message, }) 
-                setTimeout(() => {setFlashMessage(null)}, 2000);
-                localStorage.removeItem("flashBag")
+        const flashBag = localStorage.getItem("flashBag")
+        if(flashBag) {
+            const parsedFlashBag = JSON.parse(flashBag);
+            setFlashMessage({ status: parsedFlashBag.status, message: parsedFlashBag.message });
+            setTimeout(() => {setFlashMessage(null)}, 2000);
+             localStorage.removeItem("flashBag")
     }
-    }, [localStorage])
+    }, [])
    
     // Objet de récupération des données de formulaire
         const [formData, setFormData] = useState<ProjectFormData>({
@@ -51,6 +52,7 @@ export default function Projects() {
             title: "",
             ctaLabel: "Créer un projet",
             description: "",
+            mode: true,
             collaborators: [] 
         })
     

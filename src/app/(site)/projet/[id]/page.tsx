@@ -10,7 +10,7 @@ import Modal from '@/components/Modal/Modal'
 import Form from '@/components/Form/Form'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useTaskStore } from '@/store/TaskStore'
-import type { Project, FlashMessage } from '@/types/types'
+import type { Project, FlashMessage, UpdateProjectResponse } from '@/types/types'
 import { useParams } from 'next/navigation'
 import { taskSchema } from '@/types/schemas/taskSchema'
 import recordTask from '@/app/utils/recordTask'
@@ -61,6 +61,7 @@ export default function SingleProject() {
         ctaLabel: "+ Ajouter une tâche",
         title: "",
         description: "",
+        mode: true,
         collaborators: [],
         dueDate: "",
         status: "",
@@ -74,6 +75,7 @@ export default function SingleProject() {
         formTitle: "",
         title: "",
         description: "",
+        mode: false,
         ctaLabel: "",
         collaborators: []
     }
@@ -96,6 +98,7 @@ export default function SingleProject() {
             title: task.title,
             description: task.description,
             collaborators,
+            mode: true,
             dueDate: new Date(task.dueDate).toISOString().split("T")[0],
             status: task.status,
             edit: true,
@@ -104,7 +107,7 @@ export default function SingleProject() {
         setOpenTaskModal(true)
     }
 
-    function closeModal() {
+    function closeTaskModal() {
         setOpenTaskModal(false)
         setTaskData(initTaskData)
         setApiResponse("")
@@ -200,6 +203,7 @@ export default function SingleProject() {
             title: project?.name,
             ctaLabel: "Enregistrer",
             description: project?.description,
+            mode: false,
             collaborators
         })
         setOpenProjectModal(true)
@@ -212,19 +216,18 @@ export default function SingleProject() {
             router.push('/');
             return;
         }   
+
         // validation des données de formulaire
         const payload = {
             name: projectData.title,
             description: projectData.description,
             contributors: projectData.collaborators.map(({ email }) => email)
             };
-        console.log('payload1')
         
-        console.log(payload)
-        const result = projectSchema.safeParse(payload);
-        if (!result.success) {
+        const zodValidation = projectSchema.safeParse(payload);
+        if (!zodValidation.success) {
             const formattedErrors: Record<string, string> = {};
-            result.error.issues.forEach((error) => {
+            zodValidation.error.issues.forEach((error) => {
                 const field = error.path[0];
                 formattedErrors[field as string] = error.message;
             });
@@ -232,31 +235,24 @@ export default function SingleProject() {
             return;
         }
         setErrors({});
-        const url = `/api/projects/${project?.id}`
 
-        /// METTRE UN TRY CATCH COMME DANS DELETE ////////////////////////////////////////////////////////////////////
-        console.log('payload2')
-        console.log(url)
-        console.log(payload)
-        console.log(token)
-        const putResult = await putRequest({ url, token, payload })
-        const response = await putResult.json()
-        
-        if(!response.success) {
-            switch(putResult.status) {
-                case 404 :
-                    setApiResponse("Problème de communication avec le serveur")
-                    break
-                default :
-                    setApiResponse("Problème interne de l'application")
+        // Envoi de la requête
+        if(token) {
+            const url = `/api/projects/${project?.id}`
+            try {
+                const result = await putRequest<typeof payload, UpdateProjectResponse>({ url, token, payload })
+                if(result.data) {
+                    updateProject(result.data.project)
+                    setOpenProjectModal(false)
+                    setFlashMessage({status: true, message: "Le projet a bien été mis à jour"})
+                    setTimeout(() => {setFlashMessage(null)}, 2000);
+                }
+                
+            }  catch(error) {
+               setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
             }
-            return
         }
-        console.log(response.data.project)
-        updateProject(response.data.project)
-        setOpenProjectModal(false)
-        setFlashMessage({status: true, message: "Le projet a bien été mis à jour"})
-        setTimeout(() => {setFlashMessage(null)}, 2000);
+        
     }
         
     const handleDeleteProject = () => {
@@ -268,10 +264,8 @@ export default function SingleProject() {
         setOpenDeleteProjectModal(false)
     }
     const deleteProject = async () => {
-        // Vérification de la connexion de l'utilisateur
-        const token = Cookies.get('token')
         if(token) {
-            const url = `/api/projects/${projectId}`
+            const url = `/api/project/${projectId}`
             try {
                 const result = await deleteRequest({ url, token })
                 // Mise en cache d'un message de succès pour l'afficher dans la page projets
@@ -284,8 +278,7 @@ export default function SingleProject() {
                 )
                 router.push('/projets')  
             } catch(error) {
-                setApiResponse(error.message)
-                return
+                setApiResponse( error instanceof Error ? error.message : "Une erreur est survenue." );
             }
         }
     }
@@ -344,7 +337,6 @@ export default function SingleProject() {
         );
     }
     
-   
     return (
         
         <div className={styles.singleProjectWrapper}>
@@ -478,7 +470,7 @@ export default function SingleProject() {
                 </section>
                 
                 {openTaskModal && (
-                    <Modal titleId="createTask" onClose={closeModal}>
+                    <Modal titleId="createTask" onClose={closeTaskModal}>
                         <Form data={taskFomStructure} formData={taskData} setFormData={setTaskData} handleSubmit={createTask} errors={errors} apiResponse={apiResponse} ></Form>
                     </Modal>
                 )}
@@ -489,7 +481,7 @@ export default function SingleProject() {
                     </Modal>
                 )}
                 {openDeleteProjectModal && (
-                    <Modal titleId="deleteProject" onClose={()=>closeDeleteProjectModal}>
+                    <Modal titleId="deleteProject" onClose={closeDeleteProjectModal}>
                         <div className={styles.modalDeleteProject}>
                             <h3>Etes-vous sûr(e) de vouloir supprimer ce message ?</h3>
                             <span className={styles.apiResponse}>{apiResponse}</span>

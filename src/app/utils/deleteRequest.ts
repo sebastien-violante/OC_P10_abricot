@@ -1,24 +1,26 @@
 import { Token } from "@/types/types";
 import type { ApiResponse } from "./postRequest";
 
+
 type DeleteRequestProps<T> = {
     url: string;
     token?: Token;
     payload?: T;
 };
 
+
 /**
- * Effectue une requête en DELETE à l'API qui supprime les données demandées
- * @param {string} url - endPoint de l'API
- * @param {string} token - token d'authentification fourni par l'API
- * @param {Object} payload - élements du body demandés par la requête
- * @returns {Object} - result - données renvoyées par l'API
+ * Effectue une requête en DELETE à l'API
+ * @param {string} url - endpoint de l'API
+ * @param {string} token - token d'authentification
+ * @param {Object} payload - éléments du body demandés par la requête
+ * @returns {Object} - données renvoyées par l'API
  */
-export default async function deleteRequest<T>({
+export default async function deleteRequest<TPayload, TResponse = unknown>({
     url,
     token,
     payload
-}: DeleteRequestProps<T>): Promise<ApiResponse> {
+}: DeleteRequestProps<TPayload>): Promise<ApiResponse<TResponse>> {
 
     const headers: HeadersInit = {
         "Content-Type": "application/json",
@@ -34,24 +36,19 @@ export default async function deleteRequest<T>({
         body: JSON.stringify(payload),
     });
 
-    let result: ApiResponse
+    let result: ApiResponse<TResponse>;
 
-    try { 
-        result = await response.json(); 
-    } catch { 
-        throw { 
-            status: response.status, 
-            message: "Réponse invalide du serveur.", 
-        }
+    try {
+        result = await response.json();
+    } catch {
+        throw new Error("Réponse invalide du serveur.");
     }
-    
-    if (!response.ok) { 
-        throw { 
-            status: response.status, 
-            message: result.message || "Une erreur serveur est survenue.", 
-            error: result.error, 
-            details: result.details, 
-        } 
+
+    if (!response.ok) {
+        throw new Error(
+            result.message || "Une erreur serveur est survenue."
+        );
     }
+
     return result;
 }

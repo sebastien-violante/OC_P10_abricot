@@ -7,15 +7,16 @@ import type { User } from '@/types/types';
 type CollaboratorSelectProps = {
     label: string;
     value: User[];
+    mode: boolean;
     onChange: (value: User[]) => void;
 }
 
-export default function CollaboratorSelect({label, value, onChange}: CollaboratorSelectProps) {
+export default function CollaboratorSelect({label, value, mode, onChange}: CollaboratorSelectProps) {
     console.log(value)
     const [search, setSearch] = useState("");
     const [suggestions, setSuggestions] = useState<User[]>([]);
     const token = Cookies.get('token');
-    const [chooseMode, setChooseMode] = useState(false)
+    const [chooseMode] = useState(mode)
     const [showList, setShowList] = useState(false)
 
     async function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {

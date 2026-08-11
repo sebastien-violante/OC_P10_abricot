@@ -26,11 +26,11 @@ type PostRequestProps<T> = {
  * @param {Object} payload - élements du body demandés par la requête
  * @returns {Object} - result - données renvoyées par l'API
  */
-export default async function postRequest<T>({
+export default async function postRequest<TPayload, TResponse = unknown>({
     url,
     token,
     payload
-}: PostRequestProps<T>): Promise<ApiResponse> {
+}: PostRequestProps<TPayload>): Promise<ApiResponse<TResponse>> {
 
     const headers: HeadersInit = {
         "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export default async function postRequest<T>({
         body: JSON.stringify(payload),
     });
 
-    let result: ApiResponse
+    let result: ApiResponse<TResponse>
 
     try { 
         result = await response.json(); 

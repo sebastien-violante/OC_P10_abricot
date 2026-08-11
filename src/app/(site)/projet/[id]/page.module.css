@@ -265,6 +265,10 @@
     cursor: pointer;
 }
 
+.apiResponse {
+    color: red;
+}
+
 @media (max-width: 1023px) {
     .main {
         padding: 0 20px;

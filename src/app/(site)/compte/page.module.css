@@ -89,3 +89,8 @@
     display: flex;
     align-items: center;
 }
+
+.fieldError {
+    color: red;
+    font-size: 12px;
+}

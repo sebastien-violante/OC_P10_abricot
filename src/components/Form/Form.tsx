@@ -80,6 +80,7 @@ export default function Form<T extends Record<string, any>>({data, formData, set
                                 key={input.name}
                                 label={input.label}
                                 value={formData[input.name] as User[]}
+                                mode={formData.mode}
                                 onChange={(value) =>
                                     setFormData(prev => ({
                                         ...prev,
