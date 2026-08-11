@@ -135,7 +135,7 @@ export default function Dashboard() {
             return;
         }
         setErrors({});
-       
+        console.log(payload)
         const response = await recordProject({payload, token})
         const fetchResult = await response.json()
         setApiResponse(fetchResult.message)

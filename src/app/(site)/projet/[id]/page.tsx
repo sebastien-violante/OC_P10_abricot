@@ -21,7 +21,8 @@ import { useRouter } from 'next/navigation'
 import deleteRequest from '@/app/utils/deleteRequest'
 import { projectSchema } from '@/types/schemas/projectSchema'
 import putRequest from '@/app/utils/putRequest'
-
+import getApiErrorMessage from '@/app/utils/getApiErrorMessage'
+import { ApiError } from 'next/dist/server/api-utils'
 
 export default function SingleProject() {
     
@@ -45,16 +46,14 @@ export default function SingleProject() {
     const updateTaskInStore = useTaskStore((state) => state.updateTask)
     const [openTaskModal, setOpenTaskModal] = useState(false)
     const ctaAvaliable = true
-    const [modifyProject, setModifyProject] = useState(false)
-    const [deleteProject, setDeleteProject] = useState(false)
+    const [openProjectModal, setOpenProjectModal] = useState(false)
+    const [openDeleteProjectModal, setOpenDeleteProjectModal] = useState(false)
     const [isList, setIsList] = useState(true)
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     
-
     const toggleIsList = () => {
         setIsList((prev) => !prev)
     }
-
     
     // Initialisation des données de tâches
     const initTaskData = {
@@ -105,10 +104,10 @@ export default function SingleProject() {
         setOpenTaskModal(true)
     }
 
-
     function closeModal() {
         setOpenTaskModal(false)
         setTaskData(initTaskData)
+        setApiResponse("")
     }
 
     const createTask = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => {
@@ -203,11 +202,10 @@ export default function SingleProject() {
             description: project?.description,
             collaborators
         })
-        console.log(projectData)
-        setModifyProject(true)
+        setOpenProjectModal(true)
     }
 
-    const confirmModifyProject = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => { 
+    const modifyProject = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => { 
         
         e.preventDefault();
         if (!token) {
@@ -220,7 +218,9 @@ export default function SingleProject() {
             description: projectData.description,
             contributors: projectData.collaborators.map(({ email }) => email)
             };
+        console.log('payload1')
         
+        console.log(payload)
         const result = projectSchema.safeParse(payload);
         if (!result.success) {
             const formattedErrors: Record<string, string> = {};
@@ -229,37 +229,51 @@ export default function SingleProject() {
                 formattedErrors[field as string] = error.message;
             });
             setErrors(formattedErrors);
-            
             return;
         }
         setErrors({});
         const url = `/api/projects/${project?.id}`
-        const putResult = await putRequest({ url,token,payload })
+
+        /// METTRE UN TRY CATCH COMME DANS DELETE ////////////////////////////////////////////////////////////////////
+        console.log('payload2')
+        console.log(url)
+        console.log(payload)
+        console.log(token)
+        const putResult = await putRequest({ url, token, payload })
         const response = await putResult.json()
-        console.log(response)
-                 
+        
+        if(!response.success) {
+            switch(putResult.status) {
+                case 404 :
+                    setApiResponse("Problème de communication avec le serveur")
+                    break
+                default :
+                    setApiResponse("Problème interne de l'application")
+            }
+            return
+        }
+        console.log(response.data.project)
         updateProject(response.data.project)
-        setModifyProject(false)
+        setOpenProjectModal(false)
         setFlashMessage({status: true, message: "Le projet a bien été mis à jour"})
         setTimeout(() => {setFlashMessage(null)}, 2000);
-        //setApiResponse(fetchResult.message)
     }
         
-
     const handleDeleteProject = () => {
-        setDeleteProject(true)
+        setOpenDeleteProjectModal(true)
     }
 
-    const confirmDeleteProject = async () => {
+    const closeDeleteProjectModal = () => {
+        setApiResponse("")
+        setOpenDeleteProjectModal(false)
+    }
+    const deleteProject = async () => {
         // Vérification de la connexion de l'utilisateur
         const token = Cookies.get('token')
         if(token) {
             const url = `/api/projects/${projectId}`
-            console.log(token)
-            console.log(url)
-            const result = await deleteRequest({ url, token })
-            if(result.success) {
-                router.push('/projets')
+            try {
+                const result = await deleteRequest({ url, token })
                 // Mise en cache d'un message de succès pour l'afficher dans la page projets
                 localStorage.setItem(
                     "flashBag",
@@ -268,6 +282,10 @@ export default function SingleProject() {
                         message: "le projet a bien été supprimé"
                     })
                 )
+                router.push('/projets')  
+            } catch(error) {
+                setApiResponse(error.message)
+                return
             }
         }
     }
@@ -275,25 +293,10 @@ export default function SingleProject() {
     const projectFormStructure = {
 
         title: "Modifier un projet",
-        inputs : [
-            {
-                label : "Titre", 
-                type : "text", 
-                name : "title", 
-                required: true, 
-            },
-            {
-                label : "Description", 
-                type: "text", 
-                name : "description", 
-                required: true
-            },
-            {
-                label : "Contributeurs", 
-                type: "collaborators", 
-                name: "collaborators", 
-                required: false
-            }
+        inputs : [ 
+            { label : "Titre", type : "text", name : "title", required: true },
+            { label : "Description", type: "text", name : "description", required: true },
+            { label : "Contributeurs", type: "collaborators", name: "collaborators", required: false }
         ],
     } satisfies {
         title: string;
@@ -301,71 +304,39 @@ export default function SingleProject() {
     }
 
     const taskFomStructure = {
-            title: "Créer une tâche",
-            inputs : [
-                {
-                    label : "Titre", 
-                    type : "text", 
-                    name : "title", 
-                    required: true, 
-                },
-                {
-                    label : "Description", 
-                    type: "text", 
-                    name : "description", 
-                    required: true
-                },
-                {
-                    label : "Echéance", 
-                    type: "date", 
-                    name: "dueDate", 
-                    required: true
-                },
-                {
-                    label : "Assignée à :", 
-                    type: "collaborators", 
-                    name: "collaborators", 
-                    required: false
-                },
-                {
-                    label: "Statut",
-                    type: "status",
-                    name: "status",
-                    required: true,
-                    options: [
-                        { label: "À faire", value: "TODO" },
-                        { label: "En cours", value: "IN_PROGRESS" },
-                        { label: "Terminée", value: "DONE" },
-                    ],
-                }
-            ],
-        } satisfies {
-            title: string;
-            inputs: CustomInput[];
-        }
+        title: "Créer une tâche",
+        inputs : [
+            { label : "Titre", type : "text", name : "title", required: true },
+            { label : "Description", type: "text", name : "description", required: true },
+            { label : "Echéance", type: "date", name: "dueDate", required: true },
+            { label : "Assignée à :", type: "collaborators", name: "collaborators", required: false },
+            { label: "Statut", type: "status", name: "status", required: true, options: [ { label: "À faire", value: "TODO" }, { label: "En cours", value: "IN_PROGRESS" }, { label: "Terminée", value: "DONE" } ] }
+        ],
+    } satisfies {
+        title: string;
+        inputs: CustomInput[];
+    }
 
     useEffect (() => {
         if(!token) {
             return
         }
-            const id = projectId
-            async function loadTasks(token: string) {
-                try {
-                    const tasks = await fetchProject({id, token})
-                    setTasksInStore(tasks)
-                    
-                    console.log(tasks)
-                } catch (error) {
-                    console.error(error);
-                } finally {
-                    setLoading(false);
-                }
+        const id = projectId
+        async function loadTasks(token: string) {
+            try {
+                const tasks = await fetchProject({id, token})
+                setTasksInStore(tasks)
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
             }
-            loadTasks(token)
+        }
+        loadTasks(token)
         }, [token])
 
     
-     if (loading) {
+    if (loading) {
         return (
             <div className={styles.loaderContainer}>
                 <div className={styles.spinner}></div>
@@ -466,7 +437,7 @@ export default function SingleProject() {
                             <span>Calendrier</span>
                         </button>
                         <select id="status" name="status" required>
-                            <option value="" selected disabled>
+                            <option value="" disabled>
                                 Statut
                             </option>
                             <option value="low">Faible</option>
@@ -507,23 +478,24 @@ export default function SingleProject() {
                 </section>
                 
                 {openTaskModal && (
-                    <Modal onClose={closeModal}>
+                    <Modal titleId="createTask" onClose={closeModal}>
                         <Form data={taskFomStructure} formData={taskData} setFormData={setTaskData} handleSubmit={createTask} errors={errors} apiResponse={apiResponse} ></Form>
                     </Modal>
                 )}
                 </section>
-                {modifyProject && (
-                    <Modal titleId="modifyProject" onClose={()=>setModifyProject(false)}>
-                        <Form data={projectFormStructure} formData={projectData} setFormData={setProjectData} handleSubmit={confirmModifyProject} errors={errors} apiResponse={apiResponse}></Form>
+                {openProjectModal && (
+                    <Modal titleId="modifyProject" onClose={()=>setOpenProjectModal(false)}>
+                        <Form data={projectFormStructure} formData={projectData} setFormData={setProjectData} handleSubmit={modifyProject} errors={errors} apiResponse={apiResponse}></Form>
                     </Modal>
                 )}
-                {deleteProject && (
-                    <Modal titleId="deleteProject" onClose={()=>setDeleteProject(false)}>
+                {openDeleteProjectModal && (
+                    <Modal titleId="deleteProject" onClose={()=>closeDeleteProjectModal}>
                         <div className={styles.modalDeleteProject}>
                             <h3>Etes-vous sûr(e) de vouloir supprimer ce message ?</h3>
+                            <span className={styles.apiResponse}>{apiResponse}</span>
                             <button 
                                 type="button"
-                                onClick={confirmDeleteProject}
+                                onClick={deleteProject}
                             >Confirmer</button>
                         </div>
                     </Modal>

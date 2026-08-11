@@ -7,7 +7,7 @@ type putRequestProps<T> = {
 }
 
 export default async function putRequest<T>({url, token, payload}: putRequestProps<T>) {
-    
+    console.log(payload)
     const response = await fetch(url, {
         method: 'PUT',
         headers: { 
