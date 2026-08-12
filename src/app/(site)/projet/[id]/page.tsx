@@ -24,6 +24,7 @@ import putRequest from '@/app/utils/putRequest'
 import postRequest from '@/app/utils/postRequest'
 import getApiErrorMessage from '@/app/utils/getApiErrorMessage'
 import { ApiError } from 'next/dist/server/api-utils'
+import IaTaskCard from '@/components/IaTaskCard/IaTaskCard'
 
 export default function SingleProject() {
     
@@ -84,6 +85,7 @@ export default function SingleProject() {
     }
     const [projectData, setProjectData] = useState<ProjectFormData>(initProjectData)
 
+    const [promptData, setPromptData] = useState("")
 
     function handleCreateTask() {
         setOpenTaskModal(true)
@@ -286,47 +288,42 @@ export default function SingleProject() {
             }
         }
     }
-
     const askForIaTasks = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!token) {
             router.push('/');
             return;
-        }   
+        } 
+
+        const systemPrompt =
+        "Décompose le projet fourni par l'utilisateur en tâches concrètes, indépendantes et réalisables. Pour chaque tâche, fournis un titre court et une description concise.";
+
+        const userPrompt =
+            `Crée les tâches nécessaires pour réaliser ce projet : ${promptData}`;
+       
         // validation des données de formulaire
         const payload = {
-            prompt: "dis moi en quelle année a été construite la Tour Effeil"
+            systemPrompt,
+            userPrompt
         };
         
-       // const zodValidation = projectSchema.safeParse(payload);
-        //if (!zodValidation.success) {
-          //  const formattedErrors: Record<string, string> = {};
-           // zodValidation.error.issues.forEach((error) => {
-            //    const field = error.path[0];
-            //    formattedErrors[field as string] = error.message;
-            //});
-           // setErrors(formattedErrors);
-           // return;
-        //}
-        //setErrors({});
-
+    
         // Envoi de la requête
         if(token) {
             const url = "/api/ai"
             try {
-                const result = await postRequest<
-    { prompt: string },
-    { response: string }
->({
-    url: "/api/ai",
-    token,
-    payload: {
-        prompt: "Dis moi en quelle année a été construite la tour Effeil",
-    },
-});
+                const result = await postRequest<{ systemPrompt: string; userPrompt: string },{ response: string }>({
+                    url: "/api/ai",
+                    token,
+                    payload,
+                });
+                if (!result.data) {
+                    throw new Error("La réponse de l'API est vide")
+                }
+                const data = JSON.parse(result.data.response);
 
-console.log(result.data?.response);
-                
+            setTasksIa(data.tasks);
+            console.log(data.tasks)
             }  catch(error) {
                setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
             }
@@ -387,7 +384,6 @@ console.log(result.data?.response);
         );
     }
     
-    console.log(tasksIa)
     return (
         
         <div className={styles.singleProjectWrapper}>
@@ -539,7 +535,9 @@ console.log(result.data?.response);
                                 <h2>{!tasksIa ? "Créer une tâche" : "Vos tâches..."}</h2>
                             </div>
                             <div className={styles.tasksWrapper}>
-
+                                {tasksIa?.map((task) => (
+                                    <IaTaskCard task={task} key={task.titre} />
+                                ))}
                             </div>
                             <form className={styles.tasksIaForm} onSubmit={askForIaTasks}>
                                 <label htmlFor='prompt' className={styles.visuallyHidden}>prompt</label>
@@ -548,7 +546,9 @@ console.log(result.data?.response);
                                         type="text" 
                                         id="prompt" 
                                         name="prompt"
-                                        placeholder='Décrivez les tâches que vous souhaitez ajouter...'></input>
+                                        placeholder='Décrivez les tâches que vous souhaitez ajouter...'
+                                        onChange={(e) => setPromptData(e.target.value)}>
+                                    </input>
                                     <button type="submit">
                                         <img src="/pictures/static/ia-button.svg" alt="" aria-hidden="true"/>
                                     </button>

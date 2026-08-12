@@ -1,0 +1,42 @@
+.iaCardContainer {
+    border: 1px solid var(--grey200);
+    border-radius: 10px;
+    padding: 25px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.iaCardContainer .header {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.iaCardContainer .header h3 {
+    font-size: 18px;
+}
+
+.iaCardContainer .header p {
+    color: var(--grey600);
+    font-size: 14px;
+}
+
+.iaCardContainer .cta {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.iaCardContainer .cta button:nth-child(1) {
+    border-right: 1px solid var(--grey600);
+    margin-right: 15px
+}
+
+.iaCardContainer .cta .ctaButton {
+    display: flex;
+    gap: 4px;
+    color: var(--grey600);
+    font-size: 12px;
+    padding-right: 15px;
+
+}

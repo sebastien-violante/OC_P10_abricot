@@ -99,7 +99,7 @@ export type Task = {
 }
 
 export type TaskIa = {
-    title : string;
+    titre : string;
     description : string;
 }
 
