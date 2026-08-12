@@ -98,6 +98,11 @@ export type Task = {
     project: Project;
 }
 
+export type TaskIa = {
+    title : string;
+    description : string;
+}
+
 export type TasksResponse = {
     success: boolean;
     message: string;

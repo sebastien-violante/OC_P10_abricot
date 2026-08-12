@@ -10,7 +10,7 @@ import Modal from '@/components/Modal/Modal'
 import Form from '@/components/Form/Form'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useTaskStore } from '@/store/TaskStore'
-import type { Project, FlashMessage, UpdateProjectResponse } from '@/types/types'
+import type { Project, FlashMessage, UpdateProjectResponse, TaskIa } from '@/types/types'
 import { useParams } from 'next/navigation'
 import { taskSchema } from '@/types/schemas/taskSchema'
 import recordTask from '@/app/utils/recordTask'
@@ -48,6 +48,8 @@ export default function SingleProject() {
     const ctaAvaliable = true
     const [openProjectModal, setOpenProjectModal] = useState(false)
     const [openDeleteProjectModal, setOpenDeleteProjectModal] = useState(false)
+    const [openIaTaskModal, setOpenIaTaskModal] = useState(false)
+    const [tasksIa, setTasksIa] = useState<TaskIa[] | null>(null)
     const [isList, setIsList] = useState(true)
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     
@@ -87,7 +89,7 @@ export default function SingleProject() {
     }
 
     function handleCreateTaskIa() {
-        console.log('IA')
+        setOpenIaTaskModal(true)
     }
 
     function editCurrentTask(task: Task) {
@@ -263,6 +265,7 @@ export default function SingleProject() {
         setApiResponse("")
         setOpenDeleteProjectModal(false)
     }
+
     const deleteProject = async () => {
         if(token) {
             const url = `/api/project/${projectId}`
@@ -478,6 +481,21 @@ export default function SingleProject() {
                 {openProjectModal && (
                     <Modal titleId="modifyProject" onClose={()=>setOpenProjectModal(false)}>
                         <Form data={projectFormStructure} formData={projectData} setFormData={setProjectData} handleSubmit={modifyProject} errors={errors} apiResponse={apiResponse}></Form>
+                    </Modal>
+                )}
+                {openIaTaskModal && (
+                    <Modal titleId="createTaskIa" onClose={()=>setOpenIaTaskModal(false)}>
+                        <section className={styles.taskIaContainer}>
+                            <div className={styles.header}>
+                                <img src="" alt="" aria-hidden="true"/>
+                                <h3>{tasksIa?.length === 0 ? "Créer une tâche" : "Vos tâches..."}</h3>
+                            </div>
+                        </section>
+                        <form className={styles.tasksIaForm}>
+                            <label htmlFor='prompt'>prompt</label>
+                            <input type="text" id="prompt" name="prompt"></input>
+                            <button type="submit">valider</button>
+                        </form>
                     </Modal>
                 )}
                 {openDeleteProjectModal && (
