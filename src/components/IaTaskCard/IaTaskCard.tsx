@@ -5,9 +5,10 @@ import { useState } from 'react';
 type IaTaskCardProps = {
     task: TaskIa;
     onChange: (changes: Partial<TaskIa>) => void
+    onDelete: () => void
 }
 
-export default function IaTaskCard({task, onChange}: IaTaskCardProps) {
+export default function IaTaskCard({task, onChange, onDelete}: IaTaskCardProps) {
 
     const [isEditing, setIsEditing] = useState(false);
     
@@ -51,6 +52,7 @@ export default function IaTaskCard({task, onChange}: IaTaskCardProps) {
                 <button
                     type="button"
                     className={styles.ctaButton}
+                    onClick={onDelete}
                 >
                     <img
                         alt=""

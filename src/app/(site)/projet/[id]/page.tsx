@@ -340,6 +340,13 @@ export default function SingleProject() {
         )
     }
 
+    const handleIaTaskDelete = (taskIndex: number) => {
+        console.log('suppr tache')
+        setTasksIa((currentTasks) =>
+            currentTasks.filter((_, index) => index !== taskIndex)
+        )
+    }
+
     const handleSaveIaTasks = () => {
         console.log('j enregistre mes taches')
     }
@@ -550,7 +557,11 @@ export default function SingleProject() {
                             </div>
                             <div className={styles.tasksWrapper}>
                                 {tasksIa?.map((task, index) => (
-                                    <IaTaskCard task={task} key={index} onChange={(changes) =>  handleIaTaskChange(index, changes)}/>
+                                    <IaTaskCard 
+                                        task={task} 
+                                        key={index} 
+                                        onChange={(changes) => handleIaTaskChange(index, changes)} 
+                                        onDelete={() => handleIaTaskDelete(index)}/>
                                 ))}
                             </div>
                             <form className={styles.tasksIaForm} onSubmit={askForIaTasks}>
