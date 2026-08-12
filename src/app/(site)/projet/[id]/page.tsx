@@ -51,7 +51,7 @@ export default function SingleProject() {
     const [openProjectModal, setOpenProjectModal] = useState(false)
     const [openDeleteProjectModal, setOpenDeleteProjectModal] = useState(false)
     const [openIaTaskModal, setOpenIaTaskModal] = useState(false)
-    const [tasksIa, setTasksIa] = useState<TaskIa[] | null>(null)
+    const [tasksIa, setTasksIa] = useState<TaskIa[]>([])
     const [isList, setIsList] = useState(true)
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     
@@ -330,6 +330,20 @@ export default function SingleProject() {
         }
     }
 
+    const handleIaTaskChange = (taskIndex: number, changes: Partial<TaskIa>) => {
+        setTasksIa((currentTasks) =>
+            currentTasks.map((task, index) =>
+                index === taskIndex
+                    ? { ...task, ...changes }
+                    : task
+            )
+        )
+    }
+
+    const handleSaveIaTasks = () => {
+        console.log('j enregistre mes taches')
+    }
+
     const projectFormStructure = {
 
         title: "Modifier un projet",
@@ -535,8 +549,8 @@ export default function SingleProject() {
                                 <h2>{!tasksIa ? "Créer une tâche" : "Vos tâches..."}</h2>
                             </div>
                             <div className={styles.tasksWrapper}>
-                                {tasksIa?.map((task) => (
-                                    <IaTaskCard task={task} key={task.titre} />
+                                {tasksIa?.map((task, index) => (
+                                    <IaTaskCard task={task} key={index} onChange={(changes) =>  handleIaTaskChange(index, changes)}/>
                                 ))}
                             </div>
                             <form className={styles.tasksIaForm} onSubmit={askForIaTasks}>
@@ -555,6 +569,16 @@ export default function SingleProject() {
                                 </div>
                                 
                             </form>
+                            { tasksIa && 
+                                (<button
+                                    type="button"
+                                    onClick={handleSaveIaTasks}
+                                >
+                                Enregistrer les tâches
+                                </button>)
+                            }
+
+
                         </section>
                         
                     </Modal>
