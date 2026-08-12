@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation'
 import deleteRequest from '@/app/utils/deleteRequest'
 import { projectSchema } from '@/types/schemas/projectSchema'
 import putRequest from '@/app/utils/putRequest'
+import postRequest from '@/app/utils/postRequest'
 import getApiErrorMessage from '@/app/utils/getApiErrorMessage'
 import { ApiError } from 'next/dist/server/api-utils'
 
@@ -286,9 +287,50 @@ export default function SingleProject() {
         }
     }
 
-    const askForIaTasks = (e: React.FormEvent<HTMLFormElement>) => {
+    const askForIaTasks = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        console.log('demande Ia')
+        if (!token) {
+            router.push('/');
+            return;
+        }   
+        // validation des données de formulaire
+        const payload = {
+            prompt: "dis moi en quelle année a été construite la Tour Effeil"
+        };
+        
+       // const zodValidation = projectSchema.safeParse(payload);
+        //if (!zodValidation.success) {
+          //  const formattedErrors: Record<string, string> = {};
+           // zodValidation.error.issues.forEach((error) => {
+            //    const field = error.path[0];
+            //    formattedErrors[field as string] = error.message;
+            //});
+           // setErrors(formattedErrors);
+           // return;
+        //}
+        //setErrors({});
+
+        // Envoi de la requête
+        if(token) {
+            const url = "/api/ai"
+            try {
+                const result = await postRequest<
+    { prompt: string },
+    { response: string }
+>({
+    url: "/api/ai",
+    token,
+    payload: {
+        prompt: "Dis moi en quelle année a été construite la tour Effeil",
+    },
+});
+
+console.log(result.data?.response);
+                
+            }  catch(error) {
+               setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
+            }
+        }
     }
 
     const projectFormStructure = {
