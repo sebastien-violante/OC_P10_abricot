@@ -286,6 +286,11 @@ export default function SingleProject() {
         }
     }
 
+    const askForIaTasks = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        console.log('demande Ia')
+    }
+
     const projectFormStructure = {
 
         title: "Modifier un projet",
@@ -340,6 +345,7 @@ export default function SingleProject() {
         );
     }
     
+    console.log(tasksIa)
     return (
         
         <div className={styles.singleProjectWrapper}>
@@ -382,7 +388,7 @@ export default function SingleProject() {
                         type="button"
                         onClick={handleCreateTaskIa}
                         aria-haspopup="dialog">
-                            <img src="/pictures/static/star-orange.svg" alt="" aria-hidden="true"/>
+                            <img src="/pictures/static/white-star.svg" alt="" aria-hidden="true"/>
                             IA
                     </button>
                 </div>
@@ -487,15 +493,28 @@ export default function SingleProject() {
                     <Modal titleId="createTaskIa" onClose={()=>setOpenIaTaskModal(false)}>
                         <section className={styles.taskIaContainer}>
                             <div className={styles.header}>
-                                <img src="" alt="" aria-hidden="true"/>
-                                <h3>{tasksIa?.length === 0 ? "Créer une tâche" : "Vos tâches..."}</h3>
+                                <img src="/pictures/static/star-orange.svg" alt="" aria-hidden="true"/>
+                                <h2>{!tasksIa ? "Créer une tâche" : "Vos tâches..."}</h2>
                             </div>
+                            <div className={styles.tasksWrapper}>
+
+                            </div>
+                            <form className={styles.tasksIaForm} onSubmit={askForIaTasks}>
+                                <label htmlFor='prompt' className={styles.visuallyHidden}>prompt</label>
+                                <div className={styles.prompt}>
+                                    <input 
+                                        type="text" 
+                                        id="prompt" 
+                                        name="prompt"
+                                        placeholder='Décrivez les tâches que vous souhaitez ajouter...'></input>
+                                    <button type="submit">
+                                        <img src="/pictures/static/ia-button.svg" alt="" aria-hidden="true"/>
+                                    </button>
+                                </div>
+                                
+                            </form>
                         </section>
-                        <form className={styles.tasksIaForm}>
-                            <label htmlFor='prompt'>prompt</label>
-                            <input type="text" id="prompt" name="prompt"></input>
-                            <button type="submit">valider</button>
-                        </form>
+                        
                     </Modal>
                 )}
                 {openDeleteProjectModal && (

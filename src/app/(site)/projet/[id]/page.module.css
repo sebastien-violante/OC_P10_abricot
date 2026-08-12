@@ -269,6 +269,44 @@
     color: red;
 }
 
+.taskIaContainer .header {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+}
+
+.taskIaContainer .tasksWrapper {
+    min-height: 460px;
+}
+
+.taskIaContainer .header h2 {
+    color: var(--grey800);
+    font-size: 24px;
+    margin-bottom: 40px;
+    margin-top: 50px;
+}
+
+.taskIaContainer .tasksIaForm {
+    margin : 50px 0;
+}
+
+.taskIaContainer .tasksIaForm .prompt {
+    width: 100%;
+    background: var(--grey50);
+    border-radius: 80px;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    padding: 0 20px;
+}
+
+.taskIaContainer .tasksIaForm .prompt input {
+    color: black;
+    width: 90%;
+    padding: 0 10px;
+}
+
 @media (max-width: 1023px) {
     .main {
         padding: 0 20px;
