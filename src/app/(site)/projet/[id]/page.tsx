@@ -289,46 +289,66 @@ export default function SingleProject() {
         }
     }
     const askForIaTasks = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        if (!token) {
-            router.push('/');
-            return;
-        } 
+    e.preventDefault()
 
-        const systemPrompt =
-        "Décompose le projet fourni par l'utilisateur en tâches concrètes, indépendantes et réalisables. Pour chaque tâche, fournis un titre court et une description concise.";
-
-        const userPrompt =
-            `Crée les tâches nécessaires pour réaliser ce projet : ${promptData}`;
-       
-        // validation des données de formulaire
-        const payload = {
-            systemPrompt,
-            userPrompt
-        };
-        
-    
-        // Envoi de la requête
-        if(token) {
-            const url = "/api/ai"
-            try {
-                const result = await postRequest<{ systemPrompt: string; userPrompt: string },{ response: string }>({
-                    url: "/api/ai",
-                    token,
-                    payload,
-                });
-                if (!result.data) {
-                    throw new Error("La réponse de l'API est vide")
-                }
-                const data = JSON.parse(result.data.response);
-
-            setTasksIa(data.tasks);
-            console.log(data.tasks)
-            }  catch(error) {
-               setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
-            }
-        }
+    if (!token) {
+        router.push('/');
+        return;
     }
+
+    if (!promptData.trim()) {
+        return;
+    }
+
+    const systemPrompt =
+        "Décompose la demande de l'utilisateur en tâches concrètes, indépendantes et réalisables. Pour chaque tâche, fournis un titre court et une description concise. Les tâches déjà présentes sont fournies comme contexte. Génère uniquement les nouvelles tâches demandées et ne répète jamais les tâches déjà présentes.";
+
+    const userPrompt =
+        `Crée les tâches nécessaires pour répondre à cette demande : ${promptData}`;
+
+    const payload = {
+        systemPrompt,
+        userPrompt,
+        existingTasks: tasksIa,
+    };
+
+    try {
+        const result = await postRequest<
+            typeof payload,
+            { response: string }
+        >({
+            url: "/api/ai",
+            token,
+            payload,
+        });
+
+        if (!result.data) {
+            throw new Error("La réponse de l'API est vide");
+        }
+
+        const data = JSON.parse(result.data.response);
+
+        // On AJOUTE les nouvelles tâches aux tâches existantes
+        setTasksIa((currentTasks) => [
+            ...currentTasks,
+            ...data.tasks,
+        ]);
+
+        // On vide le champ de prompt après traitement
+        setPromptData("");
+
+    } catch (error) {
+        setApiResponse(
+            error instanceof Error
+                ? error.message
+                : typeof error === "object" &&
+                  error !== null &&
+                  "message" in error
+                    ? String(error.message)
+                    : "Une erreur est survenue."
+        );
+    }
+}
 
     const handleIaTaskChange = (taskIndex: number, changes: Partial<TaskIa>) => {
         setTasksIa((currentTasks) =>
@@ -347,8 +367,56 @@ export default function SingleProject() {
         )
     }
 
-    const handleSaveIaTasks = () => {
-        console.log('j enregistre mes taches')
+    const handleSaveIaTasks = async () => {
+        tasksIa.forEach(async (task) => {
+            // par défaut, la date d'échéance est fixée à 15 jours après l'enregistrement
+            const date = new Date();
+            date.setDate(date.getDate() + 15);
+            const payload = {
+                title: task.titre,
+                description: task.description,
+                dueDate: date
+            }
+
+            // Envoi de la requête
+            try {
+                const data = await postRequest({
+                    url: `/api/projects/${projectId}/tasks`,
+                    payload,
+                    token: token
+                })
+                setFlashMessage({status: true, message: data.message})
+                setTimeout(() => {
+                    setFlashMessage(null)
+                }, 2000);    
+            } catch(error) {
+            
+                const apiError = error as { 
+                    status?: number; 
+                    message?: string; 
+                    details?: { 
+                        field: string; 
+                        message: string; }[]; 
+                }; 
+                
+                // Erreur de validation API 
+                if (apiError.status === 400) { 
+                    setFlashMessage({ status: false, message: "Données invalides.", })
+                    return; 
+                } 
+                // Email déjà utilisé 
+                if (apiError.status === 409) { 
+                    setFlashMessage({ status: false, message: "Cette adresse email est déjà utilisée.", })
+                    return 
+                } 
+                // Autre erreur 
+                setFlashMessage({ status: false, message: "Une erreur est survenue. Veuillez réessayer.", }) 
+                setTimeout(() => { setFlashMessage(null); }, 3000);
+            }    
+
+        })
+        console.log('je vide les taches')
+        setTasksIa([])
     }
 
     const projectFormStructure = {
@@ -564,6 +632,18 @@ export default function SingleProject() {
                                         onDelete={() => handleIaTaskDelete(index)}/>
                                 ))}
                             </div>
+                            <div className={styles.registerTasks}>
+                                { tasksIa && 
+                                    (<button
+                                        type="button"
+                                        onClick={handleSaveIaTasks}
+                                        className={styles.addIaTasksBtn}
+                                    >
+                                    + Ajouter les tâches
+                                    </button>)
+                                }
+                            </div>
+                            
                             <form className={styles.tasksIaForm} onSubmit={askForIaTasks}>
                                 <label htmlFor='prompt' className={styles.visuallyHidden}>prompt</label>
                                 <div className={styles.prompt}>
@@ -580,14 +660,7 @@ export default function SingleProject() {
                                 </div>
                                 
                             </form>
-                            { tasksIa && 
-                                (<button
-                                    type="button"
-                                    onClick={handleSaveIaTasks}
-                                >
-                                Enregistrer les tâches
-                                </button>)
-                            }
+                            
 
 
                         </section>
