@@ -12,7 +12,6 @@ type CollaboratorSelectProps = {
 }
 
 export default function CollaboratorSelect({label, value, mode, onChange}: CollaboratorSelectProps) {
-    console.log(value)
     const [search, setSearch] = useState("");
     const [suggestions, setSuggestions] = useState<User[]>([]);
     const token = Cookies.get('token');

@@ -20,6 +20,9 @@ import Form from "@/components/Form/Form";
 import recordProject from "@/app/utils/recordProject";
 import TaskCard from "@/components/TaskCard/TaskCard";
 import { useSelectedTask } from "@/store/SelectedTaskStore";
+import type { FlashMessage, Project } from "@/types/types";
+import postRequest from "@/app/utils/postRequest";
+import { useProjectStore } from '@/store/ProjectStore'
 
 export default function Dashboard() {
     
@@ -51,7 +54,9 @@ export default function Dashboard() {
     const removeTask = useSelectedTask((state) => state.removeTask)
     const ctaAvaliable = false
     const [search, setSearch] = useState("");
-
+    const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
+    const addProjectInStore = useProjectStore((state) => state.addProject)
+       
     // Objet de composition du formulaire
     const data = {
         title: "Créer un projet",
@@ -136,11 +141,20 @@ export default function Dashboard() {
             return;
         }
         setErrors({});
-        console.log(payload)
-        const response = await recordProject({payload, token})
-        const fetchResult = await response.json()
-        setApiResponse(fetchResult.message)
-    };
+
+        try {
+            const url = "api/projects"
+            const result = await postRequest<typeof payload,{ project: Project }>({ url, token, payload })
+            addProjectInStore(result.data!.project)
+            setCreateProjectForm(false)
+            setFlashMessage({ status: true, message: "Le nouveau projet est enregistré", }) 
+            setTimeout(() => {setFlashMessage(null)}, 2000);
+        } catch(error) {
+            const message = error instanceof Error ? error.message : "Une erreur est survenue";
+            setFlashMessage({ status: false, message: message }) 
+            setTimeout(() => {setFlashMessage(null)}, 2000);
+        }       
+    }
 
     const filteredTasks = useMemo(() => {
         return tasksByDate?.filter((task) => (task.title.toLowerCase().includes(search.toLowerCase()) || task.description.toLowerCase().includes(search.toLowerCase()))
@@ -268,6 +282,16 @@ export default function Dashboard() {
                     token={token} 
                     ctaAvaliable={ctaAvaliable}/>
             </Modal>
+        )}
+        
+        {flashMessage && (
+            <div  
+                className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-6 py-4 text-white shadow-lg`}
+                role={ flashMessage.status ? 'status' : 'alert' } 
+                aria-live={ flashMessage.status ? 'polite' : 'assertive' }
+            >
+                {flashMessage.message}
+            </div>
         )}
         
         </>

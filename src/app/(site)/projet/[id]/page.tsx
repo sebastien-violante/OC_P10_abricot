@@ -25,6 +25,7 @@ import postRequest from '@/app/utils/postRequest'
 import getApiErrorMessage from '@/app/utils/getApiErrorMessage'
 import { ApiError } from 'next/dist/server/api-utils'
 import IaTaskCard from '@/components/IaTaskCard/IaTaskCard'
+import { notFound } from "next/navigation";
 
 export default function SingleProject() {
     
@@ -36,6 +37,10 @@ export default function SingleProject() {
     const project = useProjectStore((state) =>
         state.projects.find((p) => p.id === projectId)
     )
+    if (!project) {
+        notFound();
+    }
+    console.log('j ai raté le notfound')
     const updateProject = useProjectStore(
         (state) => state.updateProject
     )
@@ -271,7 +276,7 @@ export default function SingleProject() {
 
     const deleteProject = async () => {
         if(token) {
-            const url = `/api/project/${projectId}`
+            const url = `/api/projects/${projectId}`
             try {
                 const result = await deleteRequest({ url, token })
                 // Mise en cache d'un message de succès pour l'afficher dans la page projets

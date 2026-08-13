@@ -9,8 +9,6 @@ type recordProjectProps = {
     token: string;
 }
 export default async function recordProject({payload, token}: recordProjectProps) {
-    console.log(JSON.stringify(payload))
-    console.log(token)
     const response = await fetch('/api/projects', {
         method: 'POST',
         headers: { 

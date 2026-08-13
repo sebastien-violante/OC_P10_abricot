@@ -241,7 +241,7 @@ export type Project = {
     members: Member[];
     createdAt: string;
     updatedAt: string;
-    tasks: Task[];
+    tasks?: Task[];
 }
 
 export type ProjectFormData = {

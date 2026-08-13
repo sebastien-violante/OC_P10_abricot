@@ -44,8 +44,6 @@ export default function Form<T extends Record<string, any>>({data, formData, set
                                     className={styles.input}
                                     value={formData[input.name] as string ?? ""}
                                     onChange={(e) => {
-                                         console.log("CHAMP :", input.name)
-                                        console.log("VALEUR :", e.target.value);
                                         setFormData(prev => ({
                                             ...prev,
                                             [input.name]: e.target.value

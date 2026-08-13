@@ -17,6 +17,7 @@ import { projectSchema } from "@/types/schemas/projectSchema";
 import recordProject from '@/app/utils/recordProject';
 import Modal from '@/components/Modal/Modal';
 import Form from '@/components/Form/Form';
+import postRequest from '@/app/utils/postRequest';
 import { useProjectStore } from '@/store/ProjectStore'
 
 export default function Projects() {
@@ -90,41 +91,46 @@ export default function Projects() {
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-            console.log(formData)
-            e.preventDefault();
-             if (!token) {
-                router.push('/');
-                return;
-            }   
-            // validation des données de formulaire
-            const payload = {
-                name: formData.title,
-                description: formData.description,
-                contributors: formData.collaborators.map(({ email }) => email)
-                };
-            
-            const result = projectSchema.safeParse(payload);
-            if (!result.success) {
-                const formattedErrors: Record<string, string> = {};
-                result.error.issues.forEach((error) => {
-                    const field = error.path[0];
-                    formattedErrors[field as string] = error.message;
-                });
-                setErrors(formattedErrors);
-                return;
-            }
-            setErrors({});
-    
-            const response = await recordProject({payload, token})
-            const fetchResult = await response.json()
-            console.log(fetchResult)
-            setApiResponse(fetchResult.message)
-            if(fetchResult.success) {
-                addProjectInStore({...fetchResult.data.project, tasks: []})
-            }
-        };
-    
+        console.log(formData)
+        e.preventDefault();
+            if (!token) {
+            router.push('/');
+            return;
+        }   
+        // Création de la payload
+        const payload = {
+            name: formData.title,
+            description: formData.description,
+            contributors: formData.collaborators.map(({ email }) => email)
+            };
+        
+        // Validation Zod
+        const zodValidation = projectSchema.safeParse(payload);
+        if (!zodValidation.success) {
+            const formattedErrors: Record<string, string> = {};
+            zodValidation.error.issues.forEach((error) => {
+                const field = error.path[0];
+                formattedErrors[field as string] = error.message;
+            });
+            setErrors(formattedErrors);
+            return;
+        }
+        setErrors({});
 
+        try {
+            const url = "api/projects"
+            const result = await postRequest<typeof payload,{ project: Project }>({ url, token, payload })
+            addProjectInStore(result.data!.project)
+            setIsOpen(false)
+            setFlashMessage({ status: true, message: "Le nouveau projet est enregistré", }) 
+            setTimeout(() => {setFlashMessage(null)}, 2000);
+        } catch(error) {
+            const message = error instanceof Error ? error.message : "Une erreur est survenue";
+            setFlashMessage({ status: false, message: message }) 
+            setTimeout(() => {setFlashMessage(null)}, 2000);
+        } 
+    }
+    
 
     useEffect (() => {
             if(!token) {
@@ -159,7 +165,6 @@ export default function Projects() {
                         })
                     )
                     console.log(projectsWithTasks);
-                    //setProjects(projectsWithTasks)
                     setProjectsInStore(projectsWithTasks)
                 } catch (error) {
                     console.error(error);
@@ -196,7 +201,11 @@ export default function Projects() {
                 </Modal>
             )}
             {flashMessage && (
-                <div className={`fixed top-5 right-5 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-4 py-3 text-white shadow-lg`}>
+                <div 
+                    className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-6 py-4 text-white shadow-lg`}
+                    role={ flashMessage.status ? 'status' : 'alert' } 
+                    aria-live={ flashMessage.status ? 'polite' : 'assertive' }
+                >
                     {flashMessage.message}
                 </div>
             )}
