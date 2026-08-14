@@ -60,6 +60,7 @@ export default function SingleProject() {
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     const [search, setSearch] = useState("")
     const [debouncedSearch, setDebouncedSearch] = useState("")
+    const [selectedStatus, setSelectedStatus] = useState("")
 
     const toggleIsList = () => {
         setIsList((prev) => !prev)
@@ -461,13 +462,22 @@ export default function SingleProject() {
     }, [search])
 
     const filteredTasks = useMemo(() => {
-            const query = debouncedSearch.toLowerCase();
-                return tasksInStore.filter((task) =>
-                    task.title.toLowerCase().includes(query) ||
-                    task.description.toLowerCase().includes(query)
-                );
-    }, [tasksInStore, debouncedSearch])
-        
+        const query = debouncedSearch.toLowerCase();
+
+        return tasksInStore.filter((task) => {
+            const matchesSearch =
+                task.title.toLowerCase().includes(query) ||
+                task.description.toLowerCase().includes(query);
+
+            const matchesStatus =
+                selectedStatus === "" ||
+                task.status === selectedStatus;
+
+            return matchesSearch && matchesStatus;
+        });
+    }, [tasksInStore, debouncedSearch, selectedStatus]);
+       
+    
     useEffect (() => {
         if(!token) {
             return
@@ -574,13 +584,18 @@ export default function SingleProject() {
                             />
                             <span>Calendrier</span>
                         </button>
-                        <select id="status" name="status" required>
-                            <option value="" disabled>
+                        <select
+                            id="status"
+                            name="status"
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value)}
+                        >
+                            <option value="">
                                 Statut
                             </option>
-                            <option value="low">Faible</option>
-                            <option value="medium">Moyenne</option>
-                            <option value="high">Haute</option>
+                            <option value="TODO">A faire</option>
+                            <option value="IN_PROGRESS">En cours</option>
+                            <option value="DONE">Terminée</option>
                         </select>
                         <form className={styles.searchForm}>
                             <label htmlFor="task-search" className={styles.visuallyHidden}>
