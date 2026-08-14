@@ -6,12 +6,13 @@ import TaskStatus from '../TaskStatus/TaskStatus'
 import { useState, useEffect } from 'react'
 import { useTaskStore } from '@/store/TaskStore'
 import { useCommentStore } from '@/store/CommentStore'
-import deleteTask from '@/app/utils/deleteTask'
 import { useProfile } from '@/app/context/profileContext'
 import getInitials from '@/app/utils/getInitials'
 import addComment from '@/app/utils/addComment'
 import { useRouter } from "next/navigation"
 import { formatDateWithHour } from '@/app/utils/formatDate'
+import Modal from '../Modal/Modal'
+import deleteRequest from '@/app/utils/deleteRequest'
 
 type TaskCardProps = {
     task: Task;
@@ -28,7 +29,9 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
     // mise en store des commentaires
     const commentsInStore = useCommentStore((state) => state.comments)
     const setComments = useCommentStore((state) => state.setComments)
-    const addTaskInStore = useCommentStore((state) => state.addComment)
+    const addCommentInStore = useCommentStore((state) => state.addComment)
+    const removeTaskInStore = useTaskStore((state) => state.removeTask)
+    const [apiResponse, setApiResponse] = useState<string>("");
 
     useEffect(() => {
         setComments(task.comments ?? [])
@@ -39,6 +42,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
     const [cta, setCta] = useState(false)
     const { profile } = useProfile()
     const currentUserInitials = profile ? getInitials(profile.name) : ''
+    const [openDeleteTaskModal, setOpenDeleteTaskModal] = useState(false)
 
     const commentsId = `task-comments-${task.id}`
     const actionsId = `task-actions-${task.id}`
@@ -58,24 +62,27 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
     }
 
     async function removeTask() {
-        if (!token) {
-            router.replace("/")
-            return
-        }
-        const taskId = task.id!
-
-        const confirmed = window.confirm(
-            "Vous êtes sur le point de supprimer cette tâche. Voulez-vous continuer ?"
-        )
-        if(!confirmed) return
-        
-        const response = await deleteTask({token, projectId, taskId})
-        const fetchResult = await response.json()
-        if(fetchResult.success) {
-            useTaskStore.getState().removeTask(task.id!)
-            setCta(false)
-        }
-        
+        if(token) {
+            setApiResponse("")
+            const taskId = task.id!
+            const url = `/api/projects/${projectId}/tasks/${taskId}`
+            try {
+                const result = await deleteRequest({ url, token })
+                // Mise en cache d'un message de succès pour l'afficher dans la page projets
+                localStorage.setItem(
+                    "flashBag",
+                    JSON.stringify({
+                        status: true,
+                        message: "la tâche a bien été supprimée"
+                    })
+                )
+                removeTaskInStore(task.id!)
+                setOpenDeleteTaskModal(false)
+                setCta(false)
+            } catch(error) {
+                setApiResponse( error instanceof Error ? error.message : "Une erreur est survenue." );
+            }
+        }           
     }
 
     async function handleSubmit (e: React.FormEvent<HTMLFormElement>) {
@@ -93,7 +100,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
         const response = await addComment({token, projectId, taskId, payload})
         const fetchResult = await response.json()
         if(fetchResult.success) {
-            addTaskInStore(fetchResult.data.comment)
+            addCommentInStore(fetchResult.data.comment)
             form.reset()
         }
     }
@@ -158,7 +165,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                                     <li> 
                                         <button
                                             type="button"
-                                            onClick={removeTask}
+                                            onClick={() => setOpenDeleteTaskModal(true)}
                                             className={styles.li}
                                         >
                                             <span>Supprimer</span>
@@ -317,6 +324,18 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                     )}
                 </div>     
             </section>
+            {openDeleteTaskModal && (
+                    <Modal titleId="deleteTask" onClose={() => setOpenDeleteTaskModal(false)}>
+                        <div className={styles.modalDeleteTask}>
+                            <h3>Etes-vous sûr(e) de vouloir supprimer cette tâche ?</h3>
+                            <span className={styles.apiResponse}>{apiResponse}</span>
+                            <button 
+                                type="button"
+                                onClick={removeTask}
+                            >Confirmer</button>
+                        </div>
+                    </Modal>
+                )} 
         </article>
     )
 }

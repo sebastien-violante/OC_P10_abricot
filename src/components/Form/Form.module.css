@@ -54,6 +54,18 @@
     border-color: var(--grey400);
 }
 
+.form .submitBtn {
+    background: var(--grey200);
+    color: var(--grey800);
+    height: 50px;
+    border-radius: 10px;
+    display: flax;
+    align-items: center;
+    justify-content: center;
+    padding: 0 27px;
+    margin-top: 56px;
+}
+
 .apiResponse {
     width: 100%;
     text-align: center;

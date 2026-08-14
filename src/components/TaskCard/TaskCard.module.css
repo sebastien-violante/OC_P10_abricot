@@ -240,6 +240,28 @@
     border: 0;
 }
 
+.modalDeleteTask {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.modalDeleteTask button {
+    background: red;
+    height: 50px;
+    width: 40%;
+    min-width: 150px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.apiResponse {
+    color: red;
+}
+
 
 @media (max-width: 756px) {
     .taskCardWrapper {

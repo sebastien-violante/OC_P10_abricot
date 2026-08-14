@@ -3,7 +3,7 @@
 import styles from './page.module.css'
 import fetchProject from '@/app/utils/fetchProject'
 import Cookies from "js-cookie"
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { type Task, type CustomInput, type TaskFormData, ProjectFormData } from '@/types/types'
 import TaskCard from '@/components/TaskCard/TaskCard'
 import Modal from '@/components/Modal/Modal'
@@ -40,11 +40,10 @@ export default function SingleProject() {
     if (!project) {
         notFound();
     }
-    console.log('j ai raté le notfound')
     const updateProject = useProjectStore(
         (state) => state.updateProject
     )
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiResponse, setApiResponse] = useState<string>("");
     const tasksInStore = useTaskStore((state) => state.tasks)
@@ -59,7 +58,8 @@ export default function SingleProject() {
     const [tasksIa, setTasksIa] = useState<TaskIa[]>([])
     const [isList, setIsList] = useState(true)
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
-  
+    const [search, setSearch] = useState("")
+    const [debouncedSearch, setDebouncedSearch] = useState("")
 
     const toggleIsList = () => {
         setIsList((prev) => !prev)
@@ -451,7 +451,23 @@ export default function SingleProject() {
         title: string;
         inputs: CustomInput[];
     }
+    // Use Effect du debounce
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search)
+        }, 300);
 
+        return () => clearTimeout(timer)
+    }, [search])
+
+    const filteredTasks = useMemo(() => {
+            const query = debouncedSearch.toLowerCase();
+                return tasksInStore.filter((task) =>
+                    task.title.toLowerCase().includes(query) ||
+                    task.description.toLowerCase().includes(query)
+                );
+    }, [tasksInStore, debouncedSearch])
+        
     useEffect (() => {
         if(!token) {
             return
@@ -574,25 +590,23 @@ export default function SingleProject() {
                                  id="task-search"
                                  type="text" 
                                  name="search" 
-                                 placeholder="Rechercher une tâche"></input>
-                            <button type="submit" onClick={searchTask}>
-                                <span className={styles.visuallyHidden}>
-                                    Rechercher des tâches
-                                </span>
+                                 placeholder="Rechercher une tâche"
+                                 onChange={(e) => setSearch(e.target.value)}></input>
+                            
                                 <img 
                                     src="/pictures/static/search.svg"
                                     alt=""
                                     aria-hidden="true"
                                     aria-label="Rechercher des tâches"
                                     />
-                                </button>
+                                
                         </form>
 
                     </div>
                 </section>
                 <section className={styles.tasksWrapper}>
-                    {tasksInStore?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
-                    {tasksInStore?.map((task, index)=>(
+                    {filteredTasks?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
+                    {filteredTasks?.map((task, index)=>(
                         <div className={styles.taskWrapper} key={index}>
                             <TaskCard  task={task} projectId={projectId} token={token} editCurrentTask={editCurrentTask} ctaAvaliable={ctaAvaliable}/> 
                         </div>
@@ -681,6 +695,7 @@ export default function SingleProject() {
                         </div>
                     </Modal>
                 )} 
+                
             </section>
             {/* MESSAGE GLOBAL */}
             {flashMessage && (

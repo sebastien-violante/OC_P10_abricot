@@ -62,7 +62,9 @@
 
 .hiddenLabel {
     height: 0;
+    width: 0;
     overflow: hidden;
+    display:none;
 }
 
 .listDisplay {
@@ -116,7 +118,7 @@
 }
 
 .header .search {
-    max-width: 353px;
+    width: 353px;
     height: 63px;
     border: 1px solid var(--grey200);
     border-radius: 8px;

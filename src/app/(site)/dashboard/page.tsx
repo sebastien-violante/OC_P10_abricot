@@ -48,10 +48,10 @@ export default function Dashboard() {
         collaborators: [] 
     })
     const selectedTask = useSelectedTask((state) => state.task)
-    console.log(selectedTask)
     const removeTask = useSelectedTask((state) => state.removeTask)
     const ctaAvaliable = false
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState("")
+    const [debouncedSearch, setDebouncedSearch] = useState("")
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     const addProjectInStore = useProjectStore((state) => state.addProject)
        
@@ -83,6 +83,14 @@ export default function Dashboard() {
         inputs: CustomInput[];
     };
 
+    // Use Effect du debounce
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [search]);
 
     useEffect (() => {
         if(!token) {
@@ -155,10 +163,13 @@ export default function Dashboard() {
     }
 
     const filteredTasks = useMemo(() => {
-        return tasksByDate?.filter((task) => (task.title.toLowerCase().includes(search.toLowerCase()) || task.description.toLowerCase().includes(search.toLowerCase()))
-    
-    )}, [tasksByDate, search])
-    console.log(filteredTasks)
+        const query = debouncedSearch.toLowerCase();
+            return tasksByDate?.filter((task) =>
+                task.title.toLowerCase().includes(query) ||
+                task.description.toLowerCase().includes(query)
+            );
+    }, [tasksByDate, debouncedSearch]);
+
     if (loading) {
         return (
             <div className={styles.loaderContainer}>
