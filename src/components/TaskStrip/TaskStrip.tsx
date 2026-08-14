@@ -17,8 +17,8 @@ export default function TaskStrip({task, kanban}: TaskStripProps) {
         setSelectedTask(task)
     }
 
-    const dueDate = new Date(task.dueDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', })
-    const accessibleTaskDescription = `${task.title} décrite par ${task.description} et appartenant au projet ${task.project.name} du ${dueDate} avec  ${task.comments.length} commentaires`
+    const dueDate = new Date(task.dueDate!).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', })
+    const accessibleTaskDescription = `${task.title} décrite par ${task.description} et appartenant au projet ${task.project!.name} du ${dueDate} avec  ${task.comments!.length} commentaires`
     
     return (
         <article 
@@ -31,9 +31,9 @@ export default function TaskStrip({task, kanban}: TaskStripProps) {
                 </div>
                 <div className={styles.tags}>
                     <TaskTags 
-                        projectLabel={task.project.name} 
+                        projectLabel={task.project!.name} 
                         dueDateLabel={dueDate}
-                        assigneesLabel={task.comments.length} />
+                        assigneesLabel={task.comments!.length} />
                 </div>
             </div>
             <div className={styles.taskActions}>

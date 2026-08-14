@@ -8,13 +8,10 @@ import fetchProjects   from "@/app/utils/fetchProjects";
 import fetchProjectTasks from '@/app/utils/fetchProjectTasks';
 import { Project } from "@/types/types";
 import ProjectCard from "@/components/ProjectCard/ProjectCard";
-import { useProfile } from '@/app/context/profileContext'
-import Button from '@/components/Button/Button';
 import Banner from '@/components/Banner/Banner';
 import { CustomInput } from '@/types/types';
 import type { ProjectFormData, FlashMessage } from '@/types/types';
 import { projectSchema } from "@/types/schemas/projectSchema";
-import recordProject from '@/app/utils/recordProject';
 import Modal from '@/components/Modal/Modal';
 import Form from '@/components/Form/Form';
 import postRequest from '@/app/utils/postRequest';
@@ -24,9 +21,7 @@ export default function Projects() {
     
     const router = useRouter()
     const token = Cookies.get('token')
-    //const [projects, setProjects] = useState<Project[] | null>(null)
     const [loading, setLoading] = useState(true)
-    const { profile, setProfile } = useProfile()
     const projectsInStore = useProjectStore((state) => state.projects)
     const title = "Mes projets"
     const subtitle = "Gérer mes projets"

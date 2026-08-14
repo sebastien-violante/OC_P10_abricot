@@ -21,10 +21,10 @@ export default function IaTaskCard({task, onChange, onDelete}: IaTaskCardProps) 
                     <>
                         <input
                             type="text"
-                            value={task.titre}
+                            value={task.title}
                             onChange={(event) =>
                                 onChange({
-                                    titre: event.target.value,
+                                    title: event.target.value,
                                 })
                             }
                         />
@@ -40,7 +40,7 @@ export default function IaTaskCard({task, onChange, onDelete}: IaTaskCardProps) 
                     </>
                 ) : (
                     <>
-                        <h3>{task.titre}</h3>
+                        <h3>{task.title}</h3>
                         <p>{task.description}</p>
                     </>
                 )}

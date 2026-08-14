@@ -22,7 +22,7 @@ export default function TaskStatus({status, kanban}: TaskStatusProps) {
     },
     } as const
 
-    const { className, label } = statusMap[status] ?? statusMap['TODO'];
+    const { className, label } = statusMap[status!] ?? statusMap['TODO'];
    
     return (
         <span 

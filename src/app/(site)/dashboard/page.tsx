@@ -3,7 +3,6 @@
 import Cookies from "js-cookie"
 import styles from './page.module.css'
 import Banner from "@/components/Banner/Banner";
-import Button from "@/components/Button/Button";
 import TaskStrip from "@/components/TaskStrip/TaskStrip";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
@@ -17,7 +16,6 @@ import { useProfile } from '@/app/context/profileContext'
 import Modal from "@/components/Modal/Modal"
 import { projectSchema } from "@/types/schemas/projectSchema";
 import Form from "@/components/Form/Form";
-import recordProject from "@/app/utils/recordProject";
 import TaskCard from "@/components/TaskCard/TaskCard";
 import { useSelectedTask } from "@/store/SelectedTaskStore";
 import type { FlashMessage, Project } from "@/types/types";
@@ -278,7 +276,7 @@ export default function Dashboard() {
                 titleId={`Détails de la tâche : ${selectedTask.title}`}>
                 <TaskCard 
                     task = {selectedTask} 
-                    projectId={selectedTask.projectId} 
+                    projectId={selectedTask.projectId!} 
                     token={token} 
                     ctaAvaliable={ctaAvaliable}/>
             </Modal>

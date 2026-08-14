@@ -31,7 +31,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
     const addTaskInStore = useCommentStore((state) => state.addComment)
 
     useEffect(() => {
-        setComments(task.comments)
+        setComments(task.comments ?? [])
     }, [task.comments, setComments])
     const [displayComments, setDisplayComments] = useState(false)
 
@@ -51,16 +51,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
     function toggleCta() {
         setCta((prev) => !prev)
     }
-    /*
-    function showComments() {
-       setDisplayComments((prev) => !prev)
-       setRotate((prev) => !prev)
-    }
-
-    function ctaActions() {
-        setCta((prev) => !prev)
-    }
-*/
+    
     async function editTask() {
        editCurrentTask?.(task)
        setCta(false)
@@ -71,7 +62,8 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
             router.replace("/")
             return
         }
-        const taskId = task.id
+        const taskId = task.id!
+
         const confirmed = window.confirm(
             "Vous êtes sur le point de supprimer cette tâche. Voulez-vous continuer ?"
         )
@@ -80,7 +72,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
         const response = await deleteTask({token, projectId, taskId})
         const fetchResult = await response.json()
         if(fetchResult.success) {
-            useTaskStore.getState().removeTask(task.id)
+            useTaskStore.getState().removeTask(task.id!)
             setCta(false)
         }
         
@@ -96,7 +88,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
             router.replace("/")
             return
         }
-        const taskId = task.id
+        const taskId = task.id!
         const payload = {content:comment}
         const response = await addComment({token, projectId, taskId, payload})
         const fetchResult = await response.json()
@@ -199,7 +191,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                     className={styles.taskDueDate}
                     dateTime={task.dueDate}
                 >
-                    {new Date(task.dueDate).toLocaleDateString("fr-FR", {day: "numeric",month: "long"})}
+                    {new Date(task.dueDate!).toLocaleDateString("fr-FR", {day: "numeric",month: "long"})}
                 </time>    
             </section>
 
@@ -209,7 +201,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                 <span>Assigné à :</span>
 
                 <div className={styles.taskAssignees}>
-                    {task.assignees.map((assignee)=>(
+                    {task.assignees?.map((assignee)=>(
                         <div 
                             className={styles.assignee}
                             key={assignee.id}
@@ -238,7 +230,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                     aria-controls={commentsId}
                 >
                     <span className={styles.label}>
-                        Commentaires ({commentsInStore.length})
+                        Commentaires ({commentsInStore ? commentsInStore.length : null})
                     </span>
                     <img 
                         src="/pictures/static/chevron.svg"
@@ -251,7 +243,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                     className={`${styles.commentsArea} ${displayComments ? styles.extended : ''}`}
                     hidden={!displayComments}
                 >
-                    {commentsInStore.map((comment)=>(
+                    {commentsInStore?.map((comment)=>(
                         <article 
                             key={comment.id} 
                             className={styles.commentStripe}

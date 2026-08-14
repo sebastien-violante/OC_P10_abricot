@@ -59,7 +59,8 @@ export default function SingleProject() {
     const [tasksIa, setTasksIa] = useState<TaskIa[]>([])
     const [isList, setIsList] = useState(true)
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
-    
+  
+
     const toggleIsList = () => {
         setIsList((prev) => !prev)
     }
@@ -97,20 +98,21 @@ export default function SingleProject() {
     }
 
     function handleCreateTaskIa() {
+        setTasksIa([])
         setOpenIaTaskModal(true)
     }
 
     function editCurrentTask(task: Task) {
-        const collaborators = task.assignees.map(assignee => (assignee.user))
+        const collaborators = task.assignees?.map(assignee => (assignee.user) ?? [])
         setTaskData({
             formTitle: "Modifier",
             ctaLabel: "Enregistrer",
             title: task.title,
             description: task.description,
-            collaborators,
+            collaborators: task.assignees?.map(assignee => assignee.user) ?? [],
             mode: true,
-            dueDate: new Date(task.dueDate).toISOString().split("T")[0],
-            status: task.status,
+            dueDate: new Date(task.dueDate!).toISOString().split("T")[0],
+            status: task.status!,
             edit: true,
             taskId: task.id
         })
@@ -294,65 +296,63 @@ export default function SingleProject() {
         }
     }
     const askForIaTasks = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    if (!token) {
-        router.push('/');
-        return;
-    }
-
-    if (!promptData.trim()) {
-        return;
-    }
-
-    const systemPrompt =
-        "Décompose la demande de l'utilisateur en tâches concrètes, indépendantes et réalisables. Pour chaque tâche, fournis un titre court et une description concise. Les tâches déjà présentes sont fournies comme contexte. Génère uniquement les nouvelles tâches demandées et ne répète jamais les tâches déjà présentes.";
-
-    const userPrompt =
-        `Crée les tâches nécessaires pour répondre à cette demande : ${promptData}`;
-
-    const payload = {
-        systemPrompt,
-        userPrompt,
-        existingTasks: tasksIa,
-    };
-
-    try {
-        const result = await postRequest<
-            typeof payload,
-            { response: string }
-        >({
-            url: "/api/ai",
-            token,
-            payload,
-        });
-
-        if (!result.data) {
-            throw new Error("La réponse de l'API est vide");
+        e.preventDefault()
+        setLoading(true);
+        
+        if (!promptData.trim()) {
+            return;
         }
 
-        const data = JSON.parse(result.data.response);
+        const systemPrompt =
+            "Décompose la demande de l'utilisateur en tâches concrètes, indépendantes et réalisables. Pour chaque tâche, fournis un titre court et une description concise. Les tâches déjà présentes sont fournies comme contexte. Génère uniquement les nouvelles tâches demandées et ne répète jamais les tâches déjà présentes.";
 
-        // On AJOUTE les nouvelles tâches aux tâches existantes
-        setTasksIa((currentTasks) => [
-            ...currentTasks,
-            ...data.tasks,
-        ]);
+        const userPrompt =
+            `Crée les tâches nécessaires pour répondre à cette demande : ${promptData}`;
 
-        // On vide le champ de prompt après traitement
-        setPromptData("");
+        const payload = {
+            systemPrompt,
+            userPrompt,
+            existingTasks: tasksIa,
+        };
 
-    } catch (error) {
-        setApiResponse(
-            error instanceof Error
-                ? error.message
-                : typeof error === "object" &&
-                  error !== null &&
-                  "message" in error
-                    ? String(error.message)
-                    : "Une erreur est survenue."
-        );
-    }
+        try {
+            const result = await postRequest<
+                typeof payload,
+                { response: string }
+            >({
+                url: "/api/ai",
+                token,
+                payload,
+            });
+
+            if (!result.data) {
+                throw new Error("La réponse de l'API est vide");
+            }
+
+            const data = JSON.parse(result.data.response);
+
+            // On AJOUTE les nouvelles tâches aux tâches existantes
+            setTasksIa((currentTasks) => [
+                ...currentTasks,
+                ...data.tasks,
+            ]);
+
+            // On vide le champ de prompt après traitement
+            setPromptData("");
+
+        } catch (error) {
+            setApiResponse(
+                error instanceof Error
+                    ? error.message
+                    : typeof error === "object" &&
+                    error !== null &&
+                    "message" in error
+                        ? String(error.message)
+                        : "Une erreur est survenue."
+            );
+        } finally {
+             setLoading(false);
+        }
 }
 
     const handleIaTaskChange = (taskIndex: number, changes: Partial<TaskIa>) => {
@@ -378,7 +378,7 @@ export default function SingleProject() {
             const date = new Date();
             date.setDate(date.getDate() + 15);
             const payload = {
-                title: task.titre,
+                title: task.title,
                 description: task.description,
                 dueDate: date
             }
@@ -421,6 +421,7 @@ export default function SingleProject() {
 
         })
         console.log('je vide les taches')
+        setTasksInStore(tasksIa)
         setTasksIa([])
     }
 
@@ -462,21 +463,9 @@ export default function SingleProject() {
                 setTasksInStore(tasks)
             } catch (error) {
                 console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        }
+            }         }
         loadTasks(token)
         }, [token])
-
-    
-    if (loading) {
-        return (
-            <div className={styles.loaderContainer}>
-                <div className={styles.spinner}></div>
-            </div>
-        );
-    }
     
     return (
         
@@ -603,8 +592,8 @@ export default function SingleProject() {
                 </section>
                 <section className={styles.tasksWrapper}>
                     {tasksInStore?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
-                    {tasksInStore?.map((task)=>(
-                        <div className={styles.taskWrapper} key={task.id}>
+                    {tasksInStore?.map((task, index)=>(
+                        <div className={styles.taskWrapper} key={index}>
                             <TaskCard  task={task} projectId={projectId} token={token} editCurrentTask={editCurrentTask} ctaAvaliable={ctaAvaliable}/> 
                         </div>
                     ))}
@@ -626,19 +615,27 @@ export default function SingleProject() {
                         <section className={styles.taskIaContainer}>
                             <div className={styles.header}>
                                 <img src="/pictures/static/star-orange.svg" alt="" aria-hidden="true"/>
-                                <h2>{!tasksIa ? "Créer une tâche" : "Vos tâches..."}</h2>
+                                <h2>{tasksIa.length === 0 ? "Créer une tâche" : "Vos tâches..."}</h2>
                             </div>
                             <div className={styles.tasksWrapper}>
-                                {tasksIa?.map((task, index) => (
+                                { loading ? 
+                                     <div className="flex items-center justify-center py-8">
+                                        <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+                                    </div>
+                                    :
+                                 (tasksIa?.map((task, index) => (
                                     <IaTaskCard 
                                         task={task} 
                                         key={index} 
                                         onChange={(changes) => handleIaTaskChange(index, changes)} 
                                         onDelete={() => handleIaTaskDelete(index)}/>
-                                ))}
+                                )))  
+                            }
+                                
                             </div>
                             <div className={styles.registerTasks}>
-                                { tasksIa && 
+                                { tasksIa.length === 0 ? 
+                                    "" : 
                                     (<button
                                         type="button"
                                         onClick={handleSaveIaTasks}

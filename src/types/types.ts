@@ -83,25 +83,22 @@ export type Comment = {
 }
 
 export type Task = {
-    id: string;
+    id?: string;
     title : string;
     description : string;
-    status : "TODO" | "IN_PROGRESS" | "DONE";
-    priority: "LOW" | "MEDIUM" | "HIGH";
-    dueDate: string;
-    projectId : string;
-    creatorId: string;
-    assignees : Assignee[];
-    comments: Comment[];
-    createdAt : string;
-    updatedAt : string;
-    project: Project;
+    status? : "TODO" | "IN_PROGRESS" | "DONE";
+    priority?: "LOW" | "MEDIUM" | "HIGH";
+    dueDate?: string;
+    projectId? : string;
+    creatorId?: string;
+    assignees? : Assignee[];
+    comments?: Comment[];
+    createdAt? : string;
+    updatedAt? : string;
+    project?: Project;
 }
 
-export type TaskIa = {
-    titre : string;
-    description : string;
-}
+export type TaskIa = Pick<Task, "title" | "description">;
 
 export type TasksResponse = {
     success: boolean;
