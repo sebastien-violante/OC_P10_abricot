@@ -29,12 +29,6 @@ export type ProfileContextType = {
   loadProfile: () => Promise<void>
 }
 
-export type Profile = {
-    email: string;
-    id: string;
-    name: string;
-}
-
 export type User = {
     id: string;
     email: string;
@@ -42,6 +36,8 @@ export type User = {
     createdAt: string;
     updatedAt: string;
 }
+
+export type Profile = Pick<User, "id" | "email" | "name">;
 
 export type Assignee = {
     id: string;
@@ -72,12 +68,17 @@ export type Member = {
     user: User;
 }
 // TACHE 
+
+export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
+
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
+
 export type Task = {
     id?: string;
     title : string;
     description : string;
-    status? : "TODO" | "IN_PROGRESS" | "DONE";
-    priority?: "LOW" | "MEDIUM" | "HIGH";
+    status? : TaskStatus;
+    priority?: TaskPriority;
     dueDate?: string;
     projectId? : string;
     creatorId?: string;
@@ -110,54 +111,42 @@ export type Comment = {
 }
 
 // TYPES DE FORMULAIRE
-export type TextInput = {
+type BaseInput = {
+    name: string;
+    label: string;
+    required: boolean;
+}
+
+export type TextInput = BaseInput & {
     type: "text";
-    name: string;
-    label: string;
-    required: boolean;
     defaultValue?: string;
 }
 
-export type EmailInput = {
+export type EmailInput = BaseInput & {
     type: "email";
-    name: string;
-    label: string;
-    required: boolean;
     defaultValue?: string;
 }
 
-export type DateInput = {
+export type DateInput = BaseInput & {
     type: "date";
-    name: string;
-    label: string;
-    required: boolean;
     defaultValue?: string;
 }
 
-export type CollaboratorInput = {
+export type CollaboratorInput = BaseInput & {
     type: "collaborators";
-    name: string;
-    label: string;
-    required: boolean;
 }
 
-export type UserInput = {
+export type UserInput = BaseInput & {
     type: "user";
-    name: string;
-    label: string;
-    required: boolean;
-};
+}
 
-export type StatusInput = {
+export type StatusInput = BaseInput & {
     type: "status";
-    name: string;
-    label: string;
-    required: boolean;
     options: {
         label: string;
-        value: string;
+        value: TaskStatus;
     }[];
-};
+}
 
 export type CustomInput = | TextInput | DateInput | CollaboratorInput | UserInput | StatusInput | EmailInput;
 
@@ -207,6 +196,15 @@ export type ProjectFormData = {
 }
 
 // REPONSES API
+export type ApiResponse<T = unknown> = { 
+    success: boolean; 
+    message: string; 
+    data?: T; 
+    error?: string; 
+    details?: ApiErrorDetail[]; 
+};
+
+
 export type ProjectResponse = {
     success: boolean;
     message: string;
@@ -235,13 +233,6 @@ export type ApiErrorDetail = {
     message: string; 
 } 
 
-export type ApiResponse<T = unknown> = { 
-    success: boolean; 
-    message: string; 
-    data?: T; 
-    error?: string; 
-    details?: ApiErrorDetail[]; 
-};
 
 export type UpdateProjectResponse = {
     project: Project;
