@@ -67,9 +67,10 @@ export default function CollaboratorSelect({label, value, mode, onChange}: Colla
     function toggleCollaboratorsList() {
         setShowList(prev => !prev)
     }
+
     return (
         <div className={styles.formGroup}>
-            <label>{label}</label>
+            <label htmlFor='collaborator-search'>{label}</label>
             { chooseMode && (
                 <>
                 {value.map(user => (
@@ -78,30 +79,43 @@ export default function CollaboratorSelect({label, value, mode, onChange}: Colla
                         <button
                             type="button"
                             onClick={() => removeCollaborator(user.id)}
+                            aria-label={`Supprimer ${user.name}`}
                         >
                             <img
                                 src="/pictures/static/delete.png"
                                 className={styles.delete}
                                 alt="Supprimer"
+                                aria-hidden="true"
                             />
                         </button>
                     </span>
                 ))}
                 <input
+                    id="collaborator-search"
                     value={search}
                     onChange={handleSearch}
                     placeholder="Rechercher un collaborateur..."
                     className={styles.input}
                 />
+                <div
+                    aria-live="polite"
+                    className={styles.srOnly}
+                >
+                    {suggestions.length > 0
+                        ? `${suggestions.length} résultat${suggestions.length > 1 ? "s" : ""}`
+                        : "Aucun collaborateur trouvé"
+                    }
+                </div>
                 {suggestions.length > 0 && (
                     <ul className={styles.suggestionList}>
                         {suggestions.map(user => (
-                            <li
-                                key={user.id}
-                                onClick={() => addCollaborator(user)}
-                                className={styles.suggestion}
-                            >
-                                {user.name} ({user.email})
+                            <li key={user.id}>
+                                <button
+                                    onClick={() => addCollaborator(user)}
+                                    className={styles.suggestion}
+                                >
+                                    {user.name} ({user.email})
+                                </button>
                             </li>
                         ))}
                     </ul>
@@ -110,12 +124,25 @@ export default function CollaboratorSelect({label, value, mode, onChange}: Colla
             )}
             { !chooseMode && (
                 <div className={styles.contributorsList}>
-                    <div className={`${styles.input} ${styles.contributorsInput}`} onClick={toggleCollaboratorsList}>
-                        <span>{value.length} collaborateur{value.length === 1 ? "" : "s"}</span>
-                        <img className={`${styles.chevron} ${showList ? styles.rotate : ""}`} src="/pictures/static/chevron.svg" alt="" aria-hidden="true"/>
-                    </div>
+                    <button
+                        type="button" 
+                        className={`${styles.input} ${styles.contributorsInput}`} 
+                        onClick={toggleCollaboratorsList}
+                        aria-expanded={showList}
+                        aria-controls="contributors-list"
+                    >
+                        <span>
+                            {value.length} collaborateur{value.length === 1 ? "" : "s"}
+                        </span>
+                        <img 
+                            className={`${styles.chevron} ${showList ? styles.rotate : ""}`} 
+                            src="/pictures/static/chevron.svg" 
+                            alt="" 
+                            aria-hidden="true"
+                        />
+                    </button>
                 { showList && (
-                    <ul>
+                    <ul id="contributors-list">
                         {value.map(user => (
                             <li key={user.id} className={styles.tag}>
                                 {user.name}

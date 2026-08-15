@@ -421,7 +421,6 @@ export default function SingleProject() {
             }    
 
         })
-        console.log('je vide les taches')
         setTasksInStore(tasksIa)
         setTasksIa([])
     }

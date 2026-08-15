@@ -1,6 +1,6 @@
 import { TaskIa } from '@/types/types'
 import styles from './IaTaskCard.module.css'
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 type IaTaskCardProps = {
     task: TaskIa;
@@ -11,7 +11,9 @@ type IaTaskCardProps = {
 export default function IaTaskCard({task, onChange, onDelete}: IaTaskCardProps) {
 
     const [isEditing, setIsEditing] = useState(false);
-    
+    const titleId = useId()
+    const descriptionId = useId()
+
     return (
         <div className={styles.iaCardContainer}>
 
@@ -19,7 +21,13 @@ export default function IaTaskCard({task, onChange, onDelete}: IaTaskCardProps) 
 
                 {isEditing ? (
                     <>
+                        <label 
+                            htmlFor={titleId}
+                            className={styles.visuallyHidden}>
+                                Titre
+                        </label>
                         <input
+                            id={titleId}
                             type="text"
                             value={task.title}
                             onChange={(event) =>
@@ -28,8 +36,13 @@ export default function IaTaskCard({task, onChange, onDelete}: IaTaskCardProps) 
                                 })
                             }
                         />
-
+                        <label 
+                            htmlFor={descriptionId}
+                            className={styles.visuallyHidden}>
+                                Description
+                        </label>
                         <textarea
+                            id={descriptionId}
                             value={task.description}
                             onChange={(event) =>
                                 onChange({

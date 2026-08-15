@@ -9,7 +9,7 @@ type KanbanColumnProps = {
 }
 export default function KanbanColumn({ tasks, title, kanban}: KanbanColumnProps) {
     
-    const headingId = `kanban-column-${title .toLowerCase() .replace(/\s+/g, '-')}`
+    const headingId = `kanban-column-${title.toLowerCase() .replace(/\s+/g, '-')}`
 
     return (
         <section 
@@ -21,10 +21,9 @@ export default function KanbanColumn({ tasks, title, kanban}: KanbanColumnProps)
             </div>
             <div>
                 {tasks.map((task) => (
-                    <TaskStrip 
-                        key={task.id}
-                        task={task} 
-                        kanban={kanban}/>
+                    <li key={task.id} className={styles.taskList}>
+                        <TaskStrip task={task} kanban={kanban} />
+                    </li>
                 ))}
             </div>
         </section>

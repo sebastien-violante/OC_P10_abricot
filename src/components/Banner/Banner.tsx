@@ -3,24 +3,23 @@ import styles from './Banner.module.css'
 type BannerProps = {
     title: string;
     subtitle: string;
-    children: React.ReactNode;
-    link?: {
-        label: string;
-        href: string;
-    };
-}
-const handleClick = () => {
-    console.log('enfin !')
+    children: React.ReactNode;    
 }
 
 export default function Banner({title, subtitle, children}: BannerProps) {
+    const titleId = "bannière"
     return (
-        <section className={styles.banner}>
-            <h1 className={styles.pageTitle}>{title}</h1>
+        <section 
+            className={styles.banner}
+            aria-labelledby={titleId}>
+            <h1 
+                className={styles.pageTitle}
+                id={titleId}
+            >{title}</h1>
             <p>{subtitle}</p>
-            <section className={styles.buttons}>
+            <div className={styles.buttons}>
                 {children}
-            </section>      
+            </div>      
         </section>
     )
 }

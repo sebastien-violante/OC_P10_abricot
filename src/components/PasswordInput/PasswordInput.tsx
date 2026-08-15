@@ -3,34 +3,72 @@ import styles from './PasswordInput.module.css'
 import { UserPasswordFormData } from "@/types/types"
 
 type PasswordInputProps = {
-    name: keyof UserPasswordFormData;
-    label: string;
-    userPasswordFormData: UserPasswordFormData;
-    setUserPasswordFormData: React.Dispatch<React.SetStateAction<UserPasswordFormData>>;
+    name: keyof UserPasswordFormData
+    label: string
+    userPasswordFormData: UserPasswordFormData
+    setUserPasswordFormData: React.Dispatch<
+        React.SetStateAction<UserPasswordFormData>
+    >
 }
 
-export default function PasswordInput({label, name, userPasswordFormData, setUserPasswordFormData}: PasswordInputProps) {
+export default function PasswordInput({
+    label,
+    name,
+    userPasswordFormData,
+    setUserPasswordFormData,
+}: PasswordInputProps) {
 
-    const [clear, setClear] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
 
-    const toggleClear = () => {
-        setClear((prev) => !prev)
+    const togglePasswordVisibility = () => {
+        setShowPassword((prev) => !prev)
     }
+
+    const inputId = String(name)
+    const buttonLabel = showPassword
+        ? "Masquer le mot de passe"
+        : "Afficher le mot de passe"
 
     return (
         <div className={styles.formGroup}>
-            <label htmlFor={name}>{label}</label>
+            <label htmlFor={inputId}>
+                {label}
+            </label>
+
             <div className={styles.inputZone}>
-                <input 
-                type={clear ? "text" : "password"}
-                name={name} 
-                id={name}
-                onChange={(e) => setUserPasswordFormData({...userPasswordFormData, [name]: e.target.value})} 
-                required />
-                { clear && <img className={styles.eye} src="/pictures/static/eye-slash-solid-full.svg" onClick={toggleClear}/>}
-                { !clear && <img className={styles.eye} src="/pictures/static/eye-solid-full.svg" onClick={toggleClear}/>}
+                <input
+                    type={showPassword ? "text" : "password"}
+                    name={inputId}
+                    id={inputId}
+                    value={userPasswordFormData[name]}
+                    onChange={(e) =>
+                        setUserPasswordFormData((prev) => ({
+                            ...prev,
+                            [name]: e.target.value,
+                        }))
+                    }
+                    required
+                    autoComplete="current-password"
+                />
+
+                <button
+                    type="button"
+                    className={styles.eyeButton}
+                    onClick={togglePasswordVisibility}
+                    aria-label={buttonLabel}
+                    aria-pressed={showPassword}
+                >
+                    <img
+                        src={
+                            showPassword
+                                ? "/pictures/static/eye-slash-solid-full.svg"
+                                : "/pictures/static/eye-solid-full.svg"
+                        }
+                        alt=""
+                        aria-hidden="true"
+                    />
+                </button>
             </div>
-            
         </div>
     )
 }

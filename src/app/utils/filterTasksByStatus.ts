@@ -31,7 +31,5 @@ export default function filterTasksByStatus(tasks: Task[]) {
     result.todoTasks.sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
     result.inProgressTasks.sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
     result.doneTasks.sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
-    console.log('RESULT')
-    console.log(result)
     return result;
 }
