@@ -111,7 +111,7 @@ export default function SingleProject() {
             title: task.title,
             description: task.description,
             collaborators: task.assignees?.map(assignee => assignee.user) ?? [],
-            mode: true,
+            mode: false,
             dueDate: new Date(task.dueDate!).toISOString().split("T")[0],
             status: task.status!,
             edit: true,
@@ -209,7 +209,7 @@ export default function SingleProject() {
         if(!project) return
         // On ne peut modifier ou supprimer un projet que si on est propriétaire
         if(project.owner.id !== profile?.id) return
-        
+        console.log(project)
         const collaborators = project.members.map(member => (member.user))
         setProjectData({
             formTitle: "Modifier un projet",

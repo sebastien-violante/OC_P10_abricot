@@ -136,6 +136,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
                             className={styles.ctaButton}
                         >
                          <img 
+                            className={styles.taskCta}
                             src="/pictures/static/taskCta.svg"
                             alt=""
                             aria-hidden="true"

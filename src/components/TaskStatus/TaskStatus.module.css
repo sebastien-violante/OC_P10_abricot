@@ -33,7 +33,7 @@
 @media (max-width: 767px) {
     .statusType {
         position: absolute;
-        top: 30px;
-        right: 40px;
+        top: -12px;
+        right: 0;
     }
 }

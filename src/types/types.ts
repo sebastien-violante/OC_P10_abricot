@@ -1,3 +1,6 @@
+import { types } from "util";
+
+// AUTHENTIFICATION 
 export type Token = string;
 
 export type LoginResponseData = {
@@ -11,51 +14,34 @@ export type LoginResponseData = {
     token: string;
 };
 
-export type AuthenticateData = {
-    user: User;
-    token: string;
-}
-
-export type Detail = {
-    field: string;
-    message: string;
-}
-
-export type Details = Detail[]
-
-export type AuthenticateResult = {
-    success: boolean;
-    error?: string;
-    message: string;
-    data?: AuthenticateData;
-    details?: Details;
-}
-
-// ok
+// INSCRIPTION 
 export type RegistrationFormData = {
     email: string;
     password: string;
     firstName: string;
     lastName: string;
-    //type?: string;
 }
 
-export type FormErrors = {
-    email?: string;
-    password?: string;
-    name?: string;
+// UTILISATEUR
+export type ProfileContextType = {
+  profile: Profile | null
+  setProfile: React.Dispatch<React.SetStateAction<Profile | null>>
+  loadProfile: () => Promise<void>
 }
 
-export type FetchErrors = string
+export type Profile = {
+    email: string;
+    id: string;
+    name: string;
+}
 
-export type FetchSuccessData = {
-    data: {
-        token: string;
-    }
-    user?: {
-        email: string;
-    };
-};
+export type User = {
+    id: string;
+    email: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+}
 
 export type Assignee = {
     id: string;
@@ -65,23 +51,27 @@ export type Assignee = {
     assignedAt: string
 }
 
-export type Author = {
+// PROJET
+export type Project = {
     id: string;
-    email: string;
     name: string;
+    description: string;
+    ownerId: string;
+    owner: User;
+    members: Member[];
     createdAt: string;
     updatedAt: string;
-}
-export type Comment = {
-    id : string;
-    content : string;
-    taskId : string;
-    authorId: string;
-    author: Author;
-    createdAt : string;
-    updatedAt: string;
+    tasks?: Task[];
 }
 
+export type Member = {
+    id: string;
+    joinedAt: string;
+    projectId: string;
+    role: string;
+    user: User;
+}
+// TACHE 
 export type Task = {
     id?: string;
     title : string;
@@ -108,59 +98,18 @@ export type TasksResponse = {
     };
 }
 
-export type UserResponse = {
-    success: boolean;
-    message: string;
-    data: {
-        users: User[]
-    }
-}
-
-export type KanbanLists = {
-    todoTasks : Task[];
-    inProgressTasks : Task[];
-    doneTasks : Task[];
-}
-
-
-
-export type Owner = {
-    id: string;
-    email: string;
-    name: string;
-    createdAt: string;
+// COMMENTAIRE
+export type Comment = {
+    id : string;
+    content : string;
+    taskId : string;
+    authorId: string;
+    author: User;
+    createdAt : string;
     updatedAt: string;
 }
 
-export type Member = {
-    id: string;
-    role: string;
-    user : User;
-    joinedAt: string;
-}
-
-export type User = {
-    id: string;
-    email: string;
-    name: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
-export type ProfileContextType = {
-  profile: Profile | null
-  setProfile: React.Dispatch<React.SetStateAction<Profile | null>>
-  loadProfile: () => Promise<void>
-}
-
-export type Profile = {
-    email: string;
-    id: string;
-    name: string;
-}
-
-// TYPES REMIS AU PROPRE
-
+// TYPES DE FORMULAIRE
 export type TextInput = {
     type: "text";
     name: string;
@@ -192,7 +141,6 @@ export type CollaboratorInput = {
     required: boolean;
 }
 
-
 export type UserInput = {
     type: "user";
     name: string;
@@ -212,44 +160,6 @@ export type StatusInput = {
 };
 
 export type CustomInput = | TextInput | DateInput | CollaboratorInput | UserInput | StatusInput | EmailInput;
-
-export type ProjectResponse = {
-    success: boolean;
-    message: string;
-    data: {
-        projects: Project[];
-    }
-}
-
-export type SingleProjectResponse = {
-    success : boolean;
-    message : string;
-    data : {
-        tasks : Task[];
-    }
-}
-
-export type Project = {
-    id: string;
-    name: string;
-    description: string;
-    ownerId: string;
-    owner: Owner;
-    members: Member[];
-    createdAt: string;
-    updatedAt: string;
-    tasks?: Task[];
-}
-
-export type ProjectFormData = {
-    formTitle?: string;
-    title: string;
-    ctaLabel: string;
-    mode: boolean;
-    description: string;
-    collaborators: User[];
-}
-
 
 export type UserFormData = {
     lastName: string;
@@ -287,9 +197,30 @@ export type TaskFormData = {
     taskId?: string;
 }
 
-export type FlashMessage = {
-    status: boolean
-    message: string
+export type ProjectFormData = {
+    formTitle?: string;
+    title: string;
+    ctaLabel: string;
+    mode: boolean;
+    description: string;
+    collaborators: User[];
+}
+
+// REPONSES API
+export type ProjectResponse = {
+    success: boolean;
+    message: string;
+    data: {
+        projects: Project[];
+    }
+}
+
+export type SingleProjectResponse = {
+    success : boolean;
+    message : string;
+    data : {
+        tasks : Task[];
+    }
 }
 
 export type ApiError = {
@@ -314,4 +245,24 @@ export type ApiResponse<T = unknown> = {
 
 export type UpdateProjectResponse = {
     project: Project;
+}
+
+export type UserResponse = {
+    success: boolean;
+    message: string;
+    data: {
+        users: User[]
+    }
+}
+
+// AUTRES TYPES
+export type KanbanLists = {
+    todoTasks : Task[];
+    inProgressTasks : Task[];
+    doneTasks : Task[];
+}
+
+export type FlashMessage = {
+    status: boolean
+    message: string
 }

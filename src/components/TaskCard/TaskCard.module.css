@@ -17,6 +17,10 @@
     justify-content: space-between;
 }
 
+.taskData {
+    width: 85%;
+}
+
 .taskCardHeader {
     display: flex;
     gap:8px;
@@ -27,7 +31,6 @@
     font-size: 18px;
     font-weight:500;
 }
-
 
 .dueDate {
     display: flex;
@@ -201,6 +204,11 @@
     transition: transform .3s ease-in-out;
 }
 
+.taskCta {
+    height: 57px;
+    width: 57px;
+}
+
 .rotate {
     transform: rotate(180deg);
 }
@@ -262,13 +270,20 @@
     color: red;
 }
 
+@media (max-width: 1200px) {
+    .taskCardTop {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 1023px) {
+    .taskCardHeader {
+        flex-direction: column;
+    }
+}
 
 @media (max-width: 756px) {
     .taskCardWrapper {
         padding: 10px;
     }
-    .singleProjectWrapper .taskCardWrapper .taskCardTop {
-        flex-direction: column;
-    }
-    
 }
