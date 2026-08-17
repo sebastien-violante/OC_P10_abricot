@@ -11,6 +11,7 @@ export default function Team({project}: TeamProps) {
     const memberInitials: string[] = []
     project.members.forEach((member) => { memberInitials.push(getInitials(member.user.name))})
     const ownerInitials = getInitials(project.owner.name)
+  
     return (
         <article className={styles.teamWrapper}>
             <div className={styles.teamLabel}>
@@ -23,12 +24,19 @@ export default function Team({project}: TeamProps) {
             </div>
         
             <div className={styles.teamComposition}>
-                <span className={styles.ownerBadge}>{ownerInitials}</span>
+                <span 
+                    className={styles.ownerBadge}
+                    aria-hidden="true"
+                >{ownerInitials}</span>
                 <span className={styles.ownerLabel}>Propriétaire</span>
-                <div className={styles.memberBadges}>
-                    {memberInitials.map((member)=> (
-                        <span key={member} className={styles.memberBadge}>{member}</span>
+                <div className={styles.memberBadges} aria-hidden="true">
+                    <ul>
+                        {memberInitials.map((member)=> (
+                        <li key={member}>
+                            <span className={styles.memberBadge}>{member}</span>
+                        </li>
                     ))}
+                    </ul>                 
                 </div>
             </div>
         </article>

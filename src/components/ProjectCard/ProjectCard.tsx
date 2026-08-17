@@ -10,24 +10,20 @@ type ProjectCardProps = {
 
 export default function ProjectCard({project}: ProjectCardProps) {
 
-    console.log(project)
     return (
-        <>
+        
             <div className={styles.ProjectCard}>
                 <Link href={`/projet/${project.id}`}>
                     <article className={styles.cardWrapper}>
                         <div className={styles.titles}>
                             <h2 className={styles.cardTitle}>{project.name}</h2>
-                            <h3 className={styles.cardSubTitle}>{project.description}</h3>
+                            <p className={styles.cardSubTitle}>{project.description}</p>
                         </div>
                         <ProgressBar project={project} />
                         <Team project={project}/>
                     </article>
                 </Link>
             </div>
-            
-        </>
-       
         
     )
 }

@@ -1,6 +1,6 @@
 .taskStrip {
     width: 100%;
-    padding: 30px 40px;
+    padding: 25px 40px;
     border: 1px solid var(--grey200);
     border-radius: 10px;
     margin-bottom: 15px;
@@ -9,6 +9,11 @@
     justify-content: space-between;
     position: relative;
     background: white;
+    min-height: 160px;
+}
+
+.taskStrip .taskData {
+    max-width: 800px;
 }
 
 .taskStrip:hover {
@@ -25,7 +30,7 @@
 .taskActions {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: flex-end;
 
 }
@@ -38,11 +43,18 @@
 }
 .taskStrip .taskData .label h2 {
     font-size: 18px;
+
 }
 
 .taskStrip .taskData .label p {
     font-size: 14px;
     color: var(--grey600);
+}
+
+.taskStrip .statusTag {
+    position: absolute;
+    top: 25px;
+    right: 40px;
 }
 
 .seeBtn {
@@ -54,10 +66,14 @@
     height: 50px;
     color: white;
     border-radius: 10px;
+    margin-top: 10px;
 }
 
-.lower {
-    margin-top : 32px
+.kanban {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 @media (max-width: 1023px) {
@@ -85,14 +101,9 @@
         width: 100%;
         white-space: unset;
     }
-}
-
-@media (max-width: 580px) {
-    .taskStrip .taskData .label h2,
-    .taskStrip .taskData .label p {
-        max-width: 80px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    .seeBtn {
+        margin-top: 0;
     }
 }
+
+

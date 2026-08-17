@@ -136,7 +136,7 @@ export default function Login() {
          
     return (
         <>
-            <div className={styles.loginBackground}>
+            <main className={styles.loginBackground}>
                 <Image 
                     className={styles.backgroundImage} 
                     src="/pictures/static/login.png" 
@@ -158,8 +158,8 @@ export default function Login() {
                         noValidate
                         aria-describedby={ errors.length > 0 ? 'login-errors' : undefined }
                         >
-                        <h1 className={styles.formTitle}>Connexion</h1>
-                        
+                        <h1 
+                            className={styles.formTitle}>Connexion</h1>
                         <section className={styles.formGroup}>
                             <label htmlFor="login-email">Email</label>
                             <input 
@@ -208,7 +208,7 @@ export default function Login() {
                         <p>Pas encore de compte ? </p><Link className={styles.registerLink} href="/inscription">Créer un compte</Link>
                     </div>
                 </section>
-            </div>
+            </main>
 
             {/* MODALE DE RÉINITIALISATION */}
             {isModalOpen && (

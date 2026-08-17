@@ -24,6 +24,11 @@
     text-align: justify;
 }
 
+a:focus-visible .cardWrapper {
+    outline: 3px solid currentColor;
+    outline-offset: 4px;
+}
+
 @media (max-width: 767px) {
     .projectCard {
         width: 100%;

@@ -94,7 +94,7 @@ export default function Registration() {
     
     return (
         <>
-            <div className={styles.loginBackground}>
+            <main className={styles.loginBackground}>
                 <Image 
                     className={styles.backgroundImage} 
                     src="/pictures/static/login.png" 
@@ -181,7 +181,7 @@ export default function Registration() {
                             <input 
                                 type="password" 
                                 id="password"
-                                autoComplete="password"
+                                autoComplete="current-password"
                                 name="password" 
                                 onChange={handleChange}
                                 required 
@@ -202,7 +202,7 @@ export default function Registration() {
                     </form>
                     <p>Déja inscrit ? <Link className={styles.registerLink} href="/">Se connecter</Link></p>
                 </section>
-            </div> 
+            </main> 
             {flashMessage && (
                 <div  
                     className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-6 py-4 text-white shadow-lg`}

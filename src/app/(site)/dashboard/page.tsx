@@ -62,7 +62,7 @@ export default function Dashboard() {
             {
                 label : "Titre", 
                 type : "text", 
-                name : "title", 
+                name : "name", 
                 required: true, 
             },
             {
@@ -249,7 +249,7 @@ export default function Dashboard() {
                 </header>
                 
                 {filteredTasks?.map((task) => (
-                    <TaskStrip key={task.id} task={task} kanban={kanban}/>      
+                    <TaskStrip key={task.id} task={task} mode={"list"}/>      
                 ))}
             </section>
             </>
@@ -261,9 +261,9 @@ export default function Dashboard() {
                 <section 
                     className={styles.kanbanWrapper}
                      aria-label="Tableau Kanban des tâches">
-                    <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []} kanban={kanban}/>
-                    <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []} kanban={kanban}/>
-                    <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []} kanban={kanban}/>
+                    <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []} mode={"kanban"}/>
+                    <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []} mode={"kanban"}/>
+                    <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []} mode={"kanban"}/>
                 </section>
             )}
         </section>
@@ -284,7 +284,7 @@ export default function Dashboard() {
         {selectedTask && (
             <Modal 
                 onClose={()=>removeTask()}
-                titleId={`Détails de la tâche : ${selectedTask.title}`}>
+                titleId="task-details-title">
                 <TaskCard 
                     task = {selectedTask} 
                     projectId={selectedTask.projectId!} 

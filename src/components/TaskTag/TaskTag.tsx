@@ -7,29 +7,34 @@ type TaskTagProps = {
 }
 export default function TaskTags({projectLabel, dueDateLabel, assigneesLabel}: TaskTagProps) {
     return(
-        <div className={styles.taskTag}>
-            <div className={styles.project}>
+        <ul className={styles.taskTag}>
+            <li className={styles.project}>
                 <img
                     className={styles.icon}
                     src="pictures/static/folder.svg"
-                    alt=""/>
+                    alt=""
+                    aria-hidden="true"/>
                 <span>{projectLabel}</span>
-            </div>
-            <div className={styles.calendar}>
+            </li>
+            <li className={styles.calendar}>
                 <img 
                     className={styles.icon}
                     src="pictures/static/calendar.svg"
-                    alt=""/>
+                    alt=""
+                    aria-hidden="true"/>
                 <span>{dueDateLabel}</span>
-            </div>
-            <div className={styles.message}>
+            </li>
+            <li 
+                className={styles.message}
+                aria-label={`${assigneesLabel} ${assigneesLabel > 1 ? 'collaborateurs' : 'collaborateur'}`}>
                 <img 
                     className={styles.icon}
                     src="pictures/static/message.svg"
-                    alt=""/>
+                    alt=""
+                    aria-hidden="true"/>
                 <span>{assigneesLabel}</span>
-            </div>
-        </div>
+            </li>
+        </ul>
     )
     
 }

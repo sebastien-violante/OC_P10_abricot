@@ -5,9 +5,9 @@ import TaskStrip from '../TaskStrip/TaskStrip'
 type KanbanColumnProps = {
     tasks: Task[];
     title: string;
-    kanban: boolean;
+    mode: string;
 }
-export default function KanbanColumn({ tasks, title, kanban}: KanbanColumnProps) {
+export default function KanbanColumn({ tasks, title, mode}: KanbanColumnProps) {
     
     const headingId = `kanban-column-${title.toLowerCase() .replace(/\s+/g, '-')}`
 
@@ -22,7 +22,7 @@ export default function KanbanColumn({ tasks, title, kanban}: KanbanColumnProps)
             <div>
                 {tasks.map((task) => (
                     <li key={task.id} className={styles.taskList}>
-                        <TaskStrip task={task} kanban={kanban} />
+                        <TaskStrip task={task} mode={mode} />
                     </li>
                 ))}
             </div>

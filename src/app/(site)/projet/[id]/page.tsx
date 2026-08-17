@@ -111,7 +111,7 @@ export default function SingleProject() {
             title: task.title,
             description: task.description,
             collaborators: task.assignees?.map(assignee => assignee.user) ?? [],
-            mode: false,
+            mode: true,
             dueDate: new Date(task.dueDate!).toISOString().split("T")[0],
             status: task.status!,
             edit: true,
@@ -490,8 +490,9 @@ export default function SingleProject() {
                 console.error(error);
             }         }
         loadTasks(token)
-        }, [token])
+    }, [token])
     
+    console.log(project)
     return (
         
         <div className={styles.singleProjectWrapper}>
@@ -543,7 +544,7 @@ export default function SingleProject() {
             <section className={styles.main}>
                <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
-                    Contributeurs <span>{(project?.members.length ?? 0) + 1} {project?.members.length === 0 ? "personne" : "personnes"}</span>
+                    Contributeurs <span>{(project?.members.filter(member => member.user.id !== project?.owner.id).length ?? 0) + 1} {project?.members.length === 0 ? "personne" : "personnes"}</span>
                 </div>
                 <div className={styles.detailsContributors}>
                     <div className={styles.idTag}>

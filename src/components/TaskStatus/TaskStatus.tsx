@@ -3,9 +3,9 @@ import { Task } from '@/types/types'
 
 type TaskStatusProps = {
     status: Task['status'];
-    kanban?: boolean;
+    mode: string;
 }
-export default function TaskStatus({status, kanban}: TaskStatusProps) {
+export default function TaskStatus({status, mode}: TaskStatusProps) {
     
     const statusMap = {
     TODO: {
@@ -23,10 +23,10 @@ export default function TaskStatus({status, kanban}: TaskStatusProps) {
     } as const
 
     const { className, label } = statusMap[status!] ?? statusMap['TODO'];
-   
+
     return (
         <span 
-            className={`${styles.statusType} ${className} ${kanban ? styles.topRight : ""}`}>
+            className={`${styles.statusType} ${className} ${styles[mode]}`}>
             {label}
         </span>
     )   

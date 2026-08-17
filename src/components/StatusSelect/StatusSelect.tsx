@@ -35,25 +35,31 @@ export default function StatusSelect({
     };
 
     return (
-        <div className={styles.statusSelect}>
-            <label>{label}</label>
+         <fieldset className={styles.statusSelect}>
+            <legend>{label}</legend>
 
             <div className={styles.container}>
-                {options.map(option => (
-                    <button
-                        key={option}
-                        type="button"
-                        onClick={() => onChange(statusMap[option])}
-                        className={`
-                            ${styles.button}
-                            ${getClass(option)}
-                            ${value === statusMap[option] ? styles.selected : ""}
-                        `}
-                    >
-                        {option}
-                    </button>
-                ))}
+                {options.map((option) => {
+                    const statusValue = statusMap[option]
+                    const isSelected = value === statusValue
+
+                    return (
+                        <button
+                            key={option}
+                            type="button"
+                            onClick={() => onChange(statusValue)}
+                            className={`
+                                ${styles.button}
+                                ${getClass(option)}
+                                ${isSelected ? styles.selected : ''}
+                            `}
+                            aria-pressed={isSelected}
+                        >
+                            {option}
+                        </button>
+                    )
+                })}
             </div>
-        </div>
+        </fieldset>
     );
 }

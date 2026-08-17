@@ -38,6 +38,9 @@
     justify-content: center;
     background-color: var(--light-orange);
     transition: border-radius 1s ease;
+    font-size: 14px;
+    color: var(--grey950);
+    cursor: pointer;
 }
 
 .header .idTag.selected {

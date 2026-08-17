@@ -134,6 +134,7 @@ type FormProps<T extends Record<string, any>> = {
     ) => void;
     errors: Record<string, string>;
     apiResponse?: string;
+    titleId?:  string;
 };
 
 export default function Form<T extends Record<string, any>>({
@@ -142,7 +143,8 @@ export default function Form<T extends Record<string, any>>({
     setFormData,
     handleSubmit,
     errors,
-    apiResponse
+    apiResponse,
+    titleId
 }: FormProps<T>) {
 
     return (
@@ -151,10 +153,10 @@ export default function Form<T extends Record<string, any>>({
             onSubmit={(e) => handleSubmit(e, formData.taskId)}
             noValidate
         >
-            <h2 className={styles.title}>
+            <h2 className={styles.title} id={titleId}>
                 {formData.formTitle}
             </h2>
-
+{/*}
             {Object.values(errors).length > 0 && (
                 <div
                     role="alert"
@@ -174,7 +176,7 @@ export default function Form<T extends Record<string, any>>({
                     </ul>
                 </div>
             )}
-
+*/}
             {apiResponse && (
                 <p
                     className={styles.apiResponse}
@@ -247,7 +249,7 @@ export default function Form<T extends Record<string, any>>({
                                                 id={errorId}
                                                 className={styles.error}
                                             >
-                                                {error}
+                                               {error}
                                             </p>
                                         )}
                                     </div>

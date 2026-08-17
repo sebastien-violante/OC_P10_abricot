@@ -6,10 +6,10 @@ import { useSelectedTask } from '@/store/SelectedTaskStore'
 
 type TaskStripProps = {
     task: Task,
-    kanban: boolean;
+    mode: string;
 }
 
-export default function TaskStrip({task, kanban}: TaskStripProps) {
+export default function TaskStrip({task, mode}: TaskStripProps) {
 
     const setSelectedTask = useSelectedTask((state) => state.setTask)
     
@@ -18,15 +18,17 @@ export default function TaskStrip({task, kanban}: TaskStripProps) {
     }
 
     const dueDate = new Date(task.dueDate!).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', })
-    const accessibleTaskDescription = `${task.title} décrite par ${task.description} et appartenant au projet ${task.project!.name} du ${dueDate} avec  ${task.comments!.length} commentaires`
     
     return (
         <article 
             className={styles.taskStrip}
             aria-labelledby={`task-title-${task.id}`}>
+            <TaskStatus 
+            status={task.status} 
+            mode={mode} />
             <div className={styles.taskData}>
                 <div className={styles.label}>
-                    <h2 id={`task-title-${task.id}`}>{task.title}</h2>
+                    <h2 className={`${styles[mode]}`} id={`task-title-${task.id}`}>{task.title}</h2>
                     <p className={styles.taskDescription}>{task.description}</p>
                 </div>
                 <div className={styles.tags}>
@@ -37,13 +39,12 @@ export default function TaskStrip({task, kanban}: TaskStripProps) {
                 </div>
             </div>
             <div className={styles.taskActions}>
-                <TaskStatus 
-                    status={task.status} 
-                    kanban={kanban} />
+                
                 <button 
-                    className={`${styles.seeBtn} ${kanban ? styles.lower : ""}`} 
+                    type="button"
+                    className={styles.seeBtn} 
                     onClick={handleClick}
-                    aria-label={`Voir les détails de la tâche ${accessibleTaskDescription}`} 
+                    aria-label={`Voir les détails de la tâche ${task.title}`} 
                     aria-haspopup="dialog"
                     >Voir
                 </button>

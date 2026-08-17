@@ -55,11 +55,12 @@
     justify-content: center;
 }
 
-.memberBadges {
+.memberBadges ul {
     display: flex;
 }
 
-.memberBadge:not(:first-child) {
+.memberBadges li:not(:first-child) {
   margin-left: -8px;
   border: 1px solid white;
+  border-radius: 50%;
 }
