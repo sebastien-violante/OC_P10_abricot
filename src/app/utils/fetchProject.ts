@@ -6,9 +6,7 @@ type FetchProjectProps = {
 }
 
 export default async function fetchProject({id, token}: FetchProjectProps) {
-    
-    
-    console.log(`/api/projects/${id}/tasks`)
+        
     const response = await fetch(`/api/projects/${id}/tasks`, {
             method: 'GET',
             headers: { 

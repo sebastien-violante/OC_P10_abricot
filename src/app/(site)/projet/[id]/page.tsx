@@ -10,11 +10,9 @@ import Modal from '@/components/Modal/Modal'
 import Form from '@/components/Form/Form'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useTaskStore } from '@/store/TaskStore'
-import type { Project, FlashMessage, UpdateProjectResponse, TaskIa } from '@/types/types'
+import type { FlashMessage, UpdateProjectResponse, UpdateTaskResponse,  TaskIa } from '@/types/types'
 import { useParams } from 'next/navigation'
 import { taskSchema } from '@/types/schemas/taskSchema'
-import recordTask from '@/app/utils/recordTask'
-import editTask from '@/app/utils/editTask'
 import getInitials from '@/app/utils/getInitials'
 import { useProfile } from '@/app/context/profileContext'
 import { useRouter } from 'next/navigation'
@@ -22,8 +20,6 @@ import deleteRequest from '@/app/utils/deleteRequest'
 import { projectSchema } from '@/types/schemas/projectSchema'
 import putRequest from '@/app/utils/putRequest'
 import postRequest from '@/app/utils/postRequest'
-import getApiErrorMessage from '@/app/utils/getApiErrorMessage'
-import { ApiError } from 'next/dist/server/api-utils'
 import IaTaskCard from '@/components/IaTaskCard/IaTaskCard'
 import { notFound } from "next/navigation";
 
@@ -73,7 +69,7 @@ export default function SingleProject() {
         title: "",
         description: "",
         mode: true,
-        collaborators: [],
+        contributors: [],
         dueDate: "",
         status: "",
         edit: false,
@@ -84,11 +80,11 @@ export default function SingleProject() {
     // Initialisation des données de projet
     const initProjectData = {
         formTitle: "",
-        title: "",
+        name: "",
         description: "",
         mode: false,
         ctaLabel: "",
-        collaborators: []
+        contributors: []
     }
     const [projectData, setProjectData] = useState<ProjectFormData>(initProjectData)
 
@@ -104,13 +100,13 @@ export default function SingleProject() {
     }
 
     function editCurrentTask(task: Task) {
-        const collaborators = task.assignees?.map(assignee => (assignee.user) ?? [])
+        const contributors = task.assignees?.map(assignee => (assignee.user) ?? [])
         setTaskData({
             formTitle: "Modifier",
             ctaLabel: "Enregistrer",
             title: task.title,
             description: task.description,
-            collaborators: task.assignees?.map(assignee => assignee.user) ?? [],
+            contributors: task.assignees?.map(assignee => assignee.user) ?? [],
             mode: true,
             dueDate: new Date(task.dueDate!).toISOString().split("T")[0],
             status: task.status!,
@@ -140,7 +136,7 @@ export default function SingleProject() {
             title: taskData.title,
             description: taskData.description,
             dueDate: taskData.dueDate,
-            assigneeIds: taskData.collaborators.map(({ id }) => id),
+            assigneeIds: taskData.contributors.map(({ id }) => id),
             status: taskData.status
         };
        
@@ -159,40 +155,40 @@ export default function SingleProject() {
         setErrors({});
         setApiResponse("")
 
-        // Mode modification de tâche : edit et il existe un task.id
+        // Mode modification de tâche : edit=true et il existe un task.id
         if(taskData.edit && taskData.taskId) {
-            const taskId = taskData.taskId
-            // Envoi de la requête à l'API
-            const response = await editTask({payload, token, projectId, taskId})
-            const fetchResult = await response.json()
-            if(!fetchResult.success) {
-                setApiResponse(fetchResult.message)
+            try {
+                const url=`/api/projects/${projectId}/tasks/${taskData.taskId}`
+                const result = await putRequest<typeof payload, UpdateTaskResponse>({url, token, payload})
+                if (!result.data?.task) {
+                    throw new Error("La tâche créée est absente de la réponse de l'API")
+                }
+                updateTaskInStore(result.data.task)
                 setTaskData(initTaskData)
-                return
+                setOpenTaskModal(false)
+                setFlashMessage({status: true, message: "La tâche a été modifiée"})
+                setTimeout(() => {setFlashMessage(null)}, 2000);
+            } catch(error) {
+                setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
             }
-            // Mise à jour du store pour répercussion sur l'affichage
-            updateTaskInStore(fetchResult.data.task)
-            // Fermeture de la modale, vidage des données et affichage du message flash
-            setOpenTaskModal(false)
-            setTaskData(initTaskData)
-            setFlashMessage({status: true, message: "La tâche a été modifiée"})
-            setTimeout(() => {setFlashMessage(null)}, 2000);
-                
         }
         // Mode création de tâche
         else {
             // Envoi
-            const response = await recordTask({payload, token, projectId})
-            const fetchResult = await response.json()
-            if(!fetchResult.success) {
-                setApiResponse(fetchResult.message)
-                return
+            try {
+                const url = `/api/projects/${projectId}/tasks`
+                const result = await postRequest<typeof payload, UpdateTaskResponse>({ url, token, payload })
+                if (!result.data?.task) {
+                    throw new Error("La tâche créée est absente de la réponse de l'API")
+                }
+                addTaskInStore(result.data.task)
+                setTaskData(initTaskData)
+                setOpenTaskModal(false)
+                setFlashMessage({status: true, message: "La tâche a bien été créée"})
+                setTimeout(() => {setFlashMessage(null)}, 2000);
+            } catch(error) {
+                setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
             }
-            const newTask = fetchResult.data.task
-            addTaskInStore(newTask)
-            setOpenTaskModal(false)
-            setFlashMessage({status: true, message: "La nouvelle tâche a été ajoutée"})
-            setTimeout(() => {setFlashMessage(null)}, 2000);
         }
             
     }
@@ -209,15 +205,14 @@ export default function SingleProject() {
         if(!project) return
         // On ne peut modifier ou supprimer un projet que si on est propriétaire
         if(project.owner.id !== profile?.id) return
-        console.log(project)
-        const collaborators = project.members.map(member => (member.user))
+        const contributors = project.members.map(member => (member.user))
         setProjectData({
             formTitle: "Modifier un projet",
-            title: project?.name,
+            name: project?.name,
             ctaLabel: "Enregistrer",
             description: project?.description,
             mode: false,
-            collaborators
+            contributors
         })
         setOpenProjectModal(true)
     }
@@ -232,9 +227,9 @@ export default function SingleProject() {
 
         // validation des données de formulaire
         const payload = {
-            name: projectData.title,
+            name: projectData.name,
             description: projectData.description,
-            contributors: projectData.collaborators.map(({ email }) => email)
+            contributors: projectData.contributors.map(({ email }) => email)
             };
         
         const zodValidation = projectSchema.safeParse(payload);
@@ -367,7 +362,6 @@ export default function SingleProject() {
     }
 
     const handleIaTaskDelete = (taskIndex: number) => {
-        console.log('suppr tache')
         setTasksIa((currentTasks) =>
             currentTasks.filter((_, index) => index !== taskIndex)
         )
@@ -429,9 +423,9 @@ export default function SingleProject() {
 
         title: "Modifier un projet",
         inputs : [ 
-            { label : "Titre", type : "text", name : "title", required: true },
+            { label : "Titre", type : "text", name : "name", required: true },
             { label : "Description", type: "text", name : "description", required: true },
-            { label : "Contributeurs", type: "collaborators", name: "collaborators", required: false }
+            { label : "Contributeurs", type: "collaborators", name: "contributors", required: false }
         ],
     } satisfies {
         title: string;
@@ -444,7 +438,7 @@ export default function SingleProject() {
             { label : "Titre", type : "text", name : "title", required: true },
             { label : "Description", type: "text", name : "description", required: true },
             { label : "Echéance", type: "date", name: "dueDate", required: true },
-            { label : "Assignée à :", type: "collaborators", name: "collaborators", required: false },
+            { label : "Assignée à :", type: "collaborators", name: "contributors", required: false },
             { label: "Statut", type: "status", name: "status", required: true, options: [ { label: "À faire", value: "TODO" }, { label: "En cours", value: "IN_PROGRESS" }, { label: "Terminée", value: "DONE" } ] }
         ],
     } satisfies {
@@ -492,7 +486,6 @@ export default function SingleProject() {
         loadTasks(token)
     }, [token])
     
-    console.log(project)
     return (
         
         <div className={styles.singleProjectWrapper}>

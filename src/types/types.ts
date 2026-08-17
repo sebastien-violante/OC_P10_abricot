@@ -179,7 +179,7 @@ export type TaskFormData = {
     title: string;
     description: string;
     mode: boolean;
-    collaborators: User[];
+    contributors: User[];
     dueDate: string;
     status: string;
     edit: boolean;
@@ -188,11 +188,11 @@ export type TaskFormData = {
 
 export type ProjectFormData = {
     formTitle?: string;
-    title: string;
+    name: string;
     ctaLabel: string;
     mode: boolean;
     description: string;
-    collaborators: User[];
+    contributors: User[];
 }
 
 // REPONSES API
@@ -236,6 +236,10 @@ export type ApiErrorDetail = {
 
 export type UpdateProjectResponse = {
     project: Project;
+}
+
+export type UpdateTaskResponse = {
+    task: Task;
 }
 
 export type UserResponse = {

@@ -32,7 +32,7 @@ export default function Projects() {
     const setProjectsInStore = useProjectStore((state) => state.setProjects)
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     
-    useEffect(() => {
+        useEffect(() => {
         const flashBag = localStorage.getItem("flashBag")
         if(flashBag) {
             const parsedFlashBag = JSON.parse(flashBag);
@@ -45,11 +45,11 @@ export default function Projects() {
     // Objet de récupération des données de formulaire
         const [formData, setFormData] = useState<ProjectFormData>({
             formTitle: "Créer un projet",
-            title: "",
+            name: "",
             ctaLabel: "Créer un projet",
             description: "",
             mode: true,
-            collaborators: [] 
+            contributors: [] 
         })
     
         // Objet de composition du formulaire
@@ -59,7 +59,7 @@ export default function Projects() {
                 {
                     label : "Titre", 
                     type : "text", 
-                    name : "title", 
+                    name : "name", 
                     required: true, 
                 },
                 {
@@ -71,8 +71,8 @@ export default function Projects() {
                 {
                     label : "Contributeurs", 
                     type: "collaborators", 
-                    name: "collaborators", 
-                    required: false
+                    name: "contributors", 
+                    required: true
                 }
             ],
         } satisfies {
@@ -94,9 +94,9 @@ export default function Projects() {
         }   
         // Création de la payload
         const payload = {
-            name: formData.title,
+            name: formData.name,
             description: formData.description,
-            contributors: formData.collaborators.map(({ email }) => email)
+            contributors: formData.contributors.map(({ email }) => email)
             };
         
         // Validation Zod
@@ -129,7 +129,7 @@ export default function Projects() {
 
     useEffect (() => {
             if(!token) {
-               /* router.push('/')*/
+               router.push('/')
                 return
             }
             const authToken = token;

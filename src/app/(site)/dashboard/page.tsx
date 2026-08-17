@@ -41,11 +41,11 @@ export default function Dashboard() {
     // Objet de récupération des données de formulaire
     const [formData, setFormData] = useState<ProjectFormData>({
         formTitle: "Créer un projet",
-        title: "",
+        name: "",
         ctaLabel: "Ajouter un projet",
         description: "",
         mode: true,
-        collaborators: [] 
+        contributors: [] 
     })
     const selectedTask = useSelectedTask((state) => state.task)
     const removeTask = useSelectedTask((state) => state.removeTask)
@@ -74,8 +74,8 @@ export default function Dashboard() {
             {
                 label : "Contributeurs", 
                 type: "collaborators", 
-                name: "collaborators", 
-                required: false
+                name: "contributors", 
+                required: true
             }
         ],
     } satisfies {
@@ -100,13 +100,11 @@ export default function Dashboard() {
         async function loadDashboard(token: string) {
             try {
                 const tasks = await fetchTasks({ token }) 
-                console.log(tasks) 
                 const user = await fetchProfile({ token })
                 localStorage.setItem('user', JSON.stringify(user) )   
                 const filteredTasksByDate = filterTasksByDate(tasks)
                 setTasksByDate(filteredTasksByDate);
                 const filteredTasksByStatus = filterTasksByStatus(tasks)
-                console.log(filteredTasksByStatus)
                 setTasksForKanban(filteredTasksByStatus);
             } catch (error) {
                 console.error(error);
@@ -123,7 +121,6 @@ export default function Dashboard() {
     }
      
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        console.log(formData)
         e.preventDefault();
          if (!token) {
             router.push('/');
@@ -131,9 +128,9 @@ export default function Dashboard() {
         }   
         // validation des données de formulaire
         const payload = {
-            name: formData.title,
+            name: formData.name,
             description: formData.description,
-            contributors: formData.collaborators.map(({ email }) => email)
+            contributors: formData.contributors.map(({ email }) => email)
             };
         
         const result = projectSchema.safeParse(payload);
