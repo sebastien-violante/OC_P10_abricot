@@ -1,12 +1,11 @@
 import { Token } from "@/types/types";
-import type { ApiResponse } from "./postRequest";
-
+import type { ApiResponse } from "@/types/types";
 
 type PutRequestProps<T> = {
     url: string;
     token?: Token;
     payload: T;
-};
+}
 
 /**
  * Effectue une requête en PUT à l'API
@@ -26,19 +25,19 @@ export default async function putRequest<TPayload, TResponse = unknown>({
     };
 
     if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
+        headers["Authorization"] = `Bearer ${token}`
     }
 
     const response = await fetch(url, {
         method: "PUT",
         headers,
         body: JSON.stringify(payload),
-    });
+    })
 
-    let result: ApiResponse<TResponse>;
+    let result: ApiResponse<TResponse>
 
     try {
-        result = await response.json();
+        result = await response.json()
     } catch {
         throw {
             status: response.status,
@@ -52,7 +51,7 @@ export default async function putRequest<TPayload, TResponse = unknown>({
             message: result.message || "Une erreur serveur est survenue.",
             error: result.error,
             details: result.details,
-        };
+        }
     }
 
     return result;

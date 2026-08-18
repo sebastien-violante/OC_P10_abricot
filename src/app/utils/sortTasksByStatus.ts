@@ -1,14 +1,21 @@
 import type { Task } from "@/types/types"
 import isCurrentMonthTask from "./isCurrentMonthTask";
 
-
-export default function filterTasksByStatus(tasks: Task[]) {
+/**
+ * Trie les tâches fournies en trois catégories selon leur statut
+ * @param {Object} tasks - tâches non triées
+ * @returns {Object} - tâches triées par catégorie
+*/
+export default function sortTasksByStatus(tasks: Task[]) {
+    
+    // Initialisation du retour
     const result = {
         todoTasks: [] as Task[],
         inProgressTasks: [] as Task[],
         doneTasks: [] as Task[],
     };
-
+    
+    // Remplissage des tableaux de catégorie
     for (const task of tasks) {
         if(isCurrentMonthTask(task.dueDate)) {
             switch (task.status) {

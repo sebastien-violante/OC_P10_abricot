@@ -1,17 +1,5 @@
 import { Token } from "@/types/types";
-
-type ApiErrorDetail = {
-    field: string;
-    message: string;
-};
-
-export type ApiResponse<T = unknown> = {
-    success: boolean;
-    message: string;
-    data?: T;
-    error?: string;
-    details?: ApiErrorDetail[];
-};
+import type { ApiResponse } from "@/types/types";
 
 type GetRequestProps = {
     url: string;
@@ -45,7 +33,7 @@ export default async function getRequest<TResponse = unknown>({
     let result: ApiResponse<TResponse>;
 
     try {
-        result = await response.json();
+        result = await response.json()
     } catch {
         throw {
             status: response.status,
@@ -59,7 +47,7 @@ export default async function getRequest<TResponse = unknown>({
             message: result.message || "Une erreur serveur est survenue.",
             error: result.error,
             details: result.details,
-        };
+        }
     }
 
     return result;

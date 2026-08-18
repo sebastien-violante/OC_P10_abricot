@@ -1,17 +1,5 @@
 import { Token } from "@/types/types";
-
-type ApiErrorDetail = { 
-    field: string; 
-    message: string; 
-} 
-
-export type ApiResponse<T = unknown> = { 
-    success: boolean; 
-    message: string; 
-    data?: T; 
-    error?: string; 
-    details?: ApiErrorDetail[]; 
-};
+import type { ApiResponse } from "@/types/types";
 
 type PostRequestProps<T> = {
     url: string;

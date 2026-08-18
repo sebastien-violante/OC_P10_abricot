@@ -7,8 +7,8 @@ import TaskStrip from "@/components/TaskStrip/TaskStrip";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { Task, KanbanLists, ProjectFormData, CustomInput, GetTasksData } from "@/types/types";
-import filterTasksByDate from "@/app/utils/filterTasksByDate";
-import filterTasksByStatus from "@/app/utils/filterTasksByStatus";
+import sortTasksByDate from "@/app/utils/sortTasksByDate";
+import sortTasksByStatus from "@/app/utils/sortTasksByStatus";
 import KanbanColumn from "@/components/KanbanColumn/KanbanColumn";
 import { useProfile } from '@/app/context/profileContext'
 import Modal from "@/components/Modal/Modal"
@@ -102,9 +102,9 @@ export default function Dashboard() {
                 const result = await getRequest<GetTasksData>({url, token})
                 const tasks = result.data?.tasks
                 if(tasks) {
-                    const filteredTasksByDate = filterTasksByDate(tasks)
+                    const filteredTasksByDate = sortTasksByDate(tasks)
                     setTasksByDate(filteredTasksByDate);
-                    const filteredTasksByStatus = filterTasksByStatus(tasks)
+                    const filteredTasksByStatus = sortTasksByStatus(tasks)
                     setTasksForKanban(filteredTasksByStatus);
                 }
             } catch (error) {

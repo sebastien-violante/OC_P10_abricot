@@ -11,7 +11,8 @@ import { AuthFormData, FlashMessage, LoginResponseData } from '../types/types'
 import { useProfile } from './context/profileContext'
 import Modal from '@/components/Modal/Modal'
 import { authSchema } from '@/types/schemas/authSchema'
-import postRequest, {ApiResponse} from "./utils/postRequest";
+import postRequest from "./utils/postRequest";
+import { ApiResponse } from "../types/types";
 
 export default function Login() {
     
