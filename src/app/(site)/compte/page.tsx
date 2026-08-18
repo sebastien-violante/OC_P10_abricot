@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useProfile } from '@/app/context/profileContext'
 import { useEffect, useState } from 'react'
 import styles from './page.module.css'
-import type { UserFormData, UserPasswordFormData, FlashMessage } from '@/types/types'
+import type { UserFormData, UserPasswordFormData, FlashMessage, UpdateProfileResponse } from '@/types/types'
 import { SubmitEvent } from 'react'
 import { userSchema } from '@/types/schemas/userSchema'
 import { userPasswordSchema } from '@/types/schemas/userPasswordSchema'
@@ -12,10 +12,12 @@ import Cookies from 'js-cookie'
 import putRequest from '@/app/utils/putRequest'
 import PasswordInput from '@/components/PasswordInput/PasswordInput'
 import deleteRequest from "@/app/utils/deleteRequest";
+import { useProfileStore } from "@/store/ProfileStore";
 
 export default function Account() {
     const [successMessage, setSuccessMessage] = useState("");
     const [errors, setErrors] = useState<z.ZodIssue[]>([])
+    const [apiResponse, setApiResponse] = useState("")
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     const [errorMessage, setErrorMessage] = useState("");
     const [passwordZoneOpen, setPasswordOpen] = useState(false)
@@ -48,24 +50,28 @@ export default function Account() {
     const firstNameErrors = getFieldErrors('firstName')
     const currentPasswordErrors = getFieldErrors('currentPassword')
     const newPasswordErrors = getFieldErrors('newPassword')
-
+    const profileInStore = useProfileStore((state) => state.profile)
+    const setProfileInStore = useProfileStore((state) => state.setProfile)
+    const updateProfileInStore = useProfileStore((state) => state.updateProfile)
 
     useEffect(() => {
         if(profile) {
-        setUserFormData({
-            lastName: profile.name.split(' ')[1],
-            firstName: profile.name.split(' ')[0],
-            email: profile.email
-            })
-        }
+            setUserFormData({
+                lastName: profile.name.split(' ')[1],
+                firstName: profile.name.split(' ')[0],
+                email: profile.email
+                })
+            }
+            setProfileInStore(profile!)
     }, [profile])
 
-    async function handleSubmit (event: SubmitEvent<HTMLFormElement>) {
+    async function changeData (event: SubmitEvent<HTMLFormElement>) {
         
         event.preventDefault()
         setErrors([])
+        setApiResponse("")
         // validation des données par Zod
-        const zodValidation = userPasswordSchema.safeParse(userPasswordFormData)
+        const zodValidation = userSchema.safeParse(userFormData)
         if(!zodValidation.success) {
             setErrors(zodValidation.error.issues)
             return;
@@ -80,13 +86,20 @@ export default function Account() {
         if(token) {
             try {
                 const url = "api/auth/profile"
-                const result = await putRequest({ url,token,payload })
+                const result = await putRequest<typeof payload, UpdateProfileResponse>({ url,token,payload })
+                if(result.data) {
+                   const newProfile = {
+                    id: result.data.user.id,
+                    email: result.data.user.email,
+                    name: result.data.user.name
+                    }
+                    setProfileInStore(newProfile)
+                }
+                
                 setFlashMessage({ status: true, message: "Le compte a bien été modifié", }) 
                 setTimeout(() => {setFlashMessage(null)}, 2000);
             } catch(error) {
-                const message = error instanceof Error ? error.message : "Une erreur est survenue";
-                setFlashMessage({ status: false, message: message }) 
-                setTimeout(() => {setFlashMessage(null)}, 2000);
+                setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
             }
         }
         
@@ -117,7 +130,7 @@ export default function Account() {
             if(token) {
                 try {
                     const url = "api/auth/password"
-                    const result = await deleteRequest({ url, token, payload })
+                    const result = await putRequest({ url, token, payload })
                     setFlashMessage({ status: true, message: "Le mot de passe a bien été modifié", }) 
                     setTimeout(() => {setFlashMessage(null)}, 2000);
                 } catch(error) {
@@ -140,10 +153,18 @@ export default function Account() {
         <div className={styles.accountWrapper}>
             <section className={styles.header}>
                 Mon compte
-                <span>{profile?.name}</span>
+                <span>{profileInStore?.name}</span>
             </section>
-            
-            <form className={styles.data} onSubmit={handleSubmit}>
+            {apiResponse && (
+                <p
+                    className={styles.apiResponse}
+                    role="status"
+                    aria-live="polite"
+                >
+                    {apiResponse}
+                </p>
+            )}
+            <form className={styles.data} onSubmit={changeData}>
                 <div className={styles.formGroup}>
                     <label htmlFor='lastName'>Nom</label>
                     <input 
@@ -184,7 +205,7 @@ export default function Account() {
                             )}
                 </div>
                 <div className={styles.cta}>
-                    <button type="submit">Modifier les informations</button>
+                    <button type="submit" className={styles.ctaButton}>Modifier les informations</button>
                 </div>
             </form>
             <button onClick={showPasswordZone}>Modifier le mot de passe</button>
@@ -216,7 +237,7 @@ export default function Account() {
                         setUserPasswordFormData={setUserPasswordFormData}
                     />
                     <div className={styles.cta}>
-                        <button type="submit">Modifier le mot de passe</button>
+                        <button type="submit" className={styles.ctaButton}>Modifier le mot de passe</button>
                     </div>
                 </form>
             }  

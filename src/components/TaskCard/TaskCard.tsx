@@ -1,18 +1,19 @@
 'use client'
 
 import styles from './TaskCard.module.css'
-import type { Task } from '@/types/types'
+import type { Task, FlashMessage } from '@/types/types'
 import TaskStatus from '../TaskStatus/TaskStatus'
 import { useState, useEffect, useRef } from 'react'
 import { useTaskStore } from '@/store/TaskStore'
 import { useCommentStore } from '@/store/CommentStore'
 import { useProfile } from '@/app/context/profileContext'
 import getInitials from '@/app/utils/getInitials'
-import addComment from '@/app/utils/addComment'
 import { useRouter } from "next/navigation"
 import { formatDateWithHour } from '@/app/utils/formatDate'
 import Modal from '../Modal/Modal'
 import deleteRequest from '@/app/utils/deleteRequest'
+import postRequest from '@/app/utils/postRequest'
+import type { AddCommentResponse } from '@/types/types'
 
 type TaskCardProps = {
     task: Task;
@@ -48,6 +49,7 @@ export default function TaskCard({
     const currentUserInitials = profile ? getInitials(profile.name) : ''
 
     const [openDeleteTaskModal, setOpenDeleteTaskModal] = useState(false)
+    const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
 
     /*
      * Références pour la gestion du focus.
@@ -166,18 +168,18 @@ export default function TaskCard({
             content: comment
         }
 
-        const response = await addComment({
-            token,
-            projectId,
-            taskId,
-            payload
-        })
-
-        const fetchResult = await response.json()
-
-        if (fetchResult.success) {
-            addCommentInStore(fetchResult.data.comment)
+        try {
+            const url= `/api/projects/${projectId}/tasks/${taskId}/comments`
+            const result = await postRequest<typeof payload, AddCommentResponse>({url, token, payload})
+            console.log(result)
+            if(result.data?.comment) {
+                addCommentInStore(result.data?.comment)
+            }
             form.reset()
+        } catch(error) {
+            const message = error instanceof Error ? error.message : "Une erreur est survenue";
+            setFlashMessage({ status: false, message: message }) 
+            setTimeout(() => {setFlashMessage(null)}, 2000);
         }
     }
 
@@ -569,7 +571,16 @@ export default function TaskCard({
                 </Modal>
 
             )}
-
+            {/* MESSAGE GLOBAL */}
+            {flashMessage && (
+                <div  
+                    className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-6 py-4 text-white shadow-lg`}
+                    role={ flashMessage.status ? 'status' : 'alert' } 
+                    aria-live={ flashMessage.status ? 'polite' : 'assertive' }
+                >
+                    {flashMessage.message}
+                </div>
+            )}
         </article>
     )
 }

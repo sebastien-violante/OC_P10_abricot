@@ -205,12 +205,24 @@ export type ApiResponse<T = unknown> = {
 };
 
 
+export type GetProfileData = {
+    user: Profile;
+}
+
+export type GetTasksData = {
+    tasks: Task[];
+}
+
 export type ProjectResponse = {
     success: boolean;
     message: string;
     data: {
         projects: Project[];
     }
+}
+
+export type AddCommentResponse = {
+    comment : Comment;
 }
 
 export type SingleProjectResponse = {
@@ -240,6 +252,10 @@ export type UpdateProjectResponse = {
 
 export type UpdateTaskResponse = {
     task: Task;
+}
+
+export type UpdateProfileResponse = {
+    user: User;
 }
 
 export type UserResponse = {

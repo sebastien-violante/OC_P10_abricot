@@ -32,13 +32,13 @@ export default function Projects() {
     const setProjectsInStore = useProjectStore((state) => state.setProjects)
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     
-        useEffect(() => {
-        const flashBag = localStorage.getItem("flashBag")
-        if(flashBag) {
-            const parsedFlashBag = JSON.parse(flashBag);
-            setFlashMessage({ status: parsedFlashBag.status, message: parsedFlashBag.message });
-            setTimeout(() => {setFlashMessage(null)}, 2000);
-             localStorage.removeItem("flashBag")
+    useEffect(() => {
+    const flashBag = localStorage.getItem("flashBag")
+    if(flashBag) {
+        const parsedFlashBag = JSON.parse(flashBag);
+        setFlashMessage({ status: parsedFlashBag.status, message: parsedFlashBag.message });
+        setTimeout(() => {setFlashMessage(null)}, 2000);
+            localStorage.removeItem("flashBag")
     }
     }, [])
    
@@ -86,7 +86,6 @@ export default function Projects() {
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        console.log(formData)
         e.preventDefault();
             if (!token) {
             router.push('/');
@@ -130,14 +129,14 @@ export default function Projects() {
     useEffect (() => {
             if(!token) {
                router.push('/')
-                return
+               return
             }
             const authToken = token;
             
             async function loadProjects() {
                 try {
+                    
                     const userProjects = await fetchProjects({ token: authToken })
-                    console.log(userProjects)
                     const projectsWithTasks = await Promise.all(
                         userProjects.map(async (project) => {
                             try {
@@ -159,7 +158,6 @@ export default function Projects() {
                             }
                         })
                     )
-                    console.log(projectsWithTasks);
                     setProjectsInStore(projectsWithTasks)
                 } catch (error) {
                     console.error(error);
@@ -171,7 +169,14 @@ export default function Projects() {
         loadProjects();
         }, [token]);
 
-
+    if (loading) {
+        return (
+            <div className={styles.loaderContainer}>
+                <div className={styles.spinner}></div>
+            </div>
+        )
+    }
+    
     return (
         <>
             <section className={styles.sectionWrapper}>

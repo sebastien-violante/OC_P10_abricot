@@ -62,8 +62,8 @@
     color: var(--dark-orange);
     cursor: pointer;
 }
-.accountWrapper .data button,
-.accountWrapper .password button
+.accountWrapper .data .ctaButton,
+.accountWrapper .password .ctaButton
 {
     text-align: center;
     text-decoration: none;
@@ -93,4 +93,8 @@
 .fieldError {
     color: red;
     font-size: 12px;
+}
+
+.apiResponse {
+    color: red;
 }

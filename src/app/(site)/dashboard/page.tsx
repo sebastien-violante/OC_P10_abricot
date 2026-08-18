@@ -6,9 +6,7 @@ import Banner from "@/components/Banner/Banner";
 import TaskStrip from "@/components/TaskStrip/TaskStrip";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
-import { Task, KanbanLists, ProjectFormData, CustomInput } from "@/types/types";
-import fetchTasks from "@/app/utils/fetchTasks";
-import fetchProfile from "@/app/utils/fetchProfile";
+import { Task, KanbanLists, ProjectFormData, CustomInput, GetTasksData } from "@/types/types";
 import filterTasksByDate from "@/app/utils/filterTasksByDate";
 import filterTasksByStatus from "@/app/utils/filterTasksByStatus";
 import KanbanColumn from "@/components/KanbanColumn/KanbanColumn";
@@ -21,6 +19,7 @@ import { useSelectedTask } from "@/store/SelectedTaskStore";
 import type { FlashMessage, Project } from "@/types/types";
 import postRequest from "@/app/utils/postRequest";
 import { useProjectStore } from '@/store/ProjectStore'
+import getRequest from "@/app/utils/getRequest";
 
 export default function Dashboard() {
     
@@ -99,13 +98,15 @@ export default function Dashboard() {
         }
         async function loadDashboard(token: string) {
             try {
-                const tasks = await fetchTasks({ token }) 
-                const user = await fetchProfile({ token })
-                localStorage.setItem('user', JSON.stringify(user) )   
-                const filteredTasksByDate = filterTasksByDate(tasks)
-                setTasksByDate(filteredTasksByDate);
-                const filteredTasksByStatus = filterTasksByStatus(tasks)
-                setTasksForKanban(filteredTasksByStatus);
+                const url = "/api/dashboard/assigned-tasks"
+                const result = await getRequest<GetTasksData>({url, token})
+                const tasks = result.data?.tasks
+                if(tasks) {
+                    const filteredTasksByDate = filterTasksByDate(tasks)
+                    setTasksByDate(filteredTasksByDate);
+                    const filteredTasksByStatus = filterTasksByStatus(tasks)
+                    setTasksForKanban(filteredTasksByStatus);
+                }
             } catch (error) {
                 console.error(error);
             } finally {

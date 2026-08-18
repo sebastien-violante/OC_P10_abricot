@@ -1,10 +1,9 @@
 'use client'
 
 import styles from './page.module.css'
-import fetchProject from '@/app/utils/fetchProject'
 import Cookies from "js-cookie"
 import { useEffect, useState, useMemo } from 'react'
-import { type Task, type CustomInput, type TaskFormData, ProjectFormData } from '@/types/types'
+import { type Task, type CustomInput, type TaskFormData, ProjectFormData, GetTasksData } from '@/types/types'
 import TaskCard from '@/components/TaskCard/TaskCard'
 import Modal from '@/components/Modal/Modal'
 import Form from '@/components/Form/Form'
@@ -21,7 +20,7 @@ import { projectSchema } from '@/types/schemas/projectSchema'
 import putRequest from '@/app/utils/putRequest'
 import postRequest from '@/app/utils/postRequest'
 import IaTaskCard from '@/components/IaTaskCard/IaTaskCard'
-import { notFound } from "next/navigation";
+import getRequest from '@/app/utils/getRequest'
 
 export default function SingleProject() {
     
@@ -33,13 +32,11 @@ export default function SingleProject() {
     const project = useProjectStore((state) =>
         state.projects.find((p) => p.id === projectId)
     )
-    if (!project) {
-        notFound();
-    }
+    
     const updateProject = useProjectStore(
         (state) => state.updateProject
     )
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiResponse, setApiResponse] = useState<string>("");
     const tasksInStore = useTaskStore((state) => state.tasks)
@@ -327,7 +324,7 @@ export default function SingleProject() {
 
             const data = JSON.parse(result.data.response);
 
-            // On AJOUTE les nouvelles tâches aux tâches existantes
+            // ajout des nouvelles tâches aux tâches existantes
             setTasksIa((currentTasks) => [
                 ...currentTasks,
                 ...data.tasks,
@@ -478,14 +475,28 @@ export default function SingleProject() {
         const id = projectId
         async function loadTasks(token: string) {
             try {
-                const tasks = await fetchProject({id, token})
-                setTasksInStore(tasks)
+                const url = `/api/projects/${id}/tasks`
+                const result = await getRequest<GetTasksData>({url, token})
+                const tasks = result.data?.tasks
+                if(tasks) setTasksInStore(tasks)
             } catch (error) {
                 console.error(error);
-            }         }
+            } finally {
+                setLoading(false)
+            }        
+        }
         loadTasks(token)
     }, [token])
     
+
+    if (loading) {
+        return (
+            <div className={styles.loaderContainer}>
+                <div className={styles.spinner}></div>
+            </div>
+        )
+    }
+
     return (
         
         <div className={styles.singleProjectWrapper}>
@@ -537,7 +548,7 @@ export default function SingleProject() {
             <section className={styles.main}>
                <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
-                    Contributeurs <span>{(project?.members.filter(member => member.user.id !== project?.owner.id).length ?? 0) + 1} {project?.members.length === 0 ? "personne" : "personnes"}</span>
+                    Contributeurs <span>{(project?.members.filter(member => member.user.id !== project?.owner.id).length ?? 0) + 1} {(project?.members.length === 0 || project?.members.length === 1)? "personne" : "personnes"}</span>
                 </div>
                 <div className={styles.detailsContributors}>
                     <div className={styles.idTag}>
