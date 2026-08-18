@@ -1,8 +1,8 @@
 import styles from './CollaboratorSelect.module.css'
 import { useState } from "react";
 import Cookies from "js-cookie";
-import fetchUsers from '@/app/utils/fetchUsers';
-import type { User } from '@/types/types';
+import { GetUsersData, type User } from '@/types/types';
+import getRequest from '@/app/utils/getRequest';
 
 type CollaboratorSelectProps = {
     label: string;
@@ -19,25 +19,23 @@ export default function CollaboratorSelect({label, value, mode, onChange}: Colla
     const [showList, setShowList] = useState(false)
 
     async function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
+        
         const searchValue = e.target.value;
-
         setSearch(searchValue);
-
         if (searchValue.length < 2) {
             setSuggestions([]);
             return;
         }
-
         if (!token) return;
-
-        const users = await fetchUsers({
-            token,
-            value: searchValue
-        });
-
-        setSuggestions(users);
+        try {
+            const url = `/api/users/search?query=${searchValue}`
+            const result = await getRequest<GetUsersData>({url, token})
+            const users = result.data?.users
+            if(users) setSuggestions(users);
+        } catch(error) {
+            console.error(error)
+        }
     }
-
 
     function addCollaborator(user: User) {
 

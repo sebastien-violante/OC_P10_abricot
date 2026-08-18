@@ -4,18 +4,18 @@ import styles from './page.module.css';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import fetchProjects   from "@/app/utils/fetchProjects";
 import fetchProjectTasks from '@/app/utils/fetchProjectTasks';
 import { Project } from "@/types/types";
 import ProjectCard from "@/components/ProjectCard/ProjectCard";
 import Banner from '@/components/Banner/Banner';
 import { CustomInput } from '@/types/types';
-import type { ProjectFormData, FlashMessage } from '@/types/types';
+import type { ProjectFormData, FlashMessage, GetProjectsData } from '@/types/types';
 import { projectSchema } from "@/types/schemas/projectSchema";
 import Modal from '@/components/Modal/Modal';
 import Form from '@/components/Form/Form';
 import postRequest from '@/app/utils/postRequest';
 import { useProjectStore } from '@/store/ProjectStore'
+import getRequest from '@/app/utils/getRequest';
 
 export default function Projects() {
     
@@ -135,10 +135,12 @@ export default function Projects() {
             
             async function loadProjects() {
                 try {
-                    
-                    const userProjects = await fetchProjects({ token: authToken })
-                    const projectsWithTasks = await Promise.all(
-                        userProjects.map(async (project) => {
+                    const url="/api/projects"
+                    const result =  await getRequest<GetProjectsData>({url, token})
+                    const projects = result.data?.projects
+                    if(projects) {
+                        const projectsWithTasks = await Promise.all(
+                        projects.map(async (project) => {
                             try {
                             const tasks = await fetchProjectTasks({
                                 id: project.id,
@@ -159,6 +161,7 @@ export default function Projects() {
                         })
                     )
                     setProjectsInStore(projectsWithTasks)
+                    }                    
                 } catch (error) {
                     console.error(error);
                 } finally {

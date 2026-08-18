@@ -213,6 +213,14 @@ export type GetTasksData = {
     tasks: Task[];
 }
 
+export type GetProjectsData = {
+    projects: Project[];
+}
+
+export type GetUsersData = {
+    users: User[];
+}
+
 export type ProjectResponse = {
     success: boolean;
     message: string;
