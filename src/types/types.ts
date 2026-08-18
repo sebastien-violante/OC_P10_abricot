@@ -89,7 +89,7 @@ export type Task = {
     project?: Project;
 }
 
-export type TaskIa = Pick<Task, "title" | "description">;
+export type TaskIa = Pick<Task, "title" | "description" | "dueDate">;
 
 export type TasksResponse = {
     success: boolean;

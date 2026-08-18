@@ -4,12 +4,11 @@ import styles from './page.module.css';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import fetchProjectTasks from '@/app/utils/fetchProjectTasks';
 import { Project } from "@/types/types";
 import ProjectCard from "@/components/ProjectCard/ProjectCard";
 import Banner from '@/components/Banner/Banner';
 import { CustomInput } from '@/types/types';
-import type { ProjectFormData, FlashMessage, GetProjectsData } from '@/types/types';
+import type { ProjectFormData, FlashMessage, GetProjectsData, GetTasksData } from '@/types/types';
 import { projectSchema } from "@/types/schemas/projectSchema";
 import Modal from '@/components/Modal/Modal';
 import Form from '@/components/Form/Form';
@@ -131,8 +130,7 @@ export default function Projects() {
                router.push('/')
                return
             }
-            const authToken = token;
-            
+                        
             async function loadProjects() {
                 try {
                     const url="/api/projects"
@@ -142,15 +140,13 @@ export default function Projects() {
                         const projectsWithTasks = await Promise.all(
                         projects.map(async (project) => {
                             try {
-                            const tasks = await fetchProjectTasks({
-                                id: project.id,
-                                token: authToken,
-                            });
-
-                            return {
-                                ...project,
-                                tasks,
-                            };
+                                const url = `/api/projects/${project.id}/tasks`
+                                const result = await getRequest<GetTasksData>({url, token})
+                                const tasks = result.data?.tasks
+                                return {
+                                    ...project,
+                                    tasks,
+                                };
                             } catch (error) {
                             // Le projet n'a pas de tâches (ou autre erreur à gérer)
                             return {

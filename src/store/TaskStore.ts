@@ -21,7 +21,9 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   addTask: (task) =>
     set((state) => ({
-      tasks: [...state.tasks, task],
+      tasks: [...state.tasks, task].sort(
+        (a,b) =>  new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()
+      ),
     })),
 
   removeTask: (taskId) =>

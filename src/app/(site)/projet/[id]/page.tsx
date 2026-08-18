@@ -190,10 +190,6 @@ export default function SingleProject() {
             
     }
 
-    const searchTask = () => {
-        console.log('search')
-    }
-
     const returnToProjects = () => {
         router.push("/projets");
     }
@@ -366,9 +362,11 @@ export default function SingleProject() {
 
     const handleSaveIaTasks = async () => {
         tasksIa.forEach(async (task) => {
+            console.log("TASKIA", task)
             // par défaut, la date d'échéance est fixée à 15 jours après l'enregistrement
             const date = new Date();
             date.setDate(date.getDate() + 15);
+            task.dueDate = date.toISOString();
             const payload = {
                 title: task.title,
                 description: task.description,
@@ -385,9 +383,9 @@ export default function SingleProject() {
                 setFlashMessage({status: true, message: data.message})
                 setTimeout(() => {
                     setFlashMessage(null)
-                }, 2000);    
+                }, 2000); 
+                addTaskInStore(task) 
             } catch(error) {
-            
                 const apiError = error as { 
                     status?: number; 
                     message?: string; 
@@ -412,7 +410,6 @@ export default function SingleProject() {
             }    
 
         })
-        setTasksInStore(tasksIa)
         setTasksIa([])
     }
 
