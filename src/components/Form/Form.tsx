@@ -184,6 +184,7 @@ export default function Form<T extends Record<string, any>>({
                                                     [input.name]: value
                                                 }))
                                             }
+                                            required={input.required}
                                         />
                                         {error && (
                                                 <p

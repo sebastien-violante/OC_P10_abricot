@@ -9,9 +9,10 @@ type CollaboratorSelectProps = {
     value: User[];
     mode: boolean;
     onChange: (value: User[]) => void;
+    required: boolean;
 }
 
-export default function CollaboratorSelect({label, value, mode, onChange}: CollaboratorSelectProps) {
+export default function CollaboratorSelect({label, value, mode, onChange, required}: CollaboratorSelectProps) {
     const [search, setSearch] = useState("");
     const [suggestions, setSuggestions] = useState<User[]>([]);
     const token = Cookies.get('token');
@@ -67,7 +68,14 @@ export default function CollaboratorSelect({label, value, mode, onChange}: Colla
 
     return (
         <div className={styles.formGroup}>
-            <label htmlFor='collaborator-search'>{label}</label>
+            <label htmlFor='collaborator-search'>
+                {label}
+                {required && (
+                    <span aria-hidden="true">
+                        {' *'}
+                    </span>
+                )}
+            </label>
             { chooseMode && (
                 <>
                 {value.map(user => (
