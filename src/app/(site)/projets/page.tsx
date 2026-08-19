@@ -82,8 +82,8 @@ export default function Projects() {
         }   
         // Création de la payload
         const payload = {
-            name: formData.name,
-            description: formData.description,
+            name: formData.name.charAt(0).toUpperCase()+formData.name.slice(1),
+            description: formData.description.charAt(0).toUpperCase()+formData.description.slice(1),
             contributors: formData.contributors.map(({ email }) => email)
             };
         
