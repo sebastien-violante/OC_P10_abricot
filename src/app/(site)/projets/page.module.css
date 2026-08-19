@@ -38,6 +38,18 @@
     animation: spin 0.8s linear infinite;
 }
 
+.warningMessage {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.warningMessage img {
+    width: 30px;
+    height: 30px;
+}
+
 @media (max-width: 1023px) {
     .sectionWrapper {
         margin: 90px 20px;

@@ -4,6 +4,10 @@
     gap: 16px;
 }
 
+.statusSelect legend {
+    margin-bottom: 15px;
+}
+
 .container {
     display: flex;
     gap: 12px;

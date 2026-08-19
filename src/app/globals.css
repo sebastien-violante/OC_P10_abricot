@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --dark-orange: #B84D0A;
+  --dark-orange: rgb(184, 77, 10);
   --light-orange: #FFF3EB;
   --warning-orange:#8F5A00; 
   --warning-orange-light: #FFF0D7;

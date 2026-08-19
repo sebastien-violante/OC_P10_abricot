@@ -180,6 +180,12 @@ export default function Projects() {
                 </Banner>
             </section>
             <div className={styles.projectsWrapper}>
+                {projectsInStore?.length===0 && (
+                        <span className={styles.warningMessage}>
+                            <img src="/pictures/static/warning-orange.svg" alt=""/>
+                            <p>Vous n&apos;avez pas encore de projet. Créez-en un en cliquant sur le bouton &quot;+ Créer un projet&quot;</p>
+                        </span> 
+                )} 
                  { projectsInStore?.map((project) => (
                     <ProjectCard key={project.id} project={project} />
                 ))}

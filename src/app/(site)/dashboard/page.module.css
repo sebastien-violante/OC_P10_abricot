@@ -137,6 +137,18 @@
     height: 50px;
 }
 
+.warningMessage {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.warningMessage img {
+    width: 30px;
+    height: 30px;
+}
 
 @media (max-width: 1023px) {
     .sectionWrapper, 

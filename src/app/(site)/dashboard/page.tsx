@@ -242,7 +242,12 @@ export default function Dashboard() {
                             aria-hidden="true"/>
                     </div>
                 </header>
-                
+                {filteredTasks?.length===0 && (
+                        <span className={styles.warningMessage}>
+                            <img src="/pictures/static/warning-orange.svg" alt=""/>
+                            <p>Vous n&apos;avez aucune tâche en cours ou à faire.</p>
+                        </span> 
+                    )} 
                 {filteredTasks?.map((task) => (
                     <TaskStrip key={task.id} task={task} mode={"list"}/>      
                 ))}
@@ -253,13 +258,23 @@ export default function Dashboard() {
         <section 
             className={styles.kanbanDisplay}>
             {kanban && (
-                <section 
-                    className={styles.kanbanWrapper}
-                     aria-label="Tableau Kanban des tâches">
-                    <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []} mode={"kanban"}/>
-                    <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []} mode={"kanban"}/>
-                    <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []} mode={"kanban"}/>
-                </section>
+                <>
+                    {(tasksForKanban?.todoTasks.length===0 && tasksForKanban?.inProgressTasks.length===0 && tasksForKanban?.doneTasks.length===0) && (
+                            <span className={styles.warningMessage}>
+                                <img src="/pictures/static/warning-orange.svg" alt=""/>
+                                <p>Vous n&apos;avez aucune tâche en cours ou à faire.</p>
+                            </span> 
+                    )} 
+                    <section 
+                        className={styles.kanbanWrapper}
+                        aria-label="Tableau Kanban des tâches"
+                    >
+                        <KanbanColumn title={"A faire"} tasks={tasksForKanban?.todoTasks ?? []} mode={"kanban"}/>
+                        <KanbanColumn title={"En cours"} tasks={tasksForKanban?.inProgressTasks ?? []} mode={"kanban"}/>
+                        <KanbanColumn title={"Terminées"} tasks={tasksForKanban?.doneTasks ?? []} mode={"kanban"}/>
+                    </section>
+                </>
+                
             )}
         </section>
                 

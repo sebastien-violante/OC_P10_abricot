@@ -599,7 +599,13 @@ export default function SingleProject() {
                     </div>
                 </section>
                 <section className={styles.tasksWrapper}>
-                    {filteredTasks?.length===0 && (<p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>)}  
+                    {filteredTasks?.length===0 && (
+                        <span className={styles.warningMessage}>
+                            <img src="/pictures/static/warning-orange.svg" alt=""/>
+                            <p>Le projet ne comporte pas encore de tâches. Créez-en une en cliquant sur le bouton &quot;Créer une tâche&quot;</p>
+                        </span> 
+                    )}   
+                        
                     {filteredTasks?.map((task, index)=>(
                         <div className={styles.taskWrapper} key={index}>
                             <TaskCard  task={task} projectId={projectId} token={token} editCurrentTask={editCurrentTask} ctaAvaliable={ctaAvaliable}/> 
