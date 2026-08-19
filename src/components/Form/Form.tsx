@@ -156,6 +156,7 @@ export default function Form<T extends Record<string, any>>({
                                                 aria-describedby={
                                                     error ? errorId : undefined
                                                 }
+                                                min={new Date().toISOString().split("T")[0]}
                                             />
                                         </div>
 

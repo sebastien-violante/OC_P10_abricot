@@ -139,8 +139,8 @@ export default function SingleProject() {
 
         // Création de la payload en fonction du formData
         const payload = {
-            title: taskData.title,
-            description: taskData.description,
+            title: taskData.title.charAt(0).toUpperCase()+taskData.title.slice(1),
+            description: taskData.description.charAt(0).toUpperCase()+taskData.description.slice(1),
             dueDate: taskData.dueDate,
             assigneeIds: taskData.contributors.map(({ id }) => id),
             status: taskData.status
@@ -243,8 +243,8 @@ export default function SingleProject() {
 
         // validation des données de formulaire
         const payload = {
-            name: projectData.name,
-            description: projectData.description,
+            name: projectData.name.charAt(0).toUpperCase()+projectData.name.slice(1),
+            description: projectData.description.charAt(0).toUpperCase()+projectData.description.slice(1),
             contributors: projectData.contributors.map(({ email }) => email)
             };
         
