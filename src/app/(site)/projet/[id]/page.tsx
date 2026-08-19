@@ -4,7 +4,7 @@ import styles from './page.module.css'
 
 import Cookies from "js-cookie"
 import { useEffect, useState, useMemo } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, notFound } from 'next/navigation'
 
 import type { Task, CustomInput, TaskFormData, ProjectFormData, GetTasksData, FlashMessage, UpdateProjectResponse, UpdateTaskResponse,  TaskIa} from '@/types/types'
 
@@ -36,6 +36,9 @@ export default function SingleProject() {
     const router = useRouter()
     const { profile } = useProfile()
     const project = useProjectStore((state) => state.projects.find((p) => p.id === projectId))
+    if (!project) {
+    notFound();
+  }
     const updateProject = useProjectStore((state) => state.updateProject)
     const tasksInStore = useTaskStore((state) => state.tasks)
     const setTasksInStore = useTaskStore((state) => state.setTasks)
@@ -111,6 +114,9 @@ export default function SingleProject() {
         title: string;
         inputs: CustomInput[];
     }
+
+    // CALCUL DU NOMBRE DE CONTRIBUTEURS
+    const contributors = (project?.members.filter(member => member.user.id !== project?.owner.id).length ?? 0) + 1
 
     // FONCTIONS TACHES MANUELLES /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -446,7 +452,8 @@ export default function SingleProject() {
             return matchesSearch && matchesStatus;
         });
     }, [tasksInStore, debouncedSearch, selectedStatus]);
-       
+      
+    
     // CHARGEMENT DE LA PAGE
     useEffect (() => {
         if(!token) {
@@ -477,7 +484,6 @@ export default function SingleProject() {
             </div>
         )
     }
-
     return (
         
         <div className={styles.singleProjectWrapper}>
@@ -527,7 +533,7 @@ export default function SingleProject() {
             <section className={styles.main}>
                <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
-                    Contributeurs <span>{(project?.members.filter(member => member.user.id !== project?.owner.id).length ?? 0) + 1} {(project?.members.length === 0 || project?.members.length === 1)? "personne" : "personnes"}</span>
+                    Contributeurs <span>{(project?.members.filter(member => member.user.id !== project?.owner.id).length ?? 0) + 1} { contributors === 1 ? "personne" : "personnes"}</span>
                 </div>
                 <div className={styles.detailsContributors}>
                     <div className={styles.idTag}>
