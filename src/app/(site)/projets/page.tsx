@@ -4,33 +4,39 @@ import styles from './page.module.css';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { Project } from "@/types/types";
+
+import type { Project, ProjectFormData, FlashMessage, GetProjectsData, GetTasksData, CustomInput } from '@/types/types';
+
+import getRequest from '@/app/utils/getRequest';
+import postRequest from '@/app/utils/postRequest';
+
+import { useProjectStore } from '@/store/ProjectStore'
+
 import ProjectCard from "@/components/ProjectCard/ProjectCard";
 import Banner from '@/components/Banner/Banner';
-import { CustomInput } from '@/types/types';
-import type { ProjectFormData, FlashMessage, GetProjectsData, GetTasksData } from '@/types/types';
-import { projectSchema } from "@/types/schemas/projectSchema";
 import Modal from '@/components/Modal/Modal';
 import Form from '@/components/Form/Form';
-import postRequest from '@/app/utils/postRequest';
-import { useProjectStore } from '@/store/ProjectStore'
-import getRequest from '@/app/utils/getRequest';
+
+import { projectSchema } from "@/types/schemas/projectSchema";
 
 export default function Projects() {
     
     const router = useRouter()
     const token = Cookies.get('token')
-    const [loading, setLoading] = useState(true)
-    const projectsInStore = useProjectStore((state) => state.projects)
     const title = "Mes projets"
     const subtitle = "Gérer mes projets"
+
+    const [loading, setLoading] = useState(true)
     const [isOpen, setIsOpen] = useState(false)
     const [apiResponse, setApiResponse] = useState("")
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const addProjectInStore = useProjectStore((state) => state.addProject)
-    const setProjectsInStore = useProjectStore((state) => state.setProjects)
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
     
+    const projectsInStore = useProjectStore((state) => state.projects)
+    const addProjectInStore = useProjectStore((state) => state.addProject)
+    const setProjectsInStore = useProjectStore((state) => state.setProjects)
+    
+    // Chargement d'un message flash : nécessaire après suppression d'un projet sur la page projet/id et retour sur la page /projets
     useEffect(() => {
     const flashBag = localStorage.getItem("flashBag")
     if(flashBag) {
@@ -41,50 +47,34 @@ export default function Projects() {
     }
     }, [])
    
-    // Objet de récupération des données de formulaire
-        const [formData, setFormData] = useState<ProjectFormData>({
-            formTitle: "Créer un projet",
-            name: "",
-            ctaLabel: "Créer un projet",
-            description: "",
-            mode: true,
-            contributors: [] 
-        })
-    
-        // Objet de composition du formulaire
-        const data = {
-            title: "Créer un projet",
-            inputs : [
-                {
-                    label : "Titre", 
-                    type : "text", 
-                    name : "name", 
-                    required: true, 
-                },
-                {
-                    label : "Description", 
-                    type: "text", 
-                    name : "description", 
-                    required: true
-                },
-                {
-                    label : "Contributeurs", 
-                    type: "collaborators", 
-                    name: "contributors", 
-                    required: true
-                }
-            ],
-        } satisfies {
-            title: string;
-            inputs: CustomInput[];
-        };
+    // DONNEES DE FORMULAIRE
+    const [formData, setFormData] = useState<ProjectFormData>({
+        formTitle: "Créer un projet",
+        name: "",
+        ctaLabel: "Créer un projet",
+        description: "",
+        mode: true,
+        contributors: [] 
+    })
+            
+    const data = {
+        title: "Créer un projet",
+        inputs : [
+            {label : "Titre", type : "text", name : "name", required: true},
+            {label : "Description", type: "text", name : "description", required: true},
+            {label : "Contributeurs", type: "collaborators", name: "contributors", required: true}
+        ],
+    } satisfies {
+        title: string;
+        inputs: CustomInput[];
+    };
     
     
-    function handleClick() {
+    function handleCreateProject() {
         setIsOpen(true)
     }
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    async function createProject(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
             if (!token) {
             router.push('/');
@@ -124,7 +114,7 @@ export default function Projects() {
         } 
     }
     
-
+    // DEBOUNCE
     useEffect (() => {
             if(!token) {
                router.push('/')
@@ -183,7 +173,7 @@ export default function Projects() {
                     <button 
                         className={styles.createProjectBtn}
                         type="button"
-                        onClick={handleClick}
+                        onClick={handleCreateProject}
                         aria-haspopup="dialog">
                             + Créer un projet
                     </button>
@@ -196,7 +186,7 @@ export default function Projects() {
             </div>
            {isOpen && (
                 <Modal titleId="createProject" onClose={()=>setIsOpen(false)}>
-                    <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} errors={errors} apiResponse={apiResponse}></Form>
+                    <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={createProject} errors={errors} apiResponse={apiResponse}></Form>
                 </Modal>
             )}
             {flashMessage && (
