@@ -10,32 +10,33 @@ type TaskStore = {
   removeTask: (id: string) => void
 }
 
+const sortTasksByDueDate = (tasks: Task[]) =>
+    [...tasks].sort(
+        (a, b) =>
+            new Date(a.dueDate!).getTime() -
+            new Date(b.dueDate!).getTime()
+    );
+
 export const useTaskStore = create<TaskStore>((set, get) => ({
-  tasks: [],
+    tasks: [],
 
-  setTasks: (tasks) => set({ tasks }),
+    setTasks: (tasks) => set({tasks: sortTasksByDueDate(tasks)}),
 
-  getTaskById: (id) => {
-    return get().tasks.find((task) => task.id === id)
-  },
+    getTaskById: (id) => {return get().tasks.find((task) => task.id === id)},
 
-  addTask: (task) =>
-    set((state) => ({
-      tasks: [...state.tasks, task].sort(
-        (a,b) =>  new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()
-      ),
-    })),
+    addTask: (task) =>
+        set((state) => ({tasks: sortTasksByDueDate([...state.tasks, task])})),
 
-  removeTask: (taskId) =>
-    set((state) => ({
-      tasks: state.tasks.filter((task) => task.id !== taskId)
-    })),
+    removeTask: (taskId) => set((state) => ({ tasks: state.tasks.filter((task) => task.id !== taskId)})),
 
-  updateTask: (updatedTask) =>
-    set((state) => ({
-      tasks: state.tasks.map((task) =>
-        task.id === updatedTask.id ? updatedTask : task
-      ),
-    })),
-
+    updateTask: (updatedTask) =>
+        set((state) => ({
+            tasks: sortTasksByDueDate(
+                state.tasks.map((task) =>
+                    task.id === updatedTask.id
+                        ? updatedTask
+                        : task
+                )
+            ),
+        })),
 }))

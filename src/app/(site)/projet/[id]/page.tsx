@@ -385,47 +385,30 @@ export default function SingleProject() {
     }
 
     async  function saveIaTasks() {
-        tasksIa.forEach(async (task) => {
-            // par défaut, la date d'échéance est fixée à 15 jours après l'enregistrement
-            const date = new Date();
-            date.setDate(date.getDate() + 15);
-            task.dueDate = date.toISOString();
-            const payload = {
-                title: task.title,
-                description: task.description,
-                dueDate: date
+        try {
+            for(const task of tasksIa) {
+                // par défaut, la date d'échéance est fixée à 15 jours après l'enregistrement
+                const date = new Date()
+                date.setDate(date.getDate() + 15)
+
+                const payload = {
+                    title: task.title,
+                    description: task.description,
+                    dueDate: date
+                }
+                const url = `/api/projects/${projectId}/tasks`
+                const result = await postRequest<typeof payload, UpdateTaskResponse>({url, token, payload})
+                if(result.data) {
+                    addTaskInStore(result.data.task) 
+                }
             }
-
-            // Envoi de la requête
-            try {
-                const data = await postRequest({
-                    url: `/api/projects/${projectId}/tasks`,
-                    payload,
-                    token: token
-                })
-                setFlashMessage({status: true, message: data.message})
-                setTimeout(() => {
-                    setFlashMessage(null)
-                }, 2000); 
-                addTaskInStore(task) 
-            } catch(error) {
-                const apiError = error as { 
-                    status?: number; 
-                    message?: string; 
-                    details?: { 
-                        field: string; 
-                        message: string; }[]; 
-                }; 
-                
-                // Erreur de validation API 
-                if (apiError.status === 400) { 
-                    setFlashMessage({ status: false, message: "Données invalides.", })
-                    return; 
-                } 
-            }    
-
-        })
-        setTasksIa([])
+            setTasksIa([])
+            setFlashMessage({status: true, message: "les tâches générées par IA a été correctement enregistrées"})
+            setTimeout(() => {setFlashMessage(null)}, 2000); 
+        } catch(error) {
+            setFlashMessage({status: false, message: error instanceof Error ? error.message : "Une erreur est survenue."})
+        }
+        
     }
 
        
@@ -613,7 +596,7 @@ export default function SingleProject() {
                     )}   
                         
                     {filteredTasks?.map((task, index)=>(
-                        <div className={styles.taskWrapper} key={index}>
+                        <div className={styles.taskWrapper} key={task.id}>
                             <TaskCard  task={task} projectId={projectId} token={token} editCurrentTask={editCurrentTask} ctaAvaliable={ctaAvaliable}/> 
                         </div>
                     ))}
