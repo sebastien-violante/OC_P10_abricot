@@ -44,7 +44,7 @@ export default function TaskCard({
 
     const [displayComments, setDisplayComments] = useState(false)
     const [cta, setCta] = useState(false)
-
+    const ctaRef = useRef<HTMLDivElement | null>(null)
     const { profile } = useProfile()
     const currentUserInitials = profile ? getInitials(profile.name) : ''
 
@@ -182,6 +182,24 @@ export default function TaskCard({
             setTimeout(() => {setFlashMessage(null)}, 2000);
         }
     }
+    
+    // Gestion de la fermeture de menu modifier/supprimer
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (
+                ctaRef.current &&
+                !ctaRef.current.contains(event.target as Node)
+            ) {
+                setCta(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [])
 
     return (
         <article
@@ -219,7 +237,7 @@ export default function TaskCard({
                 </div>
 
                 {ctaAvaliable && (
-                    <div className={styles.cta}>
+                    <div className={styles.cta} ref={ctaRef}>
 
                         <button
                             type="button"
