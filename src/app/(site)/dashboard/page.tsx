@@ -1,127 +1,88 @@
 'use client'
 
-import Cookies from "js-cookie"
 import styles from './page.module.css'
-import Banner from "@/components/Banner/Banner";
-import TaskStrip from "@/components/TaskStrip/TaskStrip";
+import Cookies from "js-cookie"
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
-import { Task, KanbanLists, ProjectFormData, CustomInput, GetTasksData } from "@/types/types";
+
+import type { FlashMessage, Project, Task, KanbanLists, ProjectFormData, CustomInput, GetTasksData } from "@/types/types";
+
 import sortTasksByDate from "@/app/utils/sortTasksByDate";
 import sortTasksByStatus from "@/app/utils/sortTasksByStatus";
-import KanbanColumn from "@/components/KanbanColumn/KanbanColumn";
+import postRequest from "@/app/utils/postRequest";
+import getRequest from "@/app/utils/getRequest";
+
 import { useProfile } from '@/app/context/profileContext'
+import { useSelectedTask } from "@/store/SelectedTaskStore";
+import { useProjectStore } from '@/store/ProjectStore'
+
+import Banner from "@/components/Banner/Banner";
+import TaskStrip from "@/components/TaskStrip/TaskStrip";
+import KanbanColumn from "@/components/KanbanColumn/KanbanColumn";
 import Modal from "@/components/Modal/Modal"
-import { projectSchema } from "@/types/schemas/projectSchema";
 import Form from "@/components/Form/Form";
 import TaskCard from "@/components/TaskCard/TaskCard";
-import { useSelectedTask } from "@/store/SelectedTaskStore";
-import type { FlashMessage, Project } from "@/types/types";
-import postRequest from "@/app/utils/postRequest";
-import { useProjectStore } from '@/store/ProjectStore'
-import getRequest from "@/app/utils/getRequest";
+
+import { projectSchema } from "@/types/schemas/projectSchema";
 
 export default function Dashboard() {
     
     const router = useRouter()
     const token = Cookies.get('token')
-    const [tasksByDate, setTasksByDate] = useState<Task[] | null>(null)
-    const [tasksForKanban, setTasksForKanban] = useState<KanbanLists | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [kanban, setKanban] = useState(false)
     const { profile, setProfile } = useProfile()
-    const [errors, setErrors] = useState<Record<string, string>>({});
     const title="Tableau de bord"
     const subtitle=`Bonjour ${profile?.name}, voici un aperçu de vos projets et tâches`
-    // Etat fermé/ouvert des modales
-    const [createProjectForm, setCreateProjectForm] = useState(false)
-    //const [displayTask, setDisplayTask] = useState(false)
-    const [apiResponse, setApiResponse] = useState("")
+
+    // STATES ///////////////////////////////////////////////////////////////////////////
+    const [tasksByDate, setTasksByDate] = useState<Task[] | null>(null) // tâches triées par date pour l'affichage en liste
+    const [tasksForKanban, setTasksForKanban] = useState<KanbanLists | null>(null)  // tâches triées par statut pour l'affichage Kanban
+    const [loading, setLoading] = useState(true) // chargement du spinner (true)
+    const [kanban, setKanban] = useState(false) // mode affichage kanban (true) ou affichage liste (false)
+    const [errors, setErrors] = useState<Record<string, string>>({}); 
+    const [createProjectForm, setCreateProjectForm] = useState(false) // ouverture modale de création de projet
+    const [apiResponse, setApiResponse] = useState("") // réponses api lors du fetch
+    
+    
     // Objet de récupération des données de formulaire
     const [formData, setFormData] = useState<ProjectFormData>({
         formTitle: "Créer un projet",
         name: "",
         ctaLabel: "Ajouter un projet",
         description: "",
-        mode: true,
+        mode: true, // true permet de choisir les collaborateurs, false les affiche sans action possible
         contributors: [] 
     })
-    const selectedTask = useSelectedTask((state) => state.task)
-    const removeTask = useSelectedTask((state) => state.removeTask)
-    const ctaAvaliable = false
-    const [search, setSearch] = useState("")
-    const [debouncedSearch, setDebouncedSearch] = useState("")
-    const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
-    const addProjectInStore = useProjectStore((state) => state.addProject)
-       
+
     // Objet de composition du formulaire
     const data = {
         title: "Créer un projet",
         inputs : [
-            {
-                label : "Titre", 
-                type : "text", 
-                name : "name", 
-                required: true, 
-            },
-            {
-                label : "Description", 
-                type: "text", 
-                name : "description", 
-                required: true
-            },
-            {
-                label : "Contributeurs", 
-                type: "collaborators", 
-                name: "contributors", 
-                required: true
-            }
+            {label : "Titre", type : "text", name : "name", required: true},
+            {label : "Description", type: "text", name : "description", required: true},
+            {label : "Contributeurs", type: "collaborators", name: "contributors", required: true}
         ],
     } satisfies {
         title: string;
         inputs: CustomInput[];
-    };
+    }
 
-    // Use Effect du debounce
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(search);
-        }, 300);
+    const ctaAvaliable = false
+    const [search, setSearch] = useState("")
+    const [debouncedSearch, setDebouncedSearch] = useState("")
+    const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
+       
+    // TACHES ///////////////////////////////////////////////////////////////////////////////////////////////
+    const selectedTask = useSelectedTask((state) => state.task)
+    const removeTask = useSelectedTask((state) => state.removeTask)
 
-        return () => clearTimeout(timer);
-    }, [search]);
+    // PROJETS ///////////////////////////////////////////////////////////////////////////////////////////////
+    const addProjectInStore = useProjectStore((state) => state.addProject)
 
-    useEffect (() => {
-        if(!token) {
-            router.push('/')
-            return
-        }
-        async function loadDashboard(token: string) {
-            try {
-                const url = "/api/dashboard/assigned-tasks"
-                const result = await getRequest<GetTasksData>({url, token})
-                const tasks = result.data?.tasks
-                if(tasks) {
-                    const filteredTasksByDate = sortTasksByDate(tasks)
-                    setTasksByDate(filteredTasksByDate);
-                    const filteredTasksByStatus = sortTasksByStatus(tasks)
-                    setTasksForKanban(filteredTasksByStatus);
-                }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        }
-        loadDashboard(token);
-    }, [token, router]);
-
-    
-    function handleClick() {
+    function handleCreateProject() {
         setCreateProjectForm(true)
     }
-     
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+
+    async function createProject(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
          if (!token) {
             router.push('/');
@@ -160,6 +121,41 @@ export default function Dashboard() {
         }       
     }
 
+    // DEBOUNCE 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    useEffect (() => {
+        if(!token) {
+            router.push('/')
+            return
+        }
+        async function loadDashboard(token: string) {
+            try {
+                const url = "/api/dashboard/assigned-tasks"
+                const result = await getRequest<GetTasksData>({url, token})
+                const tasks = result.data?.tasks
+                if(tasks) {
+                    const filteredTasksByDate = sortTasksByDate(tasks)
+                    setTasksByDate(filteredTasksByDate);
+                    const filteredTasksByStatus = sortTasksByStatus(tasks)
+                    setTasksForKanban(filteredTasksByStatus);
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadDashboard(token);
+    }, [token, router]);
+
+    // MEMORISATION DES TÂCHES
     const filteredTasks = useMemo(() => {
         const query = debouncedSearch.toLowerCase();
             return tasksByDate?.filter((task) =>
@@ -168,6 +164,7 @@ export default function Dashboard() {
             );
     }, [tasksByDate, debouncedSearch]);
 
+    // SPINNER
     if (loading) {
         return (
             <div className={styles.loaderContainer}>
@@ -185,7 +182,7 @@ export default function Dashboard() {
                 <button 
                     className={styles.createProjectBtn}
                     type="button"
-                    onClick={handleClick}
+                    onClick={handleCreateProject}
                     aria-haspopup="dialog">
                         + Créer un projet
                 </button>
@@ -274,7 +271,7 @@ export default function Dashboard() {
                     data={data} 
                     formData={formData} 
                     setFormData={setFormData} 
-                    handleSubmit={handleSubmit} 
+                    handleSubmit={createProject} 
                     errors={errors} 
                     apiResponse={apiResponse}></Form>
             </Modal>
