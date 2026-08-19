@@ -1,50 +1,52 @@
 'use client'
 
 import styles from './page.module.css'
+
 import Cookies from "js-cookie"
 import { useEffect, useState, useMemo } from 'react'
-import { type Task, type CustomInput, type TaskFormData, ProjectFormData, GetTasksData } from '@/types/types'
+import { useRouter, useParams } from 'next/navigation'
+
+import type { Task, CustomInput, TaskFormData, ProjectFormData, GetTasksData, FlashMessage, UpdateProjectResponse, UpdateTaskResponse,  TaskIa} from '@/types/types'
+
+import getInitials from '@/app/utils/getInitials'
+import deleteRequest from '@/app/utils/deleteRequest'
+import putRequest from '@/app/utils/putRequest'
+import postRequest from '@/app/utils/postRequest'
+import getRequest from '@/app/utils/getRequest'
+
+import { useProjectStore } from '@/store/ProjectStore'
+import { useTaskStore } from '@/store/TaskStore'
+import { useProfile } from '@/app/context/profileContext'
+
 import TaskCard from '@/components/TaskCard/TaskCard'
 import Modal from '@/components/Modal/Modal'
 import Form from '@/components/Form/Form'
-import { useProjectStore } from '@/store/ProjectStore'
-import { useTaskStore } from '@/store/TaskStore'
-import type { FlashMessage, UpdateProjectResponse, UpdateTaskResponse,  TaskIa } from '@/types/types'
-import { useParams } from 'next/navigation'
-import { taskSchema } from '@/types/schemas/taskSchema'
-import getInitials from '@/app/utils/getInitials'
-import { useProfile } from '@/app/context/profileContext'
-import { useRouter } from 'next/navigation'
-import deleteRequest from '@/app/utils/deleteRequest'
-import { projectSchema } from '@/types/schemas/projectSchema'
-import putRequest from '@/app/utils/putRequest'
-import postRequest from '@/app/utils/postRequest'
 import IaTaskCard from '@/components/IaTaskCard/IaTaskCard'
-import getRequest from '@/app/utils/getRequest'
+
+import { taskSchema } from '@/types/schemas/taskSchema'
+import { projectSchema } from '@/types/schemas/projectSchema'
 
 export default function SingleProject() {
     
     const params = useParams<{ id: string }>()
-    const token = Cookies.get('token')
-    const router = useRouter()
     const projectId = params.id
-    const { profile, setProfile } = useProfile()
-    const project = useProjectStore((state) =>
-        state.projects.find((p) => p.id === projectId)
-    )
-    
-    const updateProject = useProjectStore(
-        (state) => state.updateProject
-    )
-    const [loading, setLoading] = useState(true)
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const [apiResponse, setApiResponse] = useState<string>("");
+    const token = Cookies.get('token')
+    const ctaAvaliable = true
+
+    const router = useRouter()
+    const { profile } = useProfile()
+    const project = useProjectStore((state) => state.projects.find((p) => p.id === projectId))
+    const updateProject = useProjectStore((state) => state.updateProject)
     const tasksInStore = useTaskStore((state) => state.tasks)
     const setTasksInStore = useTaskStore((state) => state.setTasks)
     const addTaskInStore = useTaskStore((state) => state.addTask)
     const updateTaskInStore = useTaskStore((state) => state.updateTask)
+    const toggleIsList = () => {setIsList((prev) => !prev)}
+    
+    // STATES
+    const [loading, setLoading] = useState(true)
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [openTaskModal, setOpenTaskModal] = useState(false)
-    const ctaAvaliable = true
     const [openProjectModal, setOpenProjectModal] = useState(false)
     const [openDeleteProjectModal, setOpenDeleteProjectModal] = useState(false)
     const [openIaTaskModal, setOpenIaTaskModal] = useState(false)
@@ -54,12 +56,10 @@ export default function SingleProject() {
     const [search, setSearch] = useState("")
     const [debouncedSearch, setDebouncedSearch] = useState("")
     const [selectedStatus, setSelectedStatus] = useState("")
+    const [apiResponse, setApiResponse] = useState<string>("");
+    const [promptData, setPromptData] = useState("")
 
-    const toggleIsList = () => {
-        setIsList((prev) => !prev)
-    }
-    
-    // Initialisation des données de tâches
+    // INITIALISATION DES DONNEES DE TACHE ET PROJET
     const initTaskData = {
         formTitle: "Créer une tâche",
         ctaLabel: "+ Ajouter une tâche",
@@ -74,7 +74,6 @@ export default function SingleProject() {
     }
     const [taskData, setTaskData] = useState<TaskFormData>(initTaskData)
     
-    // Initialisation des données de projet
     const initProjectData = {
         formTitle: "",
         name: "",
@@ -85,33 +84,37 @@ export default function SingleProject() {
     }
     const [projectData, setProjectData] = useState<ProjectFormData>(initProjectData)
 
-    const [promptData, setPromptData] = useState("")
-
-    function handleCreateTask() {
-        setOpenTaskModal(true)
+    // DONNEES DE FORMULAIRE TACHE ET PROJET
+    const taskFomStructure = {
+        title: "Créer une tâche",
+        inputs : [
+            { label : "Titre", type : "text", name : "title", required: true },
+            { label : "Description", type: "text", name : "description", required: true },
+            { label : "Echéance", type: "date", name: "dueDate", required: true },
+            { label : "Assignée à :", type: "collaborators", name: "contributors", required: false },
+            { label: "Statut", type: "status", name: "status", required: true, options: [ { label: "À faire", value: "TODO" }, { label: "En cours", value: "IN_PROGRESS" }, { label: "Terminée", value: "DONE" } ] }
+        ],
+    } satisfies {
+        title: string;
+        inputs: CustomInput[];
     }
 
-    function handleCreateTaskIa() {
-        setTasksIa([])
-        setOpenIaTaskModal(true)
+    const projectFormStructure = {
+
+        title: "Modifier un projet",
+        inputs : [ 
+            { label : "Titre", type : "text", name : "name", required: true },
+            { label : "Description", type: "text", name : "description", required: true },
+            { label : "Contributeurs", type: "collaborators", name: "contributors", required: false }
+        ],
+    } satisfies {
+        title: string;
+        inputs: CustomInput[];
     }
 
-    function editCurrentTask(task: Task) {
-        const contributors = task.assignees?.map(assignee => (assignee.user) ?? [])
-        setTaskData({
-            formTitle: "Modifier",
-            ctaLabel: "Enregistrer",
-            title: task.title,
-            description: task.description,
-            contributors: task.assignees?.map(assignee => assignee.user) ?? [],
-            mode: true,
-            dueDate: new Date(task.dueDate!).toISOString().split("T")[0],
-            status: task.status!,
-            edit: true,
-            taskId: task.id
-        })
-        setOpenTaskModal(true)
-    }
+    // FONCTIONS TACHES MANUELLES /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function handleCreateTask() {setOpenTaskModal(true)}
 
     function closeTaskModal() {
         setOpenTaskModal(false)
@@ -119,7 +122,7 @@ export default function SingleProject() {
         setApiResponse("")
     }
 
-    const createTask = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => {
+    async function createTask (e: React.FormEvent<HTMLFormElement>, taskId?: string) {
         
         e.preventDefault();
         if (!token) {
@@ -190,11 +193,25 @@ export default function SingleProject() {
             
     }
 
-    const returnToProjects = () => {
-        router.push("/projets");
+    function editCurrentTask(task: Task) {
+        setTaskData({
+            formTitle: "Modifier",
+            ctaLabel: "Enregistrer",
+            title: task.title,
+            description: task.description,
+            contributors: task.assignees?.map(assignee => assignee.user) ?? [],
+            mode: true,
+            dueDate: new Date(task.dueDate!).toISOString().split("T")[0],
+            status: task.status!,
+            edit: true,
+            taskId: task.id
+        })
+        setOpenTaskModal(true)
     }
 
-    const handleModifyProject = () => {
+    // FONCTIONS PROJETS ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function handleModifyProject() {
         if(!project) return
         // On ne peut modifier ou supprimer un projet que si on est propriétaire
         if(project.owner.id !== profile?.id) return
@@ -210,7 +227,7 @@ export default function SingleProject() {
         setOpenProjectModal(true)
     }
 
-    const modifyProject = async (e: React.FormEvent<HTMLFormElement>, taskId?: string) => { 
+    async function modifyProject (e: React.FormEvent<HTMLFormElement>, taskId?: string){ 
         
         e.preventDefault();
         if (!token) {
@@ -255,17 +272,10 @@ export default function SingleProject() {
         }
         
     }
-        
-    const handleDeleteProject = () => {
-        setOpenDeleteProjectModal(true)
-    }
 
-    const closeDeleteProjectModal = () => {
-        setApiResponse("")
-        setOpenDeleteProjectModal(false)
-    }
-
-    const deleteProject = async () => {
+    function handleDeleteProject() {setOpenDeleteProjectModal(true)}
+    
+    async function deleteProject() {
         if(token) {
             const url = `/api/projects/${projectId}`
             try {
@@ -284,31 +294,40 @@ export default function SingleProject() {
             }
         }
     }
-    const askForIaTasks = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        setLoading(true);
+
+    function closeDeleteProjectModal() {
+        setApiResponse("")
+        setOpenDeleteProjectModal(false)
+    }
+
+    function returnToProjects() {router.push("/projets")}
+
+    // FONCTIONS TACHES IA ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function handleCreateTaskIa() {
+        setTasksIa([])
+        setOpenIaTaskModal(true)
+    }
+
+     async function askForIaTasks(e: React.FormEvent<HTMLFormElement>) {
         
-        if (!promptData.trim()) {
+        e.preventDefault()
+        
+        // Vérification de la présence d'un prompt
+        if (!promptData.trim()) { 
+            setFlashMessage({status: false, message: "Vous devez saisir une question"})
+            setTimeout(() => {setFlashMessage(null)}, 2000);
             return;
         }
 
-        const systemPrompt =
-            "Décompose la demande de l'utilisateur en tâches concrètes, indépendantes et réalisables. Pour chaque tâche, fournis un titre court et une description concise. Les tâches déjà présentes sont fournies comme contexte. Génère uniquement les nouvelles tâches demandées et ne répète jamais les tâches déjà présentes.";
-
-        const userPrompt =
-            `Crée les tâches nécessaires pour répondre à cette demande : ${promptData}`;
-
         const payload = {
-            systemPrompt,
-            userPrompt,
+            promptData,
             existingTasks: tasksIa,
         };
 
+        setLoading(true);
         try {
-            const result = await postRequest<
-                typeof payload,
-                { response: string }
-            >({
+            const result = await postRequest<typeof payload,{ response: string }>({
                 url: "/api/ai",
                 token,
                 payload,
@@ -317,7 +336,6 @@ export default function SingleProject() {
             if (!result.data) {
                 throw new Error("La réponse de l'API est vide");
             }
-
             const data = JSON.parse(result.data.response);
 
             // ajout des nouvelles tâches aux tâches existantes
@@ -326,7 +344,7 @@ export default function SingleProject() {
                 ...data.tasks,
             ]);
 
-            // On vide le champ de prompt après traitement
+            // Vidage le champ de prompt après traitement
             setPromptData("");
 
         } catch (error) {
@@ -342,9 +360,9 @@ export default function SingleProject() {
         } finally {
              setLoading(false);
         }
-}
-
-    const handleIaTaskChange = (taskIndex: number, changes: Partial<TaskIa>) => {
+    }
+    
+    function handleIaTaskChange(taskIndex: number, changes: Partial<TaskIa>) {
         setTasksIa((currentTasks) =>
             currentTasks.map((task, index) =>
                 index === taskIndex
@@ -353,16 +371,15 @@ export default function SingleProject() {
             )
         )
     }
-
-    const handleIaTaskDelete = (taskIndex: number) => {
+    
+    function handleIaTaskDelete(taskIndex: number) {
         setTasksIa((currentTasks) =>
             currentTasks.filter((_, index) => index !== taskIndex)
         )
     }
 
-    const handleSaveIaTasks = async () => {
+    async  function saveIaTasks() {
         tasksIa.forEach(async (task) => {
-            console.log("TASKIA", task)
             // par défaut, la date d'échéance est fixée à 15 jours après l'enregistrement
             const date = new Date();
             date.setDate(date.getDate() + 15);
@@ -399,47 +416,14 @@ export default function SingleProject() {
                     setFlashMessage({ status: false, message: "Données invalides.", })
                     return; 
                 } 
-                // Email déjà utilisé 
-                if (apiError.status === 409) { 
-                    setFlashMessage({ status: false, message: "Cette adresse email est déjà utilisée.", })
-                    return 
-                } 
-                // Autre erreur 
-                setFlashMessage({ status: false, message: "Une erreur est survenue. Veuillez réessayer.", }) 
-                setTimeout(() => { setFlashMessage(null); }, 3000);
             }    
 
         })
         setTasksIa([])
     }
 
-    const projectFormStructure = {
-
-        title: "Modifier un projet",
-        inputs : [ 
-            { label : "Titre", type : "text", name : "name", required: true },
-            { label : "Description", type: "text", name : "description", required: true },
-            { label : "Contributeurs", type: "collaborators", name: "contributors", required: false }
-        ],
-    } satisfies {
-        title: string;
-        inputs: CustomInput[];
-    }
-
-    const taskFomStructure = {
-        title: "Créer une tâche",
-        inputs : [
-            { label : "Titre", type : "text", name : "title", required: true },
-            { label : "Description", type: "text", name : "description", required: true },
-            { label : "Echéance", type: "date", name: "dueDate", required: true },
-            { label : "Assignée à :", type: "collaborators", name: "contributors", required: false },
-            { label: "Statut", type: "status", name: "status", required: true, options: [ { label: "À faire", value: "TODO" }, { label: "En cours", value: "IN_PROGRESS" }, { label: "Terminée", value: "DONE" } ] }
-        ],
-    } satisfies {
-        title: string;
-        inputs: CustomInput[];
-    }
-    // Use Effect du debounce
+       
+    //  DEBOUNCE ET FILTRAGE DES TÂCHES /////////////////////////////////////////////////////////////////////////////
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(search)
@@ -450,7 +434,6 @@ export default function SingleProject() {
 
     const filteredTasks = useMemo(() => {
         const query = debouncedSearch.toLowerCase();
-
         return tasksInStore.filter((task) => {
             const matchesSearch =
                 task.title.toLowerCase().includes(query) ||
@@ -464,9 +447,10 @@ export default function SingleProject() {
         });
     }, [tasksInStore, debouncedSearch, selectedStatus]);
        
-    
+    // CHARGEMENT DE LA PAGE
     useEffect (() => {
         if(!token) {
+            router.push("/")
             return
         }
         const id = projectId
@@ -485,7 +469,7 @@ export default function SingleProject() {
         loadTasks(token)
     }, [token])
     
-
+    // SPINNER ////////////////////////////////////////////////////////////////////////////////////////////
     if (loading) {
         return (
             <div className={styles.loaderContainer}>
@@ -518,7 +502,6 @@ export default function SingleProject() {
                                     <button className={styles.deleteProject} onClick={handleDeleteProject}>Supprimer</button>
                                 </>  
                             }
-                            
                         </div>
                         <span>{project?.description}</span>
                     </div>
@@ -541,7 +524,6 @@ export default function SingleProject() {
                     </button>
                 </div>
             </section>
-
             <section className={styles.main}>
                <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
@@ -552,7 +534,6 @@ export default function SingleProject() {
                         <p className={styles.ownerId}>{getInitials(project?.owner.name)}</p>
                         <p className={styles.ownerName}>Propriétaire</p>
                     </div>
-                    
                     {project?.members.map((member)=>(
                         <div key={member.id} className={styles.idTag}>
                             <p className={styles.memberId}>{getInitials(member.user.name)}</p>
@@ -561,7 +542,6 @@ export default function SingleProject() {
                     ))}
                 </div>
             </section>
-
             <section className={styles.taskList}>
                 <section className={styles.header}>
                     <div className={styles.label}>
@@ -615,9 +595,7 @@ export default function SingleProject() {
                                     aria-hidden="true"
                                     aria-label="Rechercher des tâches"
                                     />
-                                
                         </form>
-
                     </div>
                 </section>
                 <section className={styles.tasksWrapper}>
@@ -628,7 +606,6 @@ export default function SingleProject() {
                         </div>
                     ))}
                 </section>
-                
                 {openTaskModal && (
                     <Modal titleId="createTask" onClose={closeTaskModal}>
                         <Form data={taskFomStructure} formData={taskData} setFormData={setTaskData} handleSubmit={createTask} errors={errors} apiResponse={apiResponse} ></Form>
@@ -661,21 +638,19 @@ export default function SingleProject() {
                                         onDelete={() => handleIaTaskDelete(index)}/>
                                 )))  
                             }
-                                
                             </div>
                             <div className={styles.registerTasks}>
                                 { tasksIa.length === 0 ? 
                                     "" : 
                                     (<button
                                         type="button"
-                                        onClick={handleSaveIaTasks}
+                                        onClick={saveIaTasks}
                                         className={styles.addIaTasksBtn}
                                     >
                                     + Ajouter les tâches
                                     </button>)
                                 }
                             </div>
-                            
                             <form className={styles.tasksIaForm} onSubmit={askForIaTasks}>
                                 <label htmlFor='prompt' className={styles.visuallyHidden}>prompt</label>
                                 <div className={styles.prompt}>
@@ -690,13 +665,17 @@ export default function SingleProject() {
                                         <img src="/pictures/static/ia-button.svg" alt="" aria-hidden="true"/>
                                     </button>
                                 </div>
-                                
+                                {flashMessage && (
+                <div  
+                    className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-6 py-4 text-white shadow-lg`}
+                    role={ flashMessage.status ? 'status' : 'alert' } 
+                    aria-live={ flashMessage.status ? 'polite' : 'assertive' }
+                >
+                    {flashMessage.message}
+                </div>
+            )}
                             </form>
-                            
-
-
                         </section>
-                        
                     </Modal>
                 )}
                 {openDeleteProjectModal && (
@@ -711,7 +690,6 @@ export default function SingleProject() {
                         </div>
                     </Modal>
                 )} 
-                
             </section>
             {/* MESSAGE GLOBAL */}
             {flashMessage && (
