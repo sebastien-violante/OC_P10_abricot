@@ -1,32 +1,3 @@
-/*
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal {
-  background: white;
-  padding: 25px 40px;
-  border-radius: 10px;
-  min-width: 300px;
-  width: 590px;
-  margin: auto;
-  max-width: 600px;
-  position: relative;
-  z-index: 2000;
-}
-
-.cross {
-  position: absolute;
-  top: 38px;
-  right: 38px;
-  cursor: pointer;
-}
-*/
 .overlay {
   position: fixed;
   inset: 0;
@@ -63,7 +34,7 @@
   right: 30px;
 }
 
-@media (max-width = 756px) {
+@media (max-width : 767px) {
   .modal {
     width: 100%;
     padding: 0px;

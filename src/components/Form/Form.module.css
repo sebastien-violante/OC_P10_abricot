@@ -59,7 +59,7 @@
     color: var(--grey800);
     height: 50px;
     border-radius: 10px;
-    display: flax;
+    display: flex;
     align-items: center;
     justify-content: center;
     padding: 0 27px;
