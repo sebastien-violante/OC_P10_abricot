@@ -215,6 +215,10 @@ export type GetTasksData = {
     tasks: Task[];
 }
 
+export type GetProjectData = {
+    project: Project;
+}
+
 export type GetProjectsData = {
     projects: Project[];
 }

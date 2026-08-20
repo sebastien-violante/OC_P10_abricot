@@ -6,7 +6,7 @@ import Cookies from "js-cookie"
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter, useParams, notFound } from 'next/navigation'
 
-import type { Task, CustomInput, TaskFormData, ProjectFormData, GetTasksData, FlashMessage, UpdateProjectResponse, UpdateTaskResponse,  TaskIa} from '@/types/types'
+import type { Task, Token, Project, CustomInput, TaskFormData, ProjectFormData, GetTasksData, GetProjectData, FlashMessage, UpdateProjectResponse, UpdateTaskResponse,  TaskIa} from '@/types/types'
 
 import getInitials from '@/app/utils/getInitials'
 import deleteRequest from '@/app/utils/deleteRequest'
@@ -35,10 +35,8 @@ export default function SingleProject() {
 
     const router = useRouter()
     const { profile } = useProfile()
-    const project = useProjectStore((state) => state.projects.find((p) => p.id === projectId))
-    if (!project) {
-    notFound();
-  }
+    //const project = useProjectStore((state) => state.projects.find((p) => p.id === projectId))
+    
     const updateProject = useProjectStore((state) => state.updateProject)
     const tasksInStore = useTaskStore((state) => state.tasks)
     const setTasksInStore = useTaskStore((state) => state.setTasks)
@@ -61,6 +59,7 @@ export default function SingleProject() {
     const [selectedStatus, setSelectedStatus] = useState("")
     const [apiResponse, setApiResponse] = useState<string>("");
     const [promptData, setPromptData] = useState("")
+    const [selectedProject, setSelectedProject] = useState<Project| null>(null)
 
     // INITIALISATION DES DONNEES DE TACHE ET PROJET
     const initTaskData = {
@@ -118,7 +117,7 @@ export default function SingleProject() {
     }
 
     // CALCUL DU NOMBRE DE CONTRIBUTEURS
-    const contributors = (project?.members.filter(member => member.user.id !== project?.owner.id).length ?? 0) + 1
+    const contributors = (selectedProject?.members.filter(member => member.user.id !== selectedProject?.owner.id).length ?? 0) + 1
 
     // FONCTIONS TACHES MANUELLES /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -221,16 +220,16 @@ export default function SingleProject() {
     // FONCTIONS PROJETS ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     function handleModifyProject() {
-        if(!project) return
+        if(!selectedProject) return
         // On ne peut modifier ou supprimer un projet que si on est propriétaire
-        if(project.owner.id !== profile?.id) return
-        const contributors = project.members.map(member => (member.user))
+        if(selectedProject.owner.id !== profile?.id) return
+        const contributors = selectedProject.members.map(member => (member.user))
         setProjectData({
             formTitle: "Modifier un projet",
             titleId: "modify-project",
-            name: project?.name,
+            name: selectedProject?.name,
             ctaLabel: "Enregistrer",
-            description: project?.description,
+            description: selectedProject?.description,
             mode: false,
             contributors
         })
@@ -266,7 +265,7 @@ export default function SingleProject() {
 
         // Envoi de la requête
         if(token) {
-            const url = `/api/projects/${project?.id}`
+            const url = `/api/projects/${selectedProject?.id}`
             try {
                 const result = await putRequest<typeof payload, UpdateProjectResponse>({ url, token, payload })
                 if(result.data) {
@@ -448,7 +447,20 @@ export default function SingleProject() {
             return
         }
         const id = projectId
-        async function loadTasks(token: string) {
+        async function loadProject(token:Token) {
+            try {
+                const url = `/api/projects/${id}`
+                const result = await getRequest<GetProjectData>({url, token})
+                const project = result.data?.project
+                if (!project) {
+                    notFound()
+                }
+                setSelectedProject(project)
+            } catch (error) {
+                console.error(error);
+            }  
+        }
+        async function loadTasks(token: Token) {
             try {
                 const url = `/api/projects/${id}/tasks`
                 const result = await getRequest<GetTasksData>({url, token})
@@ -460,6 +472,7 @@ export default function SingleProject() {
                 setLoading(false)
             }        
         }
+        loadProject(token)
         loadTasks(token)
     }, [token])
     
@@ -488,9 +501,9 @@ export default function SingleProject() {
                         </button>
                     <div className={styles.left}>
                         <div className={styles.data}>
-                            <h1>{project?.name}</h1>
+                            <h1>{selectedProject?.name}</h1>
                             <div>
-                                {(project?.owner.id === profile?.id )&& 
+                                {(selectedProject?.owner.id === profile?.id )&& 
                                 <>
                                     <button className={styles.modifyProject} onClick={handleModifyProject}>Modifier</button>
                                     <button className={styles.deleteProject} onClick={handleDeleteProject}>Supprimer</button>
@@ -498,7 +511,7 @@ export default function SingleProject() {
                                 }
                             </div>
                         </div>
-                        <span>{project?.description}</span>
+                        <span>{selectedProject?.description}</span>
                     </div>
                 </article>
                 <div className={styles.buttons}>
@@ -522,14 +535,14 @@ export default function SingleProject() {
             <section className={styles.main}>
                <section className={styles.contributors}>
                 <div className={styles.totalContributors}>
-                    Contributeurs <span>{(project?.members.filter(member => member.user.id !== project?.owner.id).length ?? 0) + 1} { contributors === 1 ? "personne" : "personnes"}</span>
+                    Contributeurs <span>{(selectedProject?.members.filter(member => member.user.id !== selectedProject?.owner.id).length ?? 0) + 1} { contributors === 1 ? "personne" : "personnes"}</span>
                 </div>
                 <div className={styles.detailsContributors}>
                     <div className={styles.idTag}>
-                        <p className={styles.ownerId}>{getInitials(project?.owner.name)}</p>
+                        <p className={styles.ownerId}>{getInitials(selectedProject?.owner.name)}</p>
                         <p className={styles.ownerName}>Propriétaire</p>
                     </div>
-                    {project?.members.map((member)=>(
+                    {selectedProject?.members.map((member)=>(
                         <div key={member.id} className={styles.idTag}>
                             <p className={styles.memberId}>{getInitials(member.user.name)}</p>
                             <p className={styles.memberName}>{member.user.name}</p>
@@ -688,7 +701,7 @@ export default function SingleProject() {
                 {openDeleteProjectModal && (
                     <Modal titleId="deleteProject" onClose={closeDeleteProjectModal}>
                         <div className={styles.modalDeleteProject}>
-                            <h3>Etes-vous sûr(e) de vouloir supprimer ce message ?</h3>
+                            <h3>Etes-vous sûr(e) de vouloir supprimer ce projet ?</h3>
                             <span className={styles.apiResponse}>{apiResponse}</span>
                             <button 
                                 type="button"

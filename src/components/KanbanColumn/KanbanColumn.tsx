@@ -14,7 +14,8 @@ export default function KanbanColumn({ tasks, title, mode}: KanbanColumnProps) {
     return (
         <section 
             className={styles.kanbanColumn}
-            aria-labelledby={headingId}>
+            aria-labelledby={headingId}
+            tabIndex={0}>
             <div className={styles.header}>
                 <h2 id={headingId}>{title}</h2>
                 <span aria-label={`${tasks.length} tâche${tasks.length > 1 ? 's' : ''}`}>{tasks.length}</span>

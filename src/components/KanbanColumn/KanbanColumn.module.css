@@ -9,6 +9,11 @@
     border: 1px solid #FFE0E0;
 }
 
+.kanbanColumn:focus-visible {
+    outline: 3px solid var(--dark-orange);                  
+    outline-offset: 3px;
+}
+
 .kanbanColumn .header {
     display: flex;
     margin-bottom: 40px;
