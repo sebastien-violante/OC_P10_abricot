@@ -264,7 +264,7 @@ export default function Dashboard() {
                     {(tasksForKanban?.todoTasks.length===0 && tasksForKanban?.inProgressTasks.length===0 && tasksForKanban?.doneTasks.length===0) && (
                             <span className={styles.warningMessage}>
                                 <img src="/pictures/static/warning-orange.svg" alt=""/>
-                                <p>Vous n&apos;avez aucune tâche en cours ou à faire.</p>
+                                <p>Vous n&apos;avez aucune tâche à réaliser dans le mois.</p>
                             </span> 
                     )} 
                     <section 

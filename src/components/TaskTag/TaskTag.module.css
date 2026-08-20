@@ -9,6 +9,7 @@
 .taskTag .message {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .taskTag .calendar {

@@ -151,20 +151,11 @@ export default function TaskCard({
 
             try {
                 await deleteRequest({ url, token })
-
-                // Mise en cache d'un message de succès
-                // pour l'afficher dans la page projets
-                localStorage.setItem(
-                    "flashBag",
-                    JSON.stringify({
-                        status: true,
-                        message: "la tâche a bien été supprimée"
-                    })
-                )
-
                 removeTaskInStore(task.id!)
                 setOpenDeleteTaskModal(false)
                 setCta(false)
+                setFlashMessage({ status: true, message :"La tâche a été supprimée"}) 
+                setTimeout(() => {setFlashMessage(null)}, 2000);
 
             } catch (error) {
                 setApiResponse(

@@ -319,7 +319,7 @@ export default function SingleProject() {
         setOpenIaTaskModal(true)
     }
 
-     async function askForIaTasks(e: React.FormEvent<HTMLFormElement>) {
+    async function askForIaTasks(e: React.FormEvent<HTMLFormElement>) {
         
         e.preventDefault()
         
