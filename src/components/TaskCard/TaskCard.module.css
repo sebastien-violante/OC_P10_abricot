@@ -70,7 +70,7 @@
 
 .cta li:nth-child(2) {
     border-top: 1px solid var(--grey200);
-    color: red;
+    color: rgb(160, 1, 1);
 }
 
 .cta li:hover {

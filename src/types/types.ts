@@ -177,6 +177,7 @@ export type TaskFormData = {
     formTitle: string;
     ctaLabel: string;
     title: string;
+    titleId: string;
     description: string;
     mode: boolean;
     contributors: User[];
@@ -188,6 +189,7 @@ export type TaskFormData = {
 
 export type ProjectFormData = {
     formTitle?: string;
+    titleId: string;
     name: string;
     ctaLabel: string;
     mode: boolean;

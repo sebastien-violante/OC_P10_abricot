@@ -65,6 +65,7 @@ export default function SingleProject() {
     // INITIALISATION DES DONNEES DE TACHE ET PROJET
     const initTaskData = {
         formTitle: "Créer une tâche",
+        titleId: "createTask",
         ctaLabel: "+ Ajouter une tâche",
         title: "",
         description: "",
@@ -79,6 +80,7 @@ export default function SingleProject() {
     
     const initProjectData = {
         formTitle: "",
+        titleId: "modify-project",
         name: "",
         description: "",
         mode: false,
@@ -203,6 +205,7 @@ export default function SingleProject() {
         setTaskData({
             formTitle: "Modifier",
             ctaLabel: "Enregistrer",
+            titleId:"createTask",
             title: task.title,
             description: task.description,
             contributors: task.assignees?.map(assignee => assignee.user) ?? [],
@@ -224,6 +227,7 @@ export default function SingleProject() {
         const contributors = project.members.map(member => (member.user))
         setProjectData({
             formTitle: "Modifier un projet",
+            titleId: "modify-project",
             name: project?.name,
             ctaLabel: "Enregistrer",
             description: project?.description,
@@ -484,13 +488,15 @@ export default function SingleProject() {
                         </button>
                     <div className={styles.left}>
                         <div className={styles.data}>
-                            {project?.name}
-                            {(project?.owner.id === profile?.id )&& 
+                            <h1>{project?.name}</h1>
+                            <div>
+                                {(project?.owner.id === profile?.id )&& 
                                 <>
                                     <button className={styles.modifyProject} onClick={handleModifyProject}>Modifier</button>
                                     <button className={styles.deleteProject} onClick={handleDeleteProject}>Supprimer</button>
                                 </>  
-                            }
+                                }
+                            </div>
                         </div>
                         <span>{project?.description}</span>
                     </div>
@@ -554,6 +560,9 @@ export default function SingleProject() {
                             />
                             <span>Calendrier</span>
                         </button>
+                        <label htmlFor="status" className={styles.visuallyHidden}>
+                            Filtrer par statut
+                        </label>
                         <select
                             id="status"
                             name="status"
@@ -617,7 +626,7 @@ export default function SingleProject() {
                         <section className={styles.taskIaContainer}>
                             <div className={styles.header}>
                                 <img src="/pictures/static/star-orange.svg" alt="" aria-hidden="true"/>
-                                <h2>{tasksIa.length === 0 ? "Créer une tâche" : "Vos tâches..."}</h2>
+                                <h2 id="createTaskIa">{tasksIa.length === 0 ? "Créer une tâche" : "Vos tâches..."}</h2>
                             </div>
                             <div className={styles.tasksWrapper}>
                                 { loading ? 
@@ -656,7 +665,10 @@ export default function SingleProject() {
                                         placeholder='Décrivez les tâches que vous souhaitez ajouter...'
                                         onChange={(e) => setPromptData(e.target.value)}>
                                     </input>
-                                    <button type="submit">
+                                    <button 
+                                        type="submit"
+                                        aria-label="rechercher des tâches avec Mistral"
+                                    >
                                         <img src="/pictures/static/ia-button.svg" alt="" aria-hidden="true"/>
                                     </button>
                                 </div>

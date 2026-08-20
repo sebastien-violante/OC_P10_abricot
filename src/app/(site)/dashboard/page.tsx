@@ -46,6 +46,7 @@ export default function Dashboard() {
     // Objet de récupération des données de formulaire
     const [formData, setFormData] = useState<ProjectFormData>({
         formTitle: "Créer un projet",
+        titleId: "create-project-title",
         name: "",
         ctaLabel: "Ajouter un projet",
         description: "",

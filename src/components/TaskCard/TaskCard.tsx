@@ -312,7 +312,7 @@ export default function TaskCard({
 
             <section
                 className={styles.dueDate}
-                aria-label="Échéance"
+                aria-label={`echéance tâche ${task.title}`}
             >
                 <span>Échéance :</span>
 

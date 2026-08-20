@@ -377,4 +377,9 @@
     .taskList .taskWrapper {
         margin: 0;
     }
+    .buttons {
+        width: 100%;
+        justify-content: space-around;
+        margin-top: 10px
+    }
 }

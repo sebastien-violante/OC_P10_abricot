@@ -50,6 +50,7 @@ export default function Projects() {
     // DONNEES DE FORMULAIRE
     const [formData, setFormData] = useState<ProjectFormData>({
         formTitle: "Créer un projet",
+        titleId: "create-project-title",
         name: "",
         ctaLabel: "Créer un projet",
         description: "",
@@ -191,7 +192,7 @@ export default function Projects() {
                 ))}
             </div>
            {isOpen && (
-                <Modal titleId="createProject" onClose={()=>setIsOpen(false)}>
+                <Modal titleId="create-project-title" onClose={()=>setIsOpen(false)}>
                     <Form data={data} formData={formData} setFormData={setFormData} handleSubmit={createProject} errors={errors} apiResponse={apiResponse}></Form>
                 </Modal>
             )}
