@@ -474,7 +474,7 @@ export default function SingleProject() {
         }
         loadProject(token)
         loadTasks(token)
-    }, [token])
+    }, [token, router, setTasksInStore, projectId])
     
     // SPINNER ////////////////////////////////////////////////////////////////////////////////////////////
     if (loading) {
