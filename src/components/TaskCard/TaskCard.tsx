@@ -44,7 +44,12 @@ export default function TaskCard({
 
     const [displayComments, setDisplayComments] = useState(false)
     const [cta, setCta] = useState(false)
+    
     const ctaRef = useRef<HTMLDivElement | null>(null)
+    const firstCtaRef = useRef<HTMLButtonElement | null>(null)
+    const lastCtaRef = useRef<HTMLButtonElement | null>(null)
+    const ctaButtonRef = useRef<HTMLButtonElement | null>(null)
+    
     const { profile } = useProfile()
     const currentUserInitials = profile ? getInitials(profile.name) : ''
 
@@ -63,8 +68,8 @@ export default function TaskCard({
      * lorsque la liste est ouverte.
      */
     const commentsButtonRef = useRef<HTMLButtonElement | null>(null)
-    const firstCommentRef = useRef<HTMLElement | null>(null)
-
+    
+    
     useEffect(() => {
         setComments(task.comments ?? [])
     }, [task.comments, setComments])
@@ -80,32 +85,57 @@ export default function TaskCard({
         setDisplayComments((prev) => !prev)
     }
 
-    /*
-     * Gestion du focus après ouverture / fermeture.
-     */
-    useEffect(() => {
-        if (displayComments) {
-            /*
-             * On attend que React ait rendu les commentaires
-             * avant de déplacer le focus.
-             */
-            requestAnimationFrame(() => {
-                firstCommentRef.current?.focus()
-            })
-        } else {
-            /*
-             * Lorsque les commentaires sont fermés,
-             * on remet le focus sur le bouton.
-             */
-            requestAnimationFrame(() => {
-                commentsButtonRef.current?.focus()
-            })
-        }
-    }, [displayComments])
-
     function toggleCta() {
         setCta((prev) => !prev)
     }
+    useEffect(() => {
+        if (cta) {
+            requestAnimationFrame(() => {
+                firstCtaRef.current?.focus()
+            })
+        }
+    }, [cta])
+
+    // foccusTrap 
+    useEffect(() => {
+        if (!cta) return
+
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key === 'Escape') {
+                setCta(false)
+
+                requestAnimationFrame(() => {
+                    ctaButtonRef.current?.focus()
+                })
+
+                return
+            }
+
+            if (event.key !== 'Tab') return
+
+            const first = firstCtaRef.current
+            const last = lastCtaRef.current
+
+            if (!first || !last) return
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault()
+                last.focus()
+            }
+
+            if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault()
+                first.focus()
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown)
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [cta])
+
 
     async function editTask() {
         editCurrentTask?.(task)
@@ -240,6 +270,7 @@ export default function TaskCard({
                     <div className={styles.cta} ref={ctaRef}>
 
                         <button
+                            ref={ctaButtonRef}
                             type="button"
                             onClick={toggleCta}
                             aria-expanded={cta}
@@ -264,6 +295,7 @@ export default function TaskCard({
 
                                     <li>
                                         <button
+                                            ref={firstCtaRef}
                                             type="button"
                                             onClick={editTask}
                                             className={styles.li}
@@ -280,6 +312,7 @@ export default function TaskCard({
 
                                     <li>
                                         <button
+                                            ref={lastCtaRef}
                                             type="button"
                                             onClick={() =>
                                                 setOpenDeleteTaskModal(true)
@@ -427,17 +460,6 @@ export default function TaskCard({
 
                         <article
                             key={comment.id}
-                            ref={
-                                index === 0
-                                    ? firstCommentRef
-                                    : undefined
-                            }
-                            /*
-                             * Le premier commentaire peut recevoir
-                             * le focus avec JavaScript, mais n'est
-                             * pas ajouté à la navigation avec TAB.
-                             */
-                            tabIndex={index === 0 ? -1 : undefined}
                             className={styles.commentStripe}
                         >
 
