@@ -58,6 +58,10 @@
     cursor: pointer;
 }
 
+.label .left .data {
+    display: flex;
+}
+
 .label .left span {
     color: var(--grey600);
     font-size: 18px;
@@ -130,6 +134,29 @@
     flex-wrap: wrap;
     gap: 16px;
     align-items: center;
+}
+
+.selectStatus {
+    position: relative;
+    width: 160px;
+}
+
+.selectStatus select {
+    width: 100%;
+    appearance: none;
+    padding: 0 40px 0 16px;
+}
+
+.selectStatus::after {
+    content: "";
+    background: url("/pictures/static/chevron-back.svg") center / contain no-repeat;
+    width: 12px;
+    height: 8px;
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
 }
 
 .taskList .header .cta .displayTask {

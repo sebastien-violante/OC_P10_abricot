@@ -1,44 +1,31 @@
 'use client'
 
 import { z } from "zod";
-import { useProfile } from '@/app/context/profileContext'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, SubmitEvent } from 'react'
 import styles from './page.module.css'
+import Cookies from 'js-cookie'
+
 import type { UserFormData, UserPasswordFormData, FlashMessage, UpdateProfileResponse } from '@/types/types'
-import { SubmitEvent } from 'react'
+
+import putRequest from '@/app/utils/putRequest'
+
+import { useProfile } from '@/app/context/profileContext'
 import { userSchema } from '@/types/schemas/userSchema'
 import { userPasswordSchema } from '@/types/schemas/userPasswordSchema'
-import Cookies from 'js-cookie'
-import putRequest from '@/app/utils/putRequest'
-import PasswordInput from '@/components/PasswordInput/PasswordInput'
-import deleteRequest from "@/app/utils/deleteRequest";
 import { useProfileStore } from "@/store/ProfileStore";
 
+import PasswordInput from '@/components/PasswordInput/PasswordInput'
+
 export default function Account() {
-    const [successMessage, setSuccessMessage] = useState("");
+    
+    const { profile } = useProfile()
+    
     const [errors, setErrors] = useState<z.ZodIssue[]>([])
     const [apiResponse, setApiResponse] = useState("")
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
-    const [errorMessage, setErrorMessage] = useState("");
     const [passwordZoneOpen, setPasswordOpen] = useState(false)
-    const { profile, setProfile } = useProfile()
-    const firstName = profile?.name.split(' ')[0]
-    const lastName = profile?.name.split(' ')[1]
-    const [userFormData, setUserFormData] = useState<UserFormData>(
-        {
-            lastName: "",
-            firstName: "",
-            email: ""
-        }
-    )
-
-    const [userPasswordFormData, setUserPasswordFormData] = useState<UserPasswordFormData>(
-        {
-            currentPassword: "",
-            newPassword: "",
-            confirmPassword: ""
-        }
-    )
+    const [userFormData, setUserFormData] = useState<UserFormData>({lastName: "",firstName: "",email: ""})
+    const [userPasswordFormData, setUserPasswordFormData] = useState<UserPasswordFormData>({currentPassword: "",newPassword: "",confirmPassword: ""})
     
     // Recherche des erreurs zod par champ
     const getFieldErrors = (fieldName: string) => { 
@@ -50,10 +37,11 @@ export default function Account() {
     const firstNameErrors = getFieldErrors('firstName')
     const currentPasswordErrors = getFieldErrors('currentPassword')
     const newPasswordErrors = getFieldErrors('newPassword')
+
     const profileInStore = useProfileStore((state) => state.profile)
     const setProfileInStore = useProfileStore((state) => state.setProfile)
-    const updateProfileInStore = useProfileStore((state) => state.updateProfile)
 
+    // Chargement des données dans le formulaire à partir des informations du profile
     useEffect(() => {
         if(profile) {
             setUserFormData({
@@ -63,7 +51,8 @@ export default function Account() {
                 })
             }
             setProfileInStore(profile!)
-    }, [profile])
+    }, [profile, setProfileInStore])
+
 
     async function changeData (event: SubmitEvent<HTMLFormElement>) {
         
@@ -95,7 +84,6 @@ export default function Account() {
                     }
                     setProfileInStore(newProfile)
                 }
-                
                 setFlashMessage({ status: true, message: "Le compte a bien été modifié", }) 
                 setTimeout(() => {setFlashMessage(null)}, 2000);
             } catch(error) {
@@ -113,7 +101,6 @@ export default function Account() {
         
         event.preventDefault()
         setErrors([])
-        
         if(userPasswordFormData.newPassword === userPasswordFormData.confirmPassword) {
            
             // validation des données par Zod

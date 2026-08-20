@@ -6,6 +6,12 @@
     justify-content: center;
 }
 
+.notfound .number {
+    font-size: 60px;
+    color: var(--dark-orange);
+    font-weight: bolder;
+}
+
 .notfound .wrapper {
     display: flex;
     flex-direction: column;

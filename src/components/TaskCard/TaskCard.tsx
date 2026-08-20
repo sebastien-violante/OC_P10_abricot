@@ -3,7 +3,7 @@
 import styles from './TaskCard.module.css'
 import type { Task, FlashMessage } from '@/types/types'
 import TaskStatus from '../TaskStatus/TaskStatus'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Dispatch, SetStateAction } from 'react'
 import { useTaskStore } from '@/store/TaskStore'
 import { useCommentStore } from '@/store/CommentStore'
 import { useProfile } from '@/app/context/profileContext'
@@ -21,6 +21,8 @@ type TaskCardProps = {
     token?: string;
     editCurrentTask?: (task: Task) => void;
     ctaAvaliable: boolean;
+    isAllowedToCta : boolean;
+    setIsAllowedToCta: Dispatch<SetStateAction<boolean>>
 }
 
 export default function TaskCard({
@@ -28,7 +30,9 @@ export default function TaskCard({
     projectId,
     token,
     editCurrentTask,
-    ctaAvaliable
+    ctaAvaliable,
+    isAllowedToCta,
+    setIsAllowedToCta
 }: TaskCardProps) {
 
     const router = useRouter()
@@ -52,10 +56,15 @@ export default function TaskCard({
     
     const { profile } = useProfile()
     const currentUserInitials = profile ? getInitials(profile.name) : ''
-
     const [openDeleteTaskModal, setOpenDeleteTaskModal] = useState(false)
     const [flashMessage, setFlashMessage] = useState<FlashMessage | null>(null)
 
+    // Vérification des droits d'accès au menu modification/suppression
+    const isAssignee = task.assignees?.some(
+            assignee => assignee.user.id === profile?.id
+        ) ?? false;
+    const canAccessCta = isAllowedToCta || isAssignee
+    
     /*
      * Références pour la gestion du focus.
      *
@@ -69,7 +78,7 @@ export default function TaskCard({
      */
     const commentsButtonRef = useRef<HTMLButtonElement | null>(null)
     
-    
+    console.log("is alloed to cta à l'arrivée dans taskcard", isAllowedToCta)
     useEffect(() => {
         setComments(task.comments ?? [])
     }, [task.comments, setComments])
@@ -222,6 +231,7 @@ export default function TaskCard({
         }
     }, [])
 
+    
     return (
         <article
             className={styles.taskCardWrapper}
@@ -257,7 +267,7 @@ export default function TaskCard({
 
                 </div>
 
-                {ctaAvaliable && (
+                {ctaAvaliable && canAccessCta && (
                     <div className={styles.cta} ref={ctaRef}>
 
                         <button

@@ -60,6 +60,7 @@ export default function SingleProject() {
     const [apiResponse, setApiResponse] = useState<string>("");
     const [promptData, setPromptData] = useState("")
     const [selectedProject, setSelectedProject] = useState<Project| null>(null)
+    const [isAllowedToCta, setIsAllowedToCta] = useState(false)
 
     // INITIALISATION DES DONNEES DE TACHE ET PROJET
     const initTaskData = {
@@ -456,8 +457,27 @@ export default function SingleProject() {
                     notFound()
                 }
                 setSelectedProject(project)
-            } catch (error) {
-                console.error(error);
+                // L'utilisateur courant est le propriétaire du projet, il peut modifier ses tâches
+                if(project.owner.id === profile?.id) setIsAllowedToCta(true)
+            } catch (error: any) {
+                 if (error.status === 404) {
+                    notFound();
+                    return
+                }
+
+                if (error.status === 403) {
+                    setFlashMessage({
+                        status: false,
+                        message: "Vous n'avez pas le droit d'accéder à ce projet.",
+                    });
+                    return;
+                }
+
+                setFlashMessage({
+                    status: false,
+                    message: "Une erreur est survenue lors du chargement du projet.",
+                });
+                
             }  
         }
         async function loadTasks(token: Token) {
@@ -576,7 +596,8 @@ export default function SingleProject() {
                         <label htmlFor="status" className={styles.visuallyHidden}>
                             Filtrer par statut
                         </label>
-                        <select
+                        <div className={styles.selectStatus}>
+                            <select
                             id="status"
                             name="status"
                             value={selectedStatus}
@@ -589,6 +610,8 @@ export default function SingleProject() {
                             <option value="IN_PROGRESS">En cours</option>
                             <option value="DONE">Terminée</option>
                         </select>
+                        </div>
+                        
                         <form className={styles.searchForm}>
                             <label htmlFor="task-search" className={styles.visuallyHidden}>
                                 Rechercher une tâche
@@ -619,7 +642,7 @@ export default function SingleProject() {
                         
                     {filteredTasks?.map((task, index)=>(
                         <div className={styles.taskWrapper} key={task.id}>
-                            <TaskCard  task={task} projectId={projectId} token={token} editCurrentTask={editCurrentTask} ctaAvaliable={ctaAvaliable}/> 
+                            <TaskCard  task={task} projectId={projectId} token={token} editCurrentTask={editCurrentTask} ctaAvaliable={ctaAvaliable} isAllowedToCta={isAllowedToCta} setIsAllowedToCta={setIsAllowedToCta}/> 
                         </div>
                     ))}
                 </section>

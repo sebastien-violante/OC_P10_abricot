@@ -72,7 +72,7 @@ export default function Login() {
                 url: "/api/auth/login",
                 payload 
             }) as ApiResponse<LoginResponseData>
-
+            console.log(data.data)
             // Réponse sans token
             if (!data.data?.token) {
                 throw new Error("Token manquant dans la réponse");

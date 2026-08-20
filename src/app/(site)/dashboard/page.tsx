@@ -75,7 +75,7 @@ export default function Dashboard() {
     // TACHES ///////////////////////////////////////////////////////////////////////////////////////////////
     const selectedTask = useSelectedTask((state) => state.task)
     const removeTask = useSelectedTask((state) => state.removeTask)
-
+    const [isAllowedToCta, setIsAllowedToCta] = useState(false)
     // PROJETS ///////////////////////////////////////////////////////////////////////////////////////////////
     const addProjectInStore = useProjectStore((state) => state.addProject)
 
@@ -301,7 +301,10 @@ export default function Dashboard() {
                     task = {selectedTask} 
                     projectId={selectedTask.projectId!} 
                     token={token} 
-                    ctaAvaliable={ctaAvaliable}/>
+                    ctaAvaliable={ctaAvaliable}
+                    isAllowedToCta={false}
+                    setIsAllowedToCta={setIsAllowedToCta}
+                    />
             </Modal>
         )}
         

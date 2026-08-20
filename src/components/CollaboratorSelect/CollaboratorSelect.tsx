@@ -13,13 +13,15 @@ type CollaboratorSelectProps = {
 }
 
 export default function CollaboratorSelect({label, value, mode, onChange, required}: CollaboratorSelectProps) {
+    
+    const token = Cookies.get('token');
     const [search, setSearch] = useState("");
     const [suggestions, setSuggestions] = useState<User[]>([]);
-    const token = Cookies.get('token');
     const [chooseMode] = useState(mode)
     const [showList, setShowList] = useState(false)
 
-    async function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
+    
+    async function searchCollaborators(e: React.ChangeEvent<HTMLInputElement>) {
         
         const searchValue = e.target.value;
         setSearch(searchValue);
@@ -27,15 +29,16 @@ export default function CollaboratorSelect({label, value, mode, onChange, requir
             setSuggestions([]);
             return;
         }
-        if (!token) return;
-        try {
-            const url = `/api/users/search?query=${searchValue}`
-            const result = await getRequest<GetUsersData>({url, token})
-            const users = result.data?.users
-            if(users) setSuggestions(users);
-        } catch(error) {
-            console.error(error)
-        }
+        if (token) {
+            try {
+                const url = `/api/users/search?query=${searchValue}`
+                const result = await getRequest<GetUsersData>({url, token})
+                const users = result.data?.users
+                if(users) setSuggestions(users);
+            } catch(error) {
+                console.error(error)
+            }
+        } 
     }
 
     function addCollaborator(user: User) {
@@ -43,7 +46,6 @@ export default function CollaboratorSelect({label, value, mode, onChange, requir
         if (value.some(c => c.id === user.id)) {
             return;
         }
-
         onChange([
             ...value,
             user
@@ -71,11 +73,10 @@ export default function CollaboratorSelect({label, value, mode, onChange, requir
             <label htmlFor='collaborator-search'>
                 {label}
                 {required && (
-                    <span aria-hidden="true">
-                        {' *'}
-                    </span>
+                    <span aria-hidden="true">{' *'}</span>
                 )}
             </label>
+            {/* Dans ce mode, on peut sélectionner les collaborateurs */}
             { chooseMode && (
                 <>
                 {value.map(user => (
@@ -98,7 +99,7 @@ export default function CollaboratorSelect({label, value, mode, onChange, requir
                 <input
                     id="collaborator-search"
                     value={search}
-                    onChange={handleSearch}
+                    onChange={searchCollaborators}
                     placeholder="Rechercher un collaborateur..."
                     className={styles.input}
                 />
@@ -127,6 +128,7 @@ export default function CollaboratorSelect({label, value, mode, onChange, requir
                 )} 
                 </>
             )}
+            {/* Dans ce mode, on ne peut pas sélectionner les collaborateurs et on affiche seulement leur liste */}
             { !chooseMode && (
                 <div className={styles.contributorsList}>
                     <button
