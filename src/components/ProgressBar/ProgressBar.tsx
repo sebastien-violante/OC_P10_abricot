@@ -10,7 +10,6 @@ export default function ProgressBar({ project }: ProgressBarProps) {
     const doneTasks = tasks.filter(
         (task) => task.status === 'DONE'
     ).length
-
     const totalTasks = tasks.length
     const percent =
         totalTasks > 0
@@ -22,19 +21,15 @@ export default function ProgressBar({ project }: ProgressBarProps) {
     }
 
     return (
-        <section
-            className={styles.progressBar}
-        >
+        <section className={styles.progressBar}>
             <div className="flex justify-between">
                 <span className={styles.label}>
                     Progression
                 </span>
-
                 <span className={styles.label}>
                     {percent}%
                 </span>
             </div>
-
             <div
                 className="w-full rounded-full h-2"
                 role="progressbar"
@@ -53,11 +48,10 @@ export default function ProgressBar({ project }: ProgressBarProps) {
                         background: 'var(--grey400)',
                     }}
                 />
-            </div>
-
-            <p className={styles.counters}>
-                {doneTasks}/{totalTasks} tâches terminées
-            </p>
+                </div>
+                <p className={styles.counters}>
+                    {doneTasks}/{totalTasks} tâches terminées
+                </p>
         </section>
     )
 }

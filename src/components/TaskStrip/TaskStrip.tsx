@@ -13,19 +13,15 @@ export default function TaskStrip({task, mode}: TaskStripProps) {
 
     const setSelectedTask = useSelectedTask((state) => state.setTask)
     
-    const handleClick =  () => {
+    function handleSeeDetails() {
         setSelectedTask(task)
     }
 
     const dueDate = new Date(task.dueDate!).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', })
     
     return (
-        <article 
-            className={styles.taskStrip}
-            aria-labelledby={`task-title-${task.id}`}>
-            <TaskStatus 
-            status={task.status} 
-            mode={mode} />
+        <article className={styles.taskStrip} aria-labelledby={`task-title-${task.id}`}>
+            <TaskStatus status={task.status} mode={mode} />
             <div className={styles.taskData}>
                 <div className={styles.label}>
                     <h2 className={`${styles[mode]}`} id={`task-title-${task.id}`}>{task.title}</h2>
@@ -39,11 +35,10 @@ export default function TaskStrip({task, mode}: TaskStripProps) {
                 </div>
             </div>
             <div className={styles.taskActions}>
-                
                 <button 
                     type="button"
                     className={styles.seeBtn} 
-                    onClick={handleClick}
+                    onClick={handleSeeDetails}
                     aria-label={`Voir les détails de la tâche ${task.title}`} 
                     aria-haspopup="dialog"
                     >Voir

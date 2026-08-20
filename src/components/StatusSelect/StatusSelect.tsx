@@ -7,12 +7,7 @@ type StatusSelectProps = {
     onChange: (value: string) => void;
 };
 
-export default function StatusSelect({
-    label,
-    value,
-    options,
-    onChange,
-}: StatusSelectProps) {
+export default function StatusSelect({label, value, options, onChange}: StatusSelectProps) {
 
     const getClass = (option: string) => {
         switch(option){
@@ -37,7 +32,6 @@ export default function StatusSelect({
     return (
          <fieldset className={styles.statusSelect}>
             <legend>{label}</legend>
-
             <div className={styles.container}>
                 {options.map((option) => {
                     const statusValue = statusMap[option]

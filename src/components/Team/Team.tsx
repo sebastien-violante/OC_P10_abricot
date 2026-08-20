@@ -15,25 +15,25 @@ export default function Team({project}: TeamProps) {
     return (
         <article className={styles.teamWrapper}>
             <div className={styles.teamLabel}>
-                <img 
-                    src="/pictures/static/union.svg"
-                    alt=""
-                    aria-hidden="true"/>
+                <img src="/pictures/static/union.svg" alt="" aria-hidden="true"/>
                 Equipe
                 <span>({project.members.length})</span>
             </div>
         
             <div className={styles.teamComposition}>
-                <span 
-                    className={styles.ownerBadge}
-                    aria-hidden="true"
-                >{ownerInitials}</span>
-                <span className={styles.ownerLabel}>Propriétaire</span>
+                <span className={styles.ownerBadge} aria-hidden="true">
+                    {ownerInitials}
+                </span>
+                <span className={styles.ownerLabel}>
+                    Propriétaire
+                </span>
                 <div className={styles.memberBadges} aria-hidden="true">
                     <ul>
                         {memberInitials.map((member)=> (
                         <li key={member}>
-                            <span className={styles.memberBadge}>{member}</span>
+                            <span className={styles.memberBadge}>
+                                {member}
+                            </span>
                         </li>
                     ))}
                     </ul>                 
