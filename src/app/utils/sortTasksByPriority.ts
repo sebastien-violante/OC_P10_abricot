@@ -6,7 +6,6 @@ type sortTasksByPriorityProps = {
 }
 
 export default function sortTasksByPriority({tasks}: sortTasksByPriorityProps) {
-    console.log(tasks)
     const lowTasks:Task[]=[]
     const mediumTasks:Task[]=[]
     const highTasks:Task[]=[]

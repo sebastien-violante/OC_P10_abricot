@@ -61,7 +61,7 @@ export default function Dashboard() {
         inputs : [
             {label : "Titre", type : "text", name : "name", required: true},
             {label : "Description", type: "text", name : "description", required: true},
-            {label : "Contributeurs", type: "collaborators", name: "contributors", required: true}
+            {label : "Contributeurs", type: "collaborators", name: "contributors", required: false}
         ],
     } satisfies {
         title: string;

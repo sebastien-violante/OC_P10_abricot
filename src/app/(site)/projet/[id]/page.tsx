@@ -234,7 +234,7 @@ export default function SingleProject() {
             name: selectedProject?.name,
             ctaLabel: "Enregistrer",
             description: selectedProject?.description,
-            mode: false,
+            mode: true,
             contributors
         })
         setOpenProjectModal(true)
@@ -254,7 +254,6 @@ export default function SingleProject() {
             description: projectData.description.charAt(0).toUpperCase()+projectData.description.slice(1),
             contributors: projectData.contributors.map(({ email }) => email)
             };
-        
         const zodValidation = projectSchema.safeParse(payload);
         if (!zodValidation.success) {
             const formattedErrors: Record<string, string> = {};
@@ -267,24 +266,75 @@ export default function SingleProject() {
         }
         setErrors({});
 
-        // Envoi de la requête
-        if(token) {
-            const url = `/api/projects/${selectedProject?.id}`
-            try {
-                const result = await putRequest<typeof payload, UpdateProjectResponse>({ url, token, payload })
-                if(result.data) {
-                    updateProject(result.data.project)
-                    setOpenProjectModal(false)
-                    setFlashMessage({status: true, message: "Le projet a bien été mis à jour"})
-                    setTimeout(() => {setFlashMessage(null)}, 2000);
-                }
-                
-            }  catch(error) {
-                const message = getErrorMessage(error)
-                setApiResponse(message)
-            }
+        // Envoi des requêtes
+        if (token) {
+    const initialCollaborators = selectedProject?.members.map(member => member.user) ?? []
+    const newCollaborators = projectData.contributors
+
+    const initialIds = new Set(initialCollaborators.map(user => user.id))
+    const newIds = new Set(newCollaborators.map(user => user.id))
+
+    const removedCollaborators = initialCollaborators.filter(
+        collaborator => !newIds.has(collaborator.id)
+    )
+
+    const addedCollaborators = newCollaborators.filter(
+        collaborator => !initialIds.has(collaborator.id)
+    )
+
+    try {
+        // Mise à jour du projet
+        await putRequest<typeof payload, UpdateProjectResponse>({
+            url: `/api/projects/${selectedProject?.id}`,
+            token,
+            payload
+        })
+
+        // Ajout des membres
+        await Promise.all(
+            addedCollaborators.map(collaborator =>
+                postRequest({
+                    url: `/api/projects/${selectedProject?.id}/contributors`,
+                    token,
+                    payload: {
+                        email: collaborator.email
+                    }
+                })
+            )
+        )
+
+        // Suppression des membres
+        await Promise.all(
+            removedCollaborators.map(collaborator =>
+                deleteRequest({
+                    url: `/api/projects/${selectedProject?.id}/contributors/${collaborator.id}`,
+                    token
+                })
+            )
+        )
+
+        // Récupération du projet complet mis à jour
+        const refreshedProject = await getRequest<GetProjectData>({
+            url: `/api/projects/${selectedProject?.id}`,
+            token
+        })
+        if(refreshedProject.data) {
+            setSelectedProject(refreshedProject.data?.project)
         }
-        
+        setOpenProjectModal(false)
+        setApiResponse('')
+
+        setFlashMessage({ status: true, message: "Le projet a bien été mis à jour"})
+        setTimeout(() => { setFlashMessage(null)}, 2000)
+
+    } catch (error) {
+        setOpenProjectModal(false)
+        const message = getErrorMessage(error)
+        setFlashMessage({ status: false, message: message })
+        setTimeout(() => { setFlashMessage(null)}, 2000)
+    }
+}
+                
     }
 
     function handleDeleteProject() {setOpenDeleteProjectModal(true)}
@@ -363,15 +413,9 @@ export default function SingleProject() {
             setPromptData("");
 
         } catch (error) {
-            setApiResponse(
-                error instanceof Error
-                    ? error.message
-                    : typeof error === "object" &&
-                    error !== null &&
-                    "message" in error
-                        ? String(error.message)
-                        : "Une erreur est survenue."
-            );
+            const message = getErrorMessage(error)
+            setFlashMessage({status: false, message: message})
+            setTimeout(() => {setFlashMessage(null)}, 2000)
         } finally {
              setLoading(false);
         }
@@ -671,6 +715,7 @@ export default function SingleProject() {
                                 <h2 id="createTaskIa">{tasksIa.length === 0 ? "Créer une tâche" : "Vos tâches..."}</h2>
                             </div>
                             <div className={styles.tasksWrapper}>
+                                {apiResponse}
                                 { loading ? 
                                      <div className="flex items-center justify-center py-8">
                                         <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
@@ -715,13 +760,13 @@ export default function SingleProject() {
                                     </button>
                                 </div>
                                 {flashMessage && (
-                <div  
-                    className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-6 py-4 text-white shadow-lg`}
-                    role={ flashMessage.status ? 'status' : 'alert' } 
-                    aria-live={ flashMessage.status ? 'polite' : 'assertive' }
-                >
-                    {flashMessage.message}
-                </div>
+                                    <div  
+                                        className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg ${flashMessage.status ? "bg-green-500" : "bg-red-500"} px-6 py-4 text-white shadow-lg`}
+                                        role={ flashMessage.status ? 'status' : 'alert' } 
+                                        aria-live={ flashMessage.status ? 'polite' : 'assertive' }
+                                    >
+                                        {flashMessage.message}
+                                    </div>
             )}
                             </form>
                         </section>

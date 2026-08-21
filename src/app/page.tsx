@@ -68,18 +68,17 @@ export default function Login() {
 
         // Envoi de la requête
         try {
-            const data = await postRequest({
+            const result = await postRequest({
                 url: "/api/auth/login",
                 payload 
             }) as ApiResponse<LoginResponseData>
-            console.log(data.data)
             // Réponse sans token
-            if (!data.data?.token) {
+            if (!result.data?.token) {
                 throw new Error("Token manquant dans la réponse");
             } else 
             // Token ok, mise en cookie et redirection  
             {
-                Cookies.set('token', data.data.token, {
+                Cookies.set('token', result.data.token, {
                     expires: 1 / 24,
                     secure: true,
                     sameSite: 'strict',
