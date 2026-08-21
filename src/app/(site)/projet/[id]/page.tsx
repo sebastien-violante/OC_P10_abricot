@@ -25,6 +25,7 @@ import IaTaskCard from '@/components/IaTaskCard/IaTaskCard'
 
 import { taskSchema } from '@/types/schemas/taskSchema'
 import { projectSchema } from '@/types/schemas/projectSchema'
+import { getErrorMessage } from '@/app/utils/getErrorMessage'
 
 export default function SingleProject() {
     
@@ -177,7 +178,8 @@ export default function SingleProject() {
                 setFlashMessage({status: true, message: "La tâche a été modifiée"})
                 setTimeout(() => {setFlashMessage(null)}, 2000);
             } catch(error) {
-                setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
+                const message = getErrorMessage(error)
+                setApiResponse(message)
             }
         }
         // Mode création de tâche
@@ -195,7 +197,8 @@ export default function SingleProject() {
                 setFlashMessage({status: true, message: "La tâche a bien été créée"})
                 setTimeout(() => {setFlashMessage(null)}, 2000);
             } catch(error) {
-                setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
+                const message = getErrorMessage(error)
+                setApiResponse(message)
             }
         }
             
@@ -277,7 +280,8 @@ export default function SingleProject() {
                 }
                 
             }  catch(error) {
-               setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
+                const message = getErrorMessage(error)
+                setApiResponse(message)
             }
         }
         
@@ -300,7 +304,8 @@ export default function SingleProject() {
                 )
                 router.push('/projets')  
             } catch(error) {
-                setApiResponse( error instanceof Error ? error.message : "Une erreur est survenue." );
+                const message = getErrorMessage(error)
+                setApiResponse(message)
             }
         }
     }
@@ -410,7 +415,8 @@ export default function SingleProject() {
             setFlashMessage({status: true, message: "les tâches générées par IA a été correctement enregistrées"})
             setTimeout(() => {setFlashMessage(null)}, 2000); 
         } catch(error) {
-            setFlashMessage({status: false, message: error instanceof Error ? error.message : "Une erreur est survenue."})
+            const message = getErrorMessage(error)
+            setApiResponse(message)
         }
         
     }

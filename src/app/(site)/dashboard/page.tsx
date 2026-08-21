@@ -7,10 +7,11 @@ import { useEffect, useState, useMemo } from "react";
 
 import type { FlashMessage, Project, Task, KanbanLists, ProjectFormData, CustomInput, GetTasksData } from "@/types/types";
 
-import sortTasksByDate from "@/app/utils/sortTasksByDate";
 import sortTasksByStatus from "@/app/utils/sortTasksByStatus";
+import sortTasksByPriority from '@/app/utils/sortTasksByPriority';
 import postRequest from "@/app/utils/postRequest";
 import getRequest from "@/app/utils/getRequest";
+import { getErrorMessage } from '@/app/utils/getErrorMessage';
 
 import { useProfile } from '@/app/context/profileContext'
 import { useSelectedTask } from "@/store/SelectedTaskStore";
@@ -117,7 +118,7 @@ export default function Dashboard() {
             setFlashMessage({ status: true, message: "Le nouveau projet est enregistré", }) 
             setTimeout(() => {setFlashMessage(null)}, 2000);
         } catch(error) {
-            const message = error instanceof Error ? error.message : "Une erreur est survenue";
+            const message = getErrorMessage(error)
             setFlashMessage({ status: false, message: message }) 
             setTimeout(() => {setFlashMessage(null)}, 2000);
         }       
@@ -143,8 +144,8 @@ export default function Dashboard() {
                 const result = await getRequest<GetTasksData>({url, token})
                 const tasks = result.data?.tasks
                 if(tasks) {
-                    const filteredTasksByDate = sortTasksByDate(tasks)
-                    setTasksByDate(filteredTasksByDate);
+                    const filteredTasksByPrioriry = sortTasksByPriority({tasks})
+                    setTasksByDate(filteredTasksByPrioriry);
                     const filteredTasksByStatus = sortTasksByStatus(tasks)
                     setTasksForKanban(filteredTasksByStatus);
                 }

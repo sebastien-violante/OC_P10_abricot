@@ -48,6 +48,7 @@
 
 .login .formGroup label {
     font-size: 14px;
+    margin-bottom: 7px;
 }
 
 .login .formGroup input {

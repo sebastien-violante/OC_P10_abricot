@@ -114,7 +114,8 @@ src/
     ├── postRequest.ts
     ├── putRequest.ts
     ├── sortTasksByDate.ts
-    └── sortTasksByStatus.ts
+    ├── sortTasksByStatus.ts
+    └── sortTasksByPriority.ts
 ```
 
 ### `app/`

@@ -8,6 +8,7 @@ import type { Task, FlashMessage, AddCommentResponse } from '@/types/types'
 import getInitials from '@/app/utils/getInitials'
 import deleteRequest from '@/app/utils/deleteRequest'
 import postRequest from '@/app/utils/postRequest'
+import { getErrorMessage } from '@/app/utils/getErrorMessage'
 import { formatDateWithHour } from '@/app/utils/formatDate'
 
 import TaskStatus from '../TaskStatus/TaskStatus'
@@ -172,7 +173,7 @@ export default function TaskCard({task, projectId, token, editCurrentTask, ctaAv
             }
             form.reset()
         } catch(error) {
-            const message = error instanceof Error ? error.message : "Une erreur est survenue";
+            const message = getErrorMessage(error)
             setFlashMessage({ status: false, message: message }) 
             setTimeout(() => {setFlashMessage(null)}, 2000);
         }

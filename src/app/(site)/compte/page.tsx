@@ -15,6 +15,7 @@ import { userPasswordSchema } from '@/types/schemas/userPasswordSchema'
 import { useProfileStore } from "@/store/ProfileStore";
 
 import PasswordInput from '@/components/PasswordInput/PasswordInput'
+import { getErrorMessage } from "@/app/utils/getErrorMessage";
 
 export default function Account() {
     
@@ -87,7 +88,8 @@ export default function Account() {
                 setFlashMessage({ status: true, message: "Le compte a bien été modifié", }) 
                 setTimeout(() => {setFlashMessage(null)}, 2000);
             } catch(error) {
-                setApiResponse(error instanceof Error ? error.message : typeof error === "object" && error !== null && "message" in error  ? String(error.message) : "Une erreur est survenue.")
+                const message = getErrorMessage(error)
+                setApiResponse(message)
             }
         }
         
@@ -121,14 +123,11 @@ export default function Account() {
                     setFlashMessage({ status: true, message: "Le mot de passe a bien été modifié", }) 
                     setTimeout(() => {setFlashMessage(null)}, 2000);
                 } catch(error) {
-                    const message = error instanceof Error ? error.message : "Une erreur est survenue";
+                    const message = getErrorMessage(error)
                     setFlashMessage({ status: false, message: message }) 
                     setTimeout(() => {setFlashMessage(null)}, 2000);
                 } 
-            } else {
-                setFlashMessage({status: false, message: "Les mots de passe saisis ne respectent pas les règles prescrites"})
-                setTimeout(() => {setFlashMessage(null)}, 3000);
-            }
+            } 
         } else {
             setFlashMessage({status: false, message: "Le nouveau mot de passe et sa confirmation doivent être identiques"})
             setTimeout(() => {setFlashMessage(null)}, 3000);

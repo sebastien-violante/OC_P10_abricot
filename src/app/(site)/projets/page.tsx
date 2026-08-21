@@ -9,6 +9,7 @@ import type { Project, ProjectFormData, FlashMessage, GetProjectsData, GetTasksD
 
 import getRequest from '@/app/utils/getRequest';
 import postRequest from '@/app/utils/postRequest';
+import { getErrorMessage } from '@/app/utils/getErrorMessage';
 
 import { useProjectStore } from '@/store/ProjectStore'
 
@@ -109,7 +110,7 @@ export default function Projects() {
             setFlashMessage({ status: true, message: "Le nouveau projet est enregistré", }) 
             setTimeout(() => {setFlashMessage(null)}, 2000);
         } catch(error) {
-            const message = error instanceof Error ? error.message : "Une erreur est survenue";
+            const message = getErrorMessage(error)
             setFlashMessage({ status: false, message: message }) 
             setTimeout(() => {setFlashMessage(null)}, 2000);
         } 
